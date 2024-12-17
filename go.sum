@@ -1,3 +1,5 @@
+github.com/Go-ozzo/ozzo-validation v3.6.0+incompatible h1:S+uBRXKz7L7fg1RUjL4MHY5bXm3Q7FIn/jVztiaV9JU=
+github.com/Go-ozzo/ozzo-validation v3.6.0+incompatible/go.mod h1:+UtBmLI92PumurQC34o2Nxn88WBj2+8cD7mFC8nmxMk=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/fsnotify/fsnotify v1.7.0 h1:8JEhPFa5W2WU7YfeZzPNqzMP6Lwt7L2715Ggo0nosvA=

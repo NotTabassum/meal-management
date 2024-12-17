@@ -9,5 +9,7 @@ func EmployeeRoutes(e *echo.Echo) {
 	emp := e.Group("/employee")
 
 	emp.POST("/create", controllers.CreateEmployee)
-	emp.GET("/get", controllers.GetEmployee)
+	emp.GET("/list", controllers.GetEmployee)
+	emp.PATCH("/update/:EmployeeID", controllers.UpdateEmployee)
+	emp.DELETE("/delete/:EmployeeID", controllers.DeleteEmployee)
 }

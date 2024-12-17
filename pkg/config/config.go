@@ -6,11 +6,12 @@ import (
 )
 
 type Config struct {
-	DBUser string `mapstructure:"DBUser"`
-	DBPass string `mapstructure:"DBPass"`
-	DBIP   string `mapstructure:"DBIP"`
-	DBName string `mapstructure:"DBName"`
-	DBPort string `mapstructure:"DBPort"`
+	DBUser     string `mapstructure:"DBUser"`
+	DBPass     string `mapstructure:"DBPass"`
+	DBIP       string `mapstructure:"DBIP"`
+	DBName     string `mapstructure:"DBName"`
+	DBPort     string `mapstructure:"DBPort"`
+	ServerPort string `mapstructure:"ServerPort"`
 }
 
 func InitConfig() *Config {
