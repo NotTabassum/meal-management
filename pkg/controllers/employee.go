@@ -15,6 +15,7 @@ var EmployeeService domain.IEmployeeService
 func SetEmployeeService(empService domain.IEmployeeService) {
 	EmployeeService = empService
 }
+
 func CreateEmployee(e echo.Context) error {
 	reqEmployee := &types.EmployeeRequest{}
 	if err := e.Bind(reqEmployee); err != nil {

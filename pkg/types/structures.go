@@ -1,6 +1,8 @@
 package types
 
-import validation "github.com/Go-ozzo/ozzo-validation"
+import (
+	validation "github.com/Go-ozzo/ozzo-validation"
+)
 
 type EmployeeRequest struct {
 	EmployeeId    uint   `json:"EmployeeID"`

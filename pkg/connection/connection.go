@@ -24,6 +24,7 @@ func Connect() {
 
 func migrate() {
 	db.Migrator().AutoMigrate(&models.Employee{})
+	db.Migrator().AutoMigrate(&models.MealPlan{})
 }
 
 func GetDB() *gorm.DB {
