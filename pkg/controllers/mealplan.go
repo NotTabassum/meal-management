@@ -50,10 +50,9 @@ func GetMealPlanByPrimaryKey(e echo.Context) error {
 }
 
 func GetMealPlan(e echo.Context) error {
-	StDate := e.Param("start")
-	tempDays := e.Param("days")
+	StDate := e.QueryParam("start")
+	tempDays := e.QueryParam("days")
 
-	//fmt.Println(StDate)
 	days, err := strconv.Atoi(tempDays)
 	//fmt.Println(days)
 
@@ -78,9 +77,11 @@ func UpdateMealPlan(e echo.Context) error {
 	//if err := reqEmployee.Validate(); err != nil {
 	//	return e.JSON(http.StatusBadRequest, err.Error())
 	//}
-
-	tempDate := e.Param("date")
-	tempMealType := e.Param("meal_type")
+	if reqMealPlan.Date == "" || reqMealPlan.MealType == "" || reqMealPlan.Food == "" {
+		return e.JSON(http.StatusBadRequest, "All the fields are required")
+	}
+	tempDate := reqMealPlan.Date
+	tempMealType := reqMealPlan.MealType
 
 	meal, err := MealPlanService.GetMealPlanByPrimaryKey(tempDate, tempMealType)
 	if err != nil {
@@ -101,8 +102,17 @@ func UpdateMealPlan(e echo.Context) error {
 }
 
 func DeleteMealPlan(e echo.Context) error {
-	tempDate := e.Param("date")
-	tempMealType := e.Param("meal_type")
+	reqMealPlan := &types.CreateMealPlanRequest{}
+
+	if err := e.Bind(reqMealPlan); err != nil {
+		return e.JSON(http.StatusBadRequest, "Invalid Input")
+	}
+
+	if reqMealPlan.Date == "" || reqMealPlan.MealType == "" {
+		return e.JSON(http.StatusBadRequest, "Both date and meal type are required")
+	}
+	tempDate := reqMealPlan.Date
+	tempMealType := reqMealPlan.MealType
 
 	_, err := MealPlanService.GetMealPlanByPrimaryKey(tempDate, tempMealType)
 	if err != nil {

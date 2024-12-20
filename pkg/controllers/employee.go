@@ -65,11 +65,13 @@ func UpdateEmployee(e echo.Context) error {
 	//	return e.JSON(http.StatusBadRequest, err.Error())
 	//}
 
-	tempEmployeeID := e.Param("EmployeeID")
-	EmployeeID, err := strconv.ParseUint(tempEmployeeID, 0, 0)
-	if err != nil {
-		return e.JSON(http.StatusBadRequest, err.Error())
+	if reqEmployee.EmployeeId == 0 {
+		return e.JSON(http.StatusBadRequest, "EmployeeID is required and must be greater than zero")
 	}
+	EmployeeID := reqEmployee.EmployeeId
+	//if err != nil {
+	//	return e.JSON(http.StatusBadRequest, err.Error())
+	//}
 
 	existingEmployee, err := EmployeeService.GetEmployee(uint(EmployeeID))
 	if err != nil {
@@ -108,7 +110,7 @@ func ifNotZero(new, existing int) int {
 }
 
 func DeleteEmployee(e echo.Context) error {
-	tempEmployeeID := e.Param("EmployeeID")
+	tempEmployeeID := e.QueryParam("employee_id")
 	EmployeeID, err := strconv.ParseUint(tempEmployeeID, 0, 0)
 	if err != nil {
 		return e.JSON(http.StatusBadRequest, "Invalid Data")

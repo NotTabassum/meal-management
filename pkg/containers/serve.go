@@ -17,17 +17,22 @@ func Serve(e *echo.Echo) {
 
 	db := connection.GetDB()
 
-	EmployeeRepo := repositories.EmloyeeDBInstance(db)
+	EmployeeRepo := repositories.EmployeeDBInstance(db)
 	MealPlanRepo := repositories.MealPlanDBInstance(db)
+	LoginRepo := repositories.LoginDBInstance(db)
 
 	EmployeeService := services.EmployeeServiceInstance(EmployeeRepo)
 	MealPlanService := services.MealPlanServiceInstance(MealPlanRepo)
+	LoginService := services.LoginServiceInstance(LoginRepo)
 
 	controllers.SetEmployeeService(EmployeeService)
 	controllers.SetMealPlanService(MealPlanService)
+	controllers.SetLoginService(LoginService)
 
 	routes.EmployeeRoutes(e)
 	routes.MealPlanRoutes(e)
+	routes.LoginRoutes(e)
+	routes.AuthRoutes(e)
 
 	log.Fatal(e.Start(fmt.Sprintf(":%s", config.LocalConfig.ServerPort)))
 }

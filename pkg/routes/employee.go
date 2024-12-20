@@ -8,8 +8,8 @@ import (
 func EmployeeRoutes(e *echo.Echo) {
 	emp := e.Group("/employee")
 
-	emp.POST("/create", controllers.CreateEmployee)
-	emp.GET("/list", controllers.GetEmployee)
-	emp.PATCH("/update/:EmployeeID", controllers.UpdateEmployee)
-	emp.DELETE("/delete/:EmployeeID", controllers.DeleteEmployee)
+	emp.POST("", controllers.CreateEmployee)
+	emp.GET("", controllers.GetEmployee)
+	emp.PATCH("", controllers.UpdateEmployee)
+	emp.DELETE("", controllers.DeleteEmployee)
 }

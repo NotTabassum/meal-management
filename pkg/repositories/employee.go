@@ -10,7 +10,7 @@ type EmployeeRepo struct {
 	db *gorm.DB
 }
 
-func EmloyeeDBInstance(d *gorm.DB) domain.IEmployeeRepo {
+func EmployeeDBInstance(d *gorm.DB) domain.IEmployeeRepo {
 	return &EmployeeRepo{
 		db: d,
 	}

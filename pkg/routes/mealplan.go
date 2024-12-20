@@ -7,9 +7,10 @@ import (
 
 func MealPlanRoutes(e *echo.Echo) {
 	mp := e.Group("/mealplan")
-	mp.POST("/create", controllers.CreateMealPlan)
-	mp.GET("/get/:start/:days", controllers.GetMealPlan)
-	//mp.GET("/get/date/mealType", controllers.GetMealPlanByPrimaryKey)
-	mp.PATCH("/update/:date/:meal_type", controllers.UpdateMealPlan)
-	mp.DELETE("/delete/:date/:meal_type", controllers.DeleteMealPlan)
+	//mp.Use(middleware.RequestCounter)
+
+	mp.POST("", controllers.CreateMealPlan)
+	mp.GET("", controllers.GetMealPlan)
+	mp.PATCH("", controllers.UpdateMealPlan)
+	mp.DELETE("", controllers.DeleteMealPlan)
 }
