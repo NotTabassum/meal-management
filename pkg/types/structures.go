@@ -5,13 +5,14 @@ import (
 )
 
 type EmployeeRequest struct {
-	EmployeeId    uint   `json:"EmployeeID"`
-	Name          string `json:"Name"`
-	Email         string `json:"Email"`
-	DeptID        int    `json:"DeptID"`
-	Password      string `json:"Password"`
-	Remarks       string `json:"Remarks"`
-	DefaultStatus bool   `json:"DefaultStatus"`
+	EmployeeId    uint   `json:"employee_id"`
+	Name          string `json:"name"`
+	Email         string `json:"email"`
+	DeptID        int    `json:"dept_id"`
+	Password      string `json:"password"`
+	Remarks       string `json:"remarks"`
+	DefaultStatus bool   `json:"default_status"`
+	IsAdmin       bool   `json:"is_admin"`
 }
 
 func (employee *EmployeeRequest) Validate() error {

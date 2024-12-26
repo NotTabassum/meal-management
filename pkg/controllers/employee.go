@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/labstack/echo/v4"
 	"meal-management/pkg/domain"
+	"meal-management/pkg/middleware"
 	"meal-management/pkg/models"
 	"meal-management/pkg/types"
 	"net/http"
@@ -17,6 +18,15 @@ func SetEmployeeService(empService domain.IEmployeeService) {
 }
 
 func CreateEmployee(e echo.Context) error {
+	authorizationHeader := e.Request().Header.Get("Authorization")
+	if authorizationHeader == "" {
+		return e.JSON(http.StatusUnauthorized, map[string]string{"res": "Authorization header is empty"})
+	}
+	_, isAdmin, _ := middleware.ParseJWT(authorizationHeader)
+	if !isAdmin {
+		return e.JSON(http.StatusForbidden, map[string]string{"res": "Unauthorized"})
+	}
+
 	reqEmployee := &types.EmployeeRequest{}
 	if err := e.Bind(reqEmployee); err != nil {
 		fmt.Println(err)
@@ -34,13 +44,15 @@ func CreateEmployee(e echo.Context) error {
 		Password:      reqEmployee.Password,
 		Remarks:       reqEmployee.Remarks,
 		DefaultStatus: reqEmployee.DefaultStatus,
+		IsAdmin:       reqEmployee.IsAdmin,
 	}
 	if err := EmployeeService.CreateEmployee(employee); err != nil {
-		e.JSON(http.StatusInternalServerError, err.Error())
+		return e.JSON(http.StatusInternalServerError, err.Error())
 	}
 
 	return e.JSON(http.StatusCreated, "Employee created successfully")
 }
+
 func GetEmployee(e echo.Context) error {
 	tempEmployeeID := e.QueryParam("employee_id")
 	EmployeeID, err := strconv.ParseUint(tempEmployeeID, 0, 0)
@@ -54,6 +66,7 @@ func GetEmployee(e echo.Context) error {
 	}
 	return e.JSON(http.StatusOK, Employee)
 }
+
 func UpdateEmployee(e echo.Context) error {
 	reqEmployee := &types.EmployeeRequest{}
 
@@ -69,15 +82,28 @@ func UpdateEmployee(e echo.Context) error {
 		return e.JSON(http.StatusBadRequest, "EmployeeID is required and must be greater than zero")
 	}
 	EmployeeID := reqEmployee.EmployeeId
-	//if err != nil {
-	//	return e.JSON(http.StatusBadRequest, err.Error())
-	//}
 
 	existingEmployee, err := EmployeeService.GetEmployee(uint(EmployeeID))
 	if err != nil {
 		return e.JSON(http.StatusBadRequest, err.Error())
 	}
-
+	authorizationHeader := e.Request().Header.Get("Authorization")
+	if authorizationHeader == "" {
+		return e.JSON(http.StatusUnauthorized, map[string]string{"res": "Authorization header is empty"})
+	}
+	ID, isAdmin, _ := middleware.ParseJWT(authorizationHeader)
+	if !isAdmin {
+		reqEmployee.Email = existingEmployee[0].Email
+		reqEmployee.DeptID = existingEmployee[0].DeptID
+		reqEmployee.IsAdmin = existingEmployee[0].IsAdmin
+	}
+	NewID, err := strconv.ParseUint(ID, 10, 32)
+	if err != nil {
+		return e.JSON(http.StatusBadRequest, err.Error())
+	}
+	if !isAdmin && uint(NewID) != EmployeeID {
+		return e.JSON(http.StatusBadRequest, "Employee ID is different")
+	}
 	updatedEmployee := &models.Employee{
 		EmployeeId:    uint(EmployeeID),
 		Name:          ifNotEmpty(reqEmployee.Name, existingEmployee[0].Name),
@@ -86,6 +112,7 @@ func UpdateEmployee(e echo.Context) error {
 		DeptID:        ifNotZero(reqEmployee.DeptID, existingEmployee[0].DeptID),
 		Remarks:       ifNotEmpty(reqEmployee.Remarks, existingEmployee[0].Remarks),
 		DefaultStatus: reqEmployee.DefaultStatus,
+		IsAdmin:       reqEmployee.IsAdmin,
 	}
 
 	if err := EmployeeService.UpdateEmployee(updatedEmployee); err != nil {
@@ -110,6 +137,15 @@ func ifNotZero(new, existing int) int {
 }
 
 func DeleteEmployee(e echo.Context) error {
+	authorizationHeader := e.Request().Header.Get("Authorization")
+	if authorizationHeader == "" {
+		return e.JSON(http.StatusUnauthorized, map[string]string{"res": "Authorization header is empty"})
+	}
+	_, isAdmin, _ := middleware.ParseJWT(authorizationHeader)
+	if !isAdmin {
+		return e.JSON(http.StatusForbidden, map[string]string{"res": "Unauthorized"})
+	}
+
 	tempEmployeeID := e.QueryParam("employee_id")
 	EmployeeID, err := strconv.ParseUint(tempEmployeeID, 0, 0)
 	if err != nil {

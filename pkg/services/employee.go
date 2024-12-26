@@ -23,7 +23,7 @@ func (service *EmployeeService) GetEmployee(EmployeeID uint) ([]types.EmployeeRe
 	employee := service.repo.GetEmployee(EmployeeID)
 	if len(employee) == 0 {
 		//fmt.Println(EmployeeID)
-		return nil, errors.New("Employee not found")
+		return nil, errors.New("employee not found")
 	}
 	for _, val := range employee {
 		allEmployees = append(allEmployees, types.EmployeeRequest{
@@ -34,26 +34,27 @@ func (service *EmployeeService) GetEmployee(EmployeeID uint) ([]types.EmployeeRe
 			Password:      val.Password,
 			Remarks:       val.Remarks,
 			DefaultStatus: val.DefaultStatus,
+			IsAdmin:       val.IsAdmin,
 		})
 	}
 	return allEmployees, nil
 }
 func (service *EmployeeService) CreateEmployee(employee *models.Employee) error {
 	if err := service.repo.CreateEmployee(employee); err != nil {
-		return errors.New("Employee was not created")
+		return errors.New("employee was not created")
 	}
 	return nil
 }
 func (service *EmployeeService) UpdateEmployee(employee *models.Employee) error {
 	if err := service.repo.UpdateEmployee(employee); err != nil {
-		return errors.New("Employee update was unsuccessful")
+		return errors.New("employee update was unsuccessful")
 	}
 	return nil
 }
 func (service *EmployeeService) DeleteEmployee(EmployeeId uint) error {
 	if err := service.repo.DeleteEmployee(EmployeeId); err != nil {
 		fmt.Println(err)
-		return errors.New("Employee was not deleted")
+		return errors.New("employee was not deleted")
 	}
 	return nil
 }

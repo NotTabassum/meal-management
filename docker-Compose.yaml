@@ -1,0 +1,36 @@
+services:
+  meal-management-server:
+    container_name: meal-management-server
+    build:
+      context: .
+    depends_on:
+      - db
+    env_file:
+      - app.env
+    tty: true
+    ports:
+      - '50000:64000'
+    networks:
+      - meal-management-network
+    restart: unless-stopped
+
+  db:
+    image: mysql/mysql-server:latest
+    container_name: mysql_meal
+    volumes:
+      - meal-management-db:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: "12345678"
+      MYSQL_DATABASE: "meal-management"
+      MYSQL_USER: "sumaiya"
+      MYSQL_PASSWORD: "12345678"
+    ports:
+      - 3307:3306
+    networks:
+      - meal-management-network
+
+volumes:
+  meal-management-db:
+
+networks:
+  meal-management-network:

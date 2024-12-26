@@ -23,8 +23,14 @@ func Connect() {
 }
 
 func migrate() {
-	db.Migrator().AutoMigrate(&models.Employee{})
-	db.Migrator().AutoMigrate(&models.MealPlan{})
+	err := db.Migrator().AutoMigrate(&models.Employee{})
+	if err != nil {
+		return
+	}
+	err = db.Migrator().AutoMigrate(&models.MealPlan{})
+	if err != nil {
+		return
+	}
 }
 
 func GetDB() *gorm.DB {

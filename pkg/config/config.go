@@ -5,7 +5,7 @@ import (
 	"log"
 )
 
-type Config struct {
+type Config2 struct {
 	DBUser     string `mapstructure:"DBUser"`
 	DBPass     string `mapstructure:"DBPass"`
 	DBIP       string `mapstructure:"DBIP"`
@@ -25,13 +25,13 @@ func InitConfig() *Config {
 	}
 	var config *Config
 	if err := viper.Unmarshal(&config); err != nil {
-		log.Fatal("Error reading env file, %s", err)
+		log.Fatal("Error unmarshaling env file, %s", err)
 	}
 	return config
 }
 
-var LocalConfig *Config
+//var LocalConfig *Config
 
-func SetConfig() {
-	LocalConfig = InitConfig()
-}
+//func SetConfig() {
+//	LocalConfig = InitConfig()
+//}

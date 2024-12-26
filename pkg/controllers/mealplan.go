@@ -3,6 +3,7 @@ package controllers
 import (
 	"github.com/labstack/echo/v4"
 	"meal-management/pkg/domain"
+	"meal-management/pkg/middleware"
 	"meal-management/pkg/models"
 	"meal-management/pkg/types"
 	"net/http"
@@ -16,6 +17,15 @@ func SetMealPlanService(mpService domain.IMealPlanService) {
 }
 
 func CreateMealPlan(e echo.Context) error {
+	authorizationHeader := e.Request().Header.Get("Authorization")
+	if authorizationHeader == "" {
+		return e.JSON(http.StatusUnauthorized, map[string]string{"res": "Authorization header is empty"})
+	}
+	_, isAdmin, _ := middleware.ParseJWT(authorizationHeader)
+	if !isAdmin {
+		return e.JSON(http.StatusForbidden, map[string]string{"res": "Unauthorized"})
+	}
+
 	reqMeal := &types.CreateMealPlanRequest{}
 	if err := e.Bind(reqMeal); err != nil {
 		//fmt.Println(err)
@@ -68,6 +78,14 @@ func GetMealPlan(e echo.Context) error {
 
 }
 func UpdateMealPlan(e echo.Context) error {
+	authorizationHeader := e.Request().Header.Get("Authorization")
+	if authorizationHeader == "" {
+		return e.JSON(http.StatusUnauthorized, map[string]string{"res": "Authorization header is empty"})
+	}
+	_, isAdmin, _ := middleware.ParseJWT(authorizationHeader)
+	if !isAdmin {
+		return e.JSON(http.StatusForbidden, map[string]string{"res": "Unauthorized"})
+	}
 	reqMealPlan := &types.CreateMealPlanRequest{}
 
 	if err := e.Bind(reqMealPlan); err != nil {
@@ -102,6 +120,10 @@ func UpdateMealPlan(e echo.Context) error {
 }
 
 func DeleteMealPlan(e echo.Context) error {
+	isAdmin := e.Get("isAdmin").(bool)
+	if !isAdmin {
+		return echo.NewHTTPError(http.StatusUnauthorized)
+	}
 	reqMealPlan := &types.CreateMealPlanRequest{}
 
 	if err := e.Bind(reqMealPlan); err != nil {
