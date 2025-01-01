@@ -28,18 +28,21 @@ func (repo *EmployeeRepo) GetEmployee(EmployeeID uint) []models.Employee {
 	}
 	return Employee
 }
+
 func (repo *EmployeeRepo) CreateEmployee(employee *models.Employee) error {
 	if err := repo.db.Create(employee).Error; err != nil {
 		return err
 	}
 	return nil
 }
+
 func (repo *EmployeeRepo) UpdateEmployee(employee *models.Employee) error {
 	if err := repo.db.Save(employee).Error; err != nil {
 		return err
 	}
 	return nil
 }
+
 func (repo *EmployeeRepo) DeleteEmployee(EmployeeId uint) error {
 	var Employee models.Employee
 	if err := repo.db.Where("employee_id = ?", EmployeeId).Delete(&Employee).Error; err != nil {

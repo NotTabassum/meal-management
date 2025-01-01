@@ -7,9 +7,8 @@ import (
 
 func MealActivityRoutes(e *echo.Echo) {
 	emp := e.Group("/meal_activity")
-
-	emp.POST("", controllers.CreateEmployee)
-	emp.GET("", controllers.GetEmployee)
-	emp.PATCH("", controllers.UpdateEmployee)
-	emp.DELETE("", controllers.DeleteEmployee)
+	emp.POST("", controllers.CreateMealActivity)
+	emp.PATCH("", controllers.UpdateMealActivity)
+	emp.GET("", controllers.GetMealActivity)
+	//emp.GET("", controllers.GetMealActivity)
 }

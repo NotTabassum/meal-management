@@ -19,19 +19,18 @@ func EmployeeServiceInstance(employeeRepo domain.IEmployeeRepo) domain.IEmployee
 }
 
 func (service *EmployeeService) GetEmployee(EmployeeID uint) ([]types.EmployeeRequest, error) {
-	var allEmployees []types.EmployeeRequest
+	allEmployees := []types.EmployeeRequest{}
 	employee := service.repo.GetEmployee(EmployeeID)
-	if len(employee) == 0 {
-		//fmt.Println(EmployeeID)
-		return nil, errors.New("employee not found")
-	}
+	//if len(employee) == 0 {
+	//	//fmt.Println(EmployeeID)
+	//	return nil, errors.New("employee not found")
+	//}
 	for _, val := range employee {
 		allEmployees = append(allEmployees, types.EmployeeRequest{
 			EmployeeId:    val.EmployeeId,
 			Name:          val.Name,
 			Email:         val.Email,
 			DeptID:        val.DeptID,
-			Password:      val.Password,
 			Remarks:       val.Remarks,
 			DefaultStatus: val.DefaultStatus,
 			IsAdmin:       val.IsAdmin,
@@ -57,4 +56,26 @@ func (service *EmployeeService) DeleteEmployee(EmployeeId uint) error {
 		return errors.New("employee was not deleted")
 	}
 	return nil
+}
+
+func (service *EmployeeService) GetEmployeeWithPassword(EmployeeID uint) ([]models.Employee, error) {
+	allEmployees := []models.Employee{}
+	employee := service.repo.GetEmployee(EmployeeID)
+	//if len(employee) == 0 {
+	//	//fmt.Println(EmployeeID)
+	//	return nil, errors.New("employee not found")
+	//}
+	for _, val := range employee {
+		allEmployees = append(allEmployees, models.Employee{
+			EmployeeId:    val.EmployeeId,
+			Name:          val.Name,
+			Email:         val.Email,
+			DeptID:        val.DeptID,
+			Password:      val.Password,
+			Remarks:       val.Remarks,
+			DefaultStatus: val.DefaultStatus,
+			IsAdmin:       val.IsAdmin,
+		})
+	}
+	return allEmployees, nil
 }

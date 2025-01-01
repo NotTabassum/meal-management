@@ -3,6 +3,7 @@ package services
 import (
 	"errors"
 	"fmt"
+	"meal-management/pkg/consts"
 	"meal-management/pkg/domain"
 	"meal-management/pkg/models"
 	"meal-management/pkg/types"
@@ -43,18 +44,17 @@ func (service *MealPlanService) GetMealPlanByPrimaryKey(Date string, MealType st
 }
 func (service *MealPlanService) GetMealPlan(startDate string, days int) ([]types.GetMealPlanResponse, error) {
 	var mealPlans []types.GetMealPlanResponse
-	const dateFormat = "2006-01-02"
-	tempStDate, err := time.Parse(dateFormat, startDate)
+	tempStDate, err := time.Parse(consts.DateFormat, startDate)
 	if err != nil {
 		return nil, err
 	}
 	tmpEndDate := tempStDate.AddDate(0, 0, days-1)
-	endDate := tmpEndDate.Format(dateFormat)
+	endDate := tmpEndDate.Format(consts.DateFormat)
 	meal := service.repo.GetMealPlan(startDate, endDate)
 
-	if len(meal) == 0 {
-		return nil, errors.New("No Meal Plan Found.")
-	}
+	//if len(meal) == 0 {
+	//	return nil, errors.New("No Meal Plan Found.")
+	//}
 
 	groupedMeals := make(map[string][]types.Menu)
 

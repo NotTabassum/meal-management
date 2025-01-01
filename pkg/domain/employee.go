@@ -13,8 +13,9 @@ type IEmployeeRepo interface {
 }
 
 type IEmployeeService interface {
-	GetEmployee(EmployeeID uint) ([]types.EmployeeRequest, error)
+	GetEmployeeWithPassword(EmployeeID uint) ([]models.Employee, error)
 	CreateEmployee(employee *models.Employee) error
+	GetEmployee(EmployeeID uint) ([]types.EmployeeRequest, error)
 	UpdateEmployee(employee *models.Employee) error
 	DeleteEmployee(EmployeeId uint) error
 }

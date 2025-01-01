@@ -6,7 +6,6 @@ import (
 	"meal-management/pkg/domain"
 	"meal-management/pkg/middleware"
 	"meal-management/pkg/models"
-	"meal-management/pkg/types"
 	"net/http"
 	"strconv"
 )
@@ -27,9 +26,13 @@ func CreateEmployee(e echo.Context) error {
 		return e.JSON(http.StatusForbidden, map[string]string{"res": "Unauthorized"})
 	}
 
-	reqEmployee := &types.EmployeeRequest{}
+	reqEmployee := &models.Employee{}
 	if err := e.Bind(reqEmployee); err != nil {
 		fmt.Println(err)
+		return e.JSON(http.StatusBadRequest, "Invalid Data")
+	}
+
+	if reqEmployee.Email == "" {
 		return e.JSON(http.StatusBadRequest, "Invalid Data")
 	}
 
@@ -68,7 +71,7 @@ func GetEmployee(e echo.Context) error {
 }
 
 func UpdateEmployee(e echo.Context) error {
-	reqEmployee := &types.EmployeeRequest{}
+	reqEmployee := &models.Employee{}
 
 	if err := e.Bind(reqEmployee); err != nil {
 		return e.JSON(http.StatusBadRequest, "Invalid Input")
@@ -83,7 +86,8 @@ func UpdateEmployee(e echo.Context) error {
 	}
 	EmployeeID := reqEmployee.EmployeeId
 
-	existingEmployee, err := EmployeeService.GetEmployee(uint(EmployeeID))
+	existingEmployee, err := EmployeeService.GetEmployeeWithPassword(uint(EmployeeID))
+
 	if err != nil {
 		return e.JSON(http.StatusBadRequest, err.Error())
 	}
@@ -131,6 +135,13 @@ func ifNotEmpty(new, existing string) string {
 
 func ifNotZero(new, existing int) int {
 	if new != 0 {
+		return new
+	}
+	return existing
+}
+
+func ifNotFalse(new, existing bool) bool {
+	if new != false {
 		return new
 	}
 	return existing

@@ -20,23 +20,26 @@ func Serve(e *echo.Echo) {
 	EmployeeRepo := repositories.EmployeeDBInstance(db)
 	MealPlanRepo := repositories.MealPlanDBInstance(db)
 	LoginRepo := repositories.LoginDBInstance(db)
-	//MealActivityRepo := repositories.MealActivityDBInstance(db)
+	MealActivityRepo := repositories.MealActivityDBInstance(db)
+	DeptRepo := repositories.DeptDBInstance(db)
 
 	EmployeeService := services.EmployeeServiceInstance(EmployeeRepo)
 	MealPlanService := services.MealPlanServiceInstance(MealPlanRepo)
 	LoginService := services.LoginServiceInstance(LoginRepo)
-	//MealActivityService := services.MealActivityServiceInstance(MealActivityRepo)
+	MealActivityService := services.MealActivityServiceInstance(MealActivityRepo)
+	DeptService := services.DeptServiceInstance(DeptRepo)
 
 	controllers.SetEmployeeService(EmployeeService)
 	controllers.SetMealPlanService(MealPlanService)
 	controllers.SetLoginService(LoginService)
-	//controllers.SetMealActivityService(MealActivityService)
+	controllers.SetMealActivityService(MealActivityService)
+	controllers.SetDeptService(DeptService)
 
 	routes.EmployeeRoutes(e)
 	routes.MealPlanRoutes(e)
 	routes.LoginRoutes(e)
 	routes.MealActivityRoutes(e)
-	//routes.AuthRoutes(e)
+	routes.DeptRoutes(e)
 
 	log.Fatal(e.Start(fmt.Sprintf(":%s", config.LocalConfig.ServerPort)))
 }
