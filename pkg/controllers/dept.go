@@ -60,7 +60,7 @@ func DeleteDepartment(e echo.Context) error {
 		return e.JSON(http.StatusBadRequest, "Invalid Data")
 	}
 
-	if err := DeptService.DeleteDept(int(deptID)); err != nil {
+	if err := DeptService.DeleteDepartment(int(deptID)); err != nil {
 		return e.JSON(http.StatusInternalServerError, err.Error())
 	}
 
@@ -98,7 +98,7 @@ func UpdateDepartment(e echo.Context) error {
 		DeptName: reqDept.DeptName,
 		Weekend:  reqDept.Weekend,
 	}
-	if err := DeptService.UpdateDepartment(*dept); err != nil {
+	if err := DeptService.UpdateDepartment(dept); err != nil {
 		fmt.Println(err)
 		return e.JSON(http.StatusInternalServerError, err.Error())
 	}

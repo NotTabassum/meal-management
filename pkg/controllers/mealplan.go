@@ -120,9 +120,13 @@ func UpdateMealPlan(e echo.Context) error {
 }
 
 func DeleteMealPlan(e echo.Context) error {
-	isAdmin := e.Get("isAdmin").(bool)
+	authorizationHeader := e.Request().Header.Get("Authorization")
+	if authorizationHeader == "" {
+		return e.JSON(http.StatusUnauthorized, map[string]string{"res": "Authorization header is empty"})
+	}
+	_, isAdmin, _ := middleware.ParseJWT(authorizationHeader)
 	if !isAdmin {
-		return echo.NewHTTPError(http.StatusUnauthorized)
+		return e.JSON(http.StatusForbidden, map[string]string{"res": "Unauthorized"})
 	}
 	reqMealPlan := &types.CreateMealPlanRequest{}
 

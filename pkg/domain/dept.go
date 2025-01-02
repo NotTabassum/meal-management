@@ -12,6 +12,6 @@ type IDeptRepo interface {
 type IDeptService interface {
 	CreateDepartment(department *models.Department) error
 	GetAllDepartments() ([]models.Department, error)
-	DeleteDept(deptID int) error
-	UpdateDepartment(dept models.Department) error
+	DeleteDepartment(deptID int) error
+	UpdateDepartment(dept *models.Department) error
 }

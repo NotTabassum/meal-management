@@ -10,7 +10,7 @@ type DeptService struct {
 	repo domain.IDeptRepo
 }
 
-func DeptServiceInstance(deptRepo domain.IDeptRepo) domain.IDeptService {
+func DeptServiceInstance(deptRepo domain.IDeptRepo) domain.IDeptRepo {
 	return &DeptService{
 		repo: deptRepo,
 	}
@@ -22,14 +22,14 @@ func (service *DeptService) CreateDepartment(dept *models.Department) error {
 	}
 	return nil
 }
-func (service *DeptService) UpdateDepartment(dept models.Department) error {
-	if err := service.repo.UpdateDepartment(&dept); err != nil {
+func (service *DeptService) UpdateDepartment(dept *models.Department) error {
+	if err := service.repo.UpdateDepartment(dept); err != nil {
 		return errors.New("department was not updated")
 	}
 	return nil
 }
 
-func (service *DeptService) DeleteDept(deptID int) error {
+func (service *DeptService) DeleteDepartment(deptID int) error {
 	if err := service.repo.DeleteDepartment(deptID); err != nil {
 		return errors.New("department was not created")
 	}
