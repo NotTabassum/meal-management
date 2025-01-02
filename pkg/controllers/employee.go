@@ -32,14 +32,20 @@ func CreateEmployee(e echo.Context) error {
 		return e.JSON(http.StatusBadRequest, "Invalid Data")
 	}
 
-	//file, err := e.FormFile("photo")
-	//if err == nil {
-	//	photoPath, err := EmployeeService.SaveFile(file, "/app/photos")
-	//	if err != nil {
-	//		return e.JSON(http.StatusInternalServerError, map[string]string{"error": "Failed to save photo"})
-	//	}
-	//	reqEmployee.Photo = photoPath
+	//// Get the file from the form data
+	//file, fileHeader, err := e.Request().FormFile("photo")
+	//if err != nil {
+	//	return e.JSON(http.StatusBadRequest, map[string]string{"error": "No photo file uploaded"})
 	//}
+	//
+	//// Call the SaveFile function to save the uploaded file
+	//photoPath, err := EmployeeService.SaveFile(file, fileHeader, "/app/photos") // Assuming SaveFile is in the current package
+	//if err != nil {
+	//	return e.JSON(http.StatusInternalServerError, map[string]string{"error": "Failed to save photo"})
+	//}
+	//
+	//// Assign the saved file path to the photo field of the employee
+	//reqEmployee.Photo = photoPath
 
 	if reqEmployee.Email == "" {
 		return e.JSON(http.StatusBadRequest, "Invalid Data")
@@ -196,4 +202,22 @@ func DeleteEmployee(e echo.Context) error {
 	}
 
 	return e.JSON(http.StatusOK, "Employee was deleted successfully")
+}
+
+func Profile(e echo.Context) error {
+	authorizationHeader := e.Request().Header.Get("Authorization")
+	if authorizationHeader == "" {
+		return e.JSON(http.StatusUnauthorized, map[string]string{"res": "Authorization header is empty"})
+	}
+	ID, _, _ := middleware.ParseJWT(authorizationHeader)
+	EmployeeID, err := strconv.ParseUint(ID, 0, 0)
+	if err != nil {
+		return e.JSON(http.StatusBadRequest, "Invalid Data")
+	}
+	employee, err := EmployeeService.GetEmployee(uint(EmployeeID))
+	if err != nil {
+		return e.JSON(http.StatusInternalServerError, err.Error())
+	}
+	return e.JSON(http.StatusOK, employee)
+
 }

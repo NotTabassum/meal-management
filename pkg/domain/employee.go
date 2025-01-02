@@ -18,5 +18,5 @@ type IEmployeeService interface {
 	GetEmployee(EmployeeID uint) ([]types.EmployeeRequest, error)
 	UpdateEmployee(employee *models.Employee) error
 	DeleteEmployee(EmployeeId uint) error
-	//SaveFile(file *multipart.FileHeader, destDir string) (string, error)
+	//SaveFile(file multipart.File, fileHeader *multipart.FileHeader, photoDir string) (string, error)
 }

@@ -10,5 +10,5 @@ type Employee struct {
 	Remarks       string
 	DefaultStatus bool
 	IsAdmin       bool
-	Photo         string `json:"photo"`
+	//Photo         string `json:"photo"`
 }
