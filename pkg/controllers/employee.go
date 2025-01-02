@@ -32,6 +32,15 @@ func CreateEmployee(e echo.Context) error {
 		return e.JSON(http.StatusBadRequest, "Invalid Data")
 	}
 
+	//file, err := e.FormFile("photo")
+	//if err == nil {
+	//	photoPath, err := EmployeeService.SaveFile(file, "/app/photos")
+	//	if err != nil {
+	//		return e.JSON(http.StatusInternalServerError, map[string]string{"error": "Failed to save photo"})
+	//	}
+	//	reqEmployee.Photo = photoPath
+	//}
+
 	if reqEmployee.Email == "" {
 		return e.JSON(http.StatusBadRequest, "Invalid Data")
 	}
@@ -43,6 +52,7 @@ func CreateEmployee(e echo.Context) error {
 	employee := &models.Employee{
 		Name:          reqEmployee.Name,
 		Email:         reqEmployee.Email,
+		PhoneNumber:   reqEmployee.PhoneNumber,
 		DeptID:        reqEmployee.DeptID,
 		Password:      reqEmployee.Password,
 		Remarks:       reqEmployee.Remarks,
@@ -112,6 +122,7 @@ func UpdateEmployee(e echo.Context) error {
 		EmployeeId:    uint(EmployeeID),
 		Name:          ifNotEmpty(reqEmployee.Name, existingEmployee[0].Name),
 		Email:         ifNotEmpty(reqEmployee.Email, existingEmployee[0].Email),
+		PhoneNumber:   ifNot11(reqEmployee.PhoneNumber, existingEmployee[0].PhoneNumber),
 		Password:      ifNotEmpty(reqEmployee.Password, existingEmployee[0].Password),
 		DeptID:        ifNotZero(reqEmployee.DeptID, existingEmployee[0].DeptID),
 		Remarks:       ifNotEmpty(reqEmployee.Remarks, existingEmployee[0].Remarks),
@@ -126,6 +137,18 @@ func UpdateEmployee(e echo.Context) error {
 	return e.JSON(http.StatusCreated, "Employee was updated successfully")
 }
 
+func ifNot11(new, existing string) string {
+	isChar := true
+	for _, st := range new {
+		if st > '9' || st < '0' {
+			isChar = false
+		}
+	}
+	if new != "" && len(new) == 11 && isChar == true {
+		return new
+	}
+	return existing
+}
 func ifNotEmpty(new, existing string) string {
 	if new != "" {
 		return new

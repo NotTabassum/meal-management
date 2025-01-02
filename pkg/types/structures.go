@@ -4,6 +4,7 @@ type EmployeeRequest struct {
 	EmployeeId    uint   `json:"employee_id"`
 	Name          string `json:"name"`
 	Email         string `json:"email"`
+	PhoneNumber   string `json:"phone_number"`
 	DeptID        int    `json:"dept_id"`
 	Remarks       string `json:"remarks"`
 	DefaultStatus bool   `json:"default_status"`

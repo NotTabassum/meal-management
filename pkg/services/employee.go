@@ -30,6 +30,7 @@ func (service *EmployeeService) GetEmployee(EmployeeID uint) ([]types.EmployeeRe
 			EmployeeId:    val.EmployeeId,
 			Name:          val.Name,
 			Email:         val.Email,
+			PhoneNumber:   val.PhoneNumber,
 			DeptID:        val.DeptID,
 			Remarks:       val.Remarks,
 			DefaultStatus: val.DefaultStatus,
@@ -70,6 +71,7 @@ func (service *EmployeeService) GetEmployeeWithPassword(EmployeeID uint) ([]mode
 			EmployeeId:    val.EmployeeId,
 			Name:          val.Name,
 			Email:         val.Email,
+			PhoneNumber:   val.PhoneNumber,
 			DeptID:        val.DeptID,
 			Password:      val.Password,
 			Remarks:       val.Remarks,
@@ -79,3 +81,40 @@ func (service *EmployeeService) GetEmployeeWithPassword(EmployeeID uint) ([]mode
 	}
 	return allEmployees, nil
 }
+
+//func (service *EmployeeService) SaveFile(file *multipart.FileHeader, destDir string) (string, error) {
+//	if err := os.MkdirAll(destDir, os.ModePerm); err != nil {
+//		return "", err
+//	}
+//
+//	filename := fmt.Sprintf("%d_%s", time.Now().Unix(), file.Filename)
+//	destPath := filepath.Join(destDir, filename)
+//
+//	src, err := file.Open()
+//	if err != nil {
+//		return "", err
+//	}
+//	defer func(src multipart.File) {
+//		err := src.Close()
+//		if err != nil {
+//			return
+//		}
+//	}(src)
+//
+//	dst, err := os.Create(destPath)
+//	if err != nil {
+//		return "", err
+//	}
+//	defer func(dst *os.File) {
+//		err := dst.Close()
+//		if err != nil {
+//
+//		}
+//	}(dst)
+//
+//	if _, err := dst.ReadFrom(src); err != nil {
+//		return "", err
+//	}
+//
+//	return destPath, nil
+//}

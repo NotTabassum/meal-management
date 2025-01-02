@@ -40,8 +40,33 @@ func (service *MealActivityService) GenerateMealActivities() error {
 		if emp.DefaultStatus == true {
 			defaultStatus = true
 		}
+		department := emp.DeptID
+		var weekends []string
+		DepartmentTable, err := service.repo.GetWeekend(department)
+		if err != nil {
+			return err
+		}
+		weekend := DepartmentTable.Weekend
+		if err := json.Unmarshal(weekend, &weekends); err != nil {
+			return err
+		}
+
 		for mealType := 1; mealType <= 2; mealType++ {
 			for _, date := range dates {
+				today, err := time.Parse(consts.DateFormat, date)
+				if err != nil {
+					return err
+				}
+				isHoliday := false
+				for _, weekend := range weekends {
+					if weekend == today.String() {
+						isHoliday = true
+						break
+					}
+				}
+				if isHoliday {
+					defaultStatus = false
+				}
 				existingActivity, err := service.repo.FindMealActivity(date, emp.EmployeeId, mealType)
 				if err != nil {
 					log.Printf("Error checking meal activity: %v", err)

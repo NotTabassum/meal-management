@@ -13,6 +13,8 @@ services:
     networks:
       - meal-management-network
     restart: unless-stopped
+    volumes:
+      - photo-storage:/app/photos
 
   db:
     image: mysql/mysql-server:latest
@@ -31,6 +33,7 @@ services:
 
 volumes:
   meal-management-db:
+  photo-storage:
 
 networks:
   meal-management-network:
