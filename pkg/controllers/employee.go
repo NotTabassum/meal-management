@@ -1,14 +1,11 @@
 package controllers
 
 import (
-	"fmt"
 	"github.com/labstack/echo/v4"
-	"io"
 	"meal-management/pkg/domain"
 	"meal-management/pkg/middleware"
 	"meal-management/pkg/models"
 	"net/http"
-	"os"
 	"strconv"
 )
 
@@ -63,29 +60,29 @@ func CreateEmployee(e echo.Context) error {
 		return e.JSON(http.StatusForbidden, map[string]string{"res": "Unauthorized"})
 	}
 
-	form, err := e.MultipartForm()
-	if err != nil {
-		return e.JSON(http.StatusBadRequest, "Invalid Data")
-	}
+	//form, err := e.MultipartForm()
+	//if err != nil {
+	//	return e.JSON(http.StatusBadRequest, "Invalid Data")
+	//}
 
-	fileHeader := form.File["photo"][0]
-	src, err := fileHeader.Open()
-	if err != nil {
-		return e.JSON(http.StatusInternalServerError, err.Error())
-	}
-	defer src.Close()
+	//fileHeader := form.File["photo"][0]
+	//src, err := fileHeader.Open()
+	//if err != nil {
+	//	return e.JSON(http.StatusInternalServerError, err.Error())
+	//}
+	//defer src.Close()
 
 	// Save the file to the Docker volume
-	dstPath := fmt.Sprintf("/tmp/photos/%s", fileHeader.Filename)
-	dst, err := os.Create(dstPath)
-	if err != nil {
-		return e.JSON(http.StatusInternalServerError, err.Error())
-	}
-	defer dst.Close()
-
-	if _, err := io.Copy(dst, src); err != nil {
-		return e.JSON(http.StatusInternalServerError, err.Error())
-	}
+	//dstPath := fmt.Sprintf("/tmp/photos/%s", fileHeader.Filename)
+	//dst, err := os.Create(dstPath)
+	//if err != nil {
+	//	return e.JSON(http.StatusInternalServerError, err.Error())
+	//}
+	//defer dst.Close()
+	//
+	//if _, err := io.Copy(dst, src); err != nil {
+	//	return e.JSON(http.StatusInternalServerError, err.Error())
+	//}
 
 	deptID, err := strconv.Atoi(e.FormValue("dept_id"))
 	if err != nil {
@@ -101,7 +98,7 @@ func CreateEmployee(e echo.Context) error {
 		Remarks:       e.FormValue("remarks"),
 		DefaultStatus: e.FormValue("default_status") == "true",
 		IsAdmin:       e.FormValue("is_admin") == "true",
-		Photo:         dstPath,
+		//Photo:         dstPath,
 	}
 
 	if err := EmployeeService.CreateEmployee(reqEmployee); err != nil {
