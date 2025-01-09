@@ -51,6 +51,7 @@ func GetDB() *gorm.DB {
 	if db == nil {
 		Connect()
 	}
+	//jhaamela
 	migrate()
 	return db
 }

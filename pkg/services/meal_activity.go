@@ -3,7 +3,6 @@ package services
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"log"
 	"meal-management/pkg/consts"
 	"meal-management/pkg/domain"
@@ -69,7 +68,6 @@ func (service *MealActivityService) GenerateMealActivities() error {
 				if isHoliday == true {
 					defaultStatus = false
 				}
-				fmt.Println(isHoliday, defaultStatus)
 				existingActivity, err := service.repo.FindMealActivity(date, emp.EmployeeId, mealType)
 				if err != nil {
 					log.Printf("Error checking meal activity: %v", err)

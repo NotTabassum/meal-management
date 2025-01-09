@@ -93,7 +93,7 @@ func CreateEmployee(e echo.Context) error {
 		Name:          e.FormValue("name"),
 		Email:         e.FormValue("email"),
 		PhoneNumber:   e.FormValue("phone_number"),
-		DeptID:        deptID, // Converted to int
+		DeptID:        deptID,
 		Password:      e.FormValue("password"),
 		Remarks:       e.FormValue("remarks"),
 		DefaultStatus: e.FormValue("default_status") == "true",
@@ -105,7 +105,27 @@ func CreateEmployee(e echo.Context) error {
 		return e.JSON(http.StatusInternalServerError, err.Error())
 	}
 
+	//For Email Sending
+	//body := fmt.Sprint("Hey, You're successfully registered as an employee of Vivasoft Ltd. This is your password %d. Please log in and change your password soon. Thank you", reqEmployee.Password)
+	//fmt.Println(body)
+	//variable := envoyer.TemplateVariable{
+	//	Name:  "{{.subject}}, {{.body}}",
+	//	Value: body,
+	//}
+	//email := &envoyer.EmailReq{
+	//	EventName: "general_email",
+	//	Receivers: []string{reqEmployee.Email},
+	//	Variables: []envoyer.TemplateVariable{variable},
+	//}
+	//env := envoyer.Envoyer{}
+	//response, err := env.SendEmail(*email)
+	//if err != nil {
+	//	return e.JSON(http.StatusInternalServerError, err.Error())
+	//}
+	//fmt.Println(response)
+
 	return e.JSON(http.StatusCreated, "Employee created successfully")
+
 }
 
 func GetEmployee(e echo.Context) error {
