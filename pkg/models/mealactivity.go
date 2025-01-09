@@ -8,4 +8,5 @@ type MealActivity struct {
 	Status       *bool
 	GuestCount   *int
 	Penalty      *bool
+	IsOffDay     *bool
 }

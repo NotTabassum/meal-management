@@ -3,10 +3,12 @@ package controllers
 import (
 	"fmt"
 	"github.com/labstack/echo/v4"
+	"io"
 	"meal-management/pkg/domain"
 	"meal-management/pkg/middleware"
 	"meal-management/pkg/models"
 	"net/http"
+	"os"
 	"strconv"
 )
 
@@ -16,56 +18,93 @@ func SetEmployeeService(empService domain.IEmployeeService) {
 	EmployeeService = empService
 }
 
+//func CreateEmployee(e echo.Context) error {
+//	authorizationHeader := e.Request().Header.Get("Authorization")
+//	if authorizationHeader == "" {
+//		return e.JSON(http.StatusUnauthorized, map[string]string{"res": "Authorization header is empty"})
+//	}
+//	_, isAdmin, _ := middleware.ParseJWT(authorizationHeader)
+//	if !isAdmin {
+//		return e.JSON(http.StatusForbidden, map[string]string{"res": "Unauthorized"})
+//	}
+//
+//	reqEmployee := &models.Employee{}
+//	if err := e.Bind(reqEmployee); err != nil {
+//		fmt.Println(err)
+//		return e.JSON(http.StatusBadRequest, "Invalid Data")
+//	}
+//
+//	employee := &models.Employee{
+//		Name:          reqEmployee.Name,
+//		Email:         reqEmployee.Email,
+//		PhoneNumber:   reqEmployee.PhoneNumber,
+//		DeptID:        reqEmployee.DeptID,
+//		Password:      reqEmployee.Password,
+//		Remarks:       reqEmployee.Remarks,
+//		DefaultStatus: reqEmployee.DefaultStatus,
+//		IsAdmin:       reqEmployee.IsAdmin,
+//		Photo:         reqEmployee.Photo,
+//	}
+//	if err := EmployeeService.CreateEmployee(employee); err != nil {
+//		return e.JSON(http.StatusInternalServerError, err.Error())
+//	}
+//
+//	return e.JSON(http.StatusCreated, "Employee created successfully")
+//}
+
 func CreateEmployee(e echo.Context) error {
 	authorizationHeader := e.Request().Header.Get("Authorization")
 	if authorizationHeader == "" {
 		return e.JSON(http.StatusUnauthorized, map[string]string{"res": "Authorization header is empty"})
 	}
+
 	_, isAdmin, _ := middleware.ParseJWT(authorizationHeader)
 	if !isAdmin {
 		return e.JSON(http.StatusForbidden, map[string]string{"res": "Unauthorized"})
 	}
 
-	reqEmployee := &models.Employee{}
-	if err := e.Bind(reqEmployee); err != nil {
-		fmt.Println(err)
+	form, err := e.MultipartForm()
+	if err != nil {
 		return e.JSON(http.StatusBadRequest, "Invalid Data")
 	}
 
-	//// Get the file from the form data
-	//file, fileHeader, err := e.Request().FormFile("photo")
-	//if err != nil {
-	//	return e.JSON(http.StatusBadRequest, map[string]string{"error": "No photo file uploaded"})
-	//}
-	//
-	//// Call the SaveFile function to save the uploaded file
-	//photoPath, err := EmployeeService.SaveFile(file, fileHeader, "/app/photos") // Assuming SaveFile is in the current package
-	//if err != nil {
-	//	return e.JSON(http.StatusInternalServerError, map[string]string{"error": "Failed to save photo"})
-	//}
-	//
-	//// Assign the saved file path to the photo field of the employee
-	//reqEmployee.Photo = photoPath
+	fileHeader := form.File["photo"][0]
+	src, err := fileHeader.Open()
+	if err != nil {
+		return e.JSON(http.StatusInternalServerError, err.Error())
+	}
+	defer src.Close()
 
-	if reqEmployee.Email == "" {
-		return e.JSON(http.StatusBadRequest, "Invalid Data")
+	// Save the file to the Docker volume
+	dstPath := fmt.Sprintf("/tmp/photos/%s", fileHeader.Filename)
+	dst, err := os.Create(dstPath)
+	if err != nil {
+		return e.JSON(http.StatusInternalServerError, err.Error())
+	}
+	defer dst.Close()
+
+	if _, err := io.Copy(dst, src); err != nil {
+		return e.JSON(http.StatusInternalServerError, err.Error())
 	}
 
-	//if err := reqEmployee.Validate(); err != nil {
-	//	return e.JSON(http.StatusBadRequest, err.Error())
-	//}
-
-	employee := &models.Employee{
-		Name:          reqEmployee.Name,
-		Email:         reqEmployee.Email,
-		PhoneNumber:   reqEmployee.PhoneNumber,
-		DeptID:        reqEmployee.DeptID,
-		Password:      reqEmployee.Password,
-		Remarks:       reqEmployee.Remarks,
-		DefaultStatus: reqEmployee.DefaultStatus,
-		IsAdmin:       reqEmployee.IsAdmin,
+	deptID, err := strconv.Atoi(e.FormValue("dept_id"))
+	if err != nil {
+		return e.JSON(http.StatusBadRequest, "Invalid department ID")
 	}
-	if err := EmployeeService.CreateEmployee(employee); err != nil {
+
+	reqEmployee := &models.Employee{
+		Name:          e.FormValue("name"),
+		Email:         e.FormValue("email"),
+		PhoneNumber:   e.FormValue("phone_number"),
+		DeptID:        deptID, // Converted to int
+		Password:      e.FormValue("password"),
+		Remarks:       e.FormValue("remarks"),
+		DefaultStatus: e.FormValue("default_status") == "true",
+		IsAdmin:       e.FormValue("is_admin") == "true",
+		Photo:         dstPath,
+	}
+
+	if err := EmployeeService.CreateEmployee(reqEmployee); err != nil {
 		return e.JSON(http.StatusInternalServerError, err.Error())
 	}
 
@@ -220,4 +259,21 @@ func Profile(e echo.Context) error {
 	}
 	return e.JSON(http.StatusOK, employee)
 
+}
+
+func UpdateDefaultStatus(e echo.Context) error {
+	authorizationHeader := e.Request().Header.Get("Authorization")
+	if authorizationHeader == "" {
+		return e.JSON(http.StatusUnauthorized, map[string]string{"res": "Authorization header is empty"})
+	}
+	ID, _, _ := middleware.ParseJWT(authorizationHeader)
+	EmployeeID, err := strconv.ParseUint(ID, 0, 0)
+	if err != nil {
+		return e.JSON(http.StatusBadRequest, "Invalid Data")
+	}
+	err = EmployeeService.UpdateDefaultStatus(uint(EmployeeID))
+	if err != nil {
+		return e.JSON(http.StatusInternalServerError, err)
+	}
+	return e.JSON(http.StatusCreated, "default status was updated successfully")
 }

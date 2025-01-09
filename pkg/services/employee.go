@@ -21,14 +21,18 @@ func EmployeeServiceInstance(employeeRepo domain.IEmployeeRepo) domain.IEmployee
 func (service *EmployeeService) GetEmployee(EmployeeID uint) ([]types.EmployeeRequest, error) {
 	allEmployees := []types.EmployeeRequest{}
 	employee := service.repo.GetEmployee(EmployeeID)
-
 	for _, val := range employee {
+		dept, err := service.repo.GetDepartmentById(val.DeptID)
+		if err != nil {
+			return nil, err
+		}
+		deptName := dept.DeptName
 		allEmployees = append(allEmployees, types.EmployeeRequest{
 			EmployeeId:    val.EmployeeId,
 			Name:          val.Name,
 			Email:         val.Email,
 			PhoneNumber:   val.PhoneNumber,
-			DeptID:        val.DeptID,
+			DeptName:      deptName,
 			Remarks:       val.Remarks,
 			DefaultStatus: val.DefaultStatus,
 			IsAdmin:       val.IsAdmin,
@@ -81,76 +85,39 @@ func (service *EmployeeService) GetEmployeeWithPassword(EmployeeID uint) ([]mode
 	return allEmployees, nil
 }
 
-//func (service *EmployeeService) SaveFile(file *multipart.FileHeader, destDir string) (string, error) {
-//	if err := os.MkdirAll(destDir, os.ModePerm); err != nil {
-//		return "", err
-//	}
-//
-//	filename := fmt.Sprintf("%d_%s", time.Now().Unix(), file.Filename)
-//	destPath := filepath.Join(destDir, filename)
-//
-//	src, err := file.Open()
-//	if err != nil {
-//		return "", err
-//	}
-//	defer func(src multipart.File) {
-//		err := src.Close()
-//		if err != nil {
-//			return
-//		}
-//	}(src)
-//
-//	dst, err := os.Create(destPath)
-//	if err != nil {
-//		return "", err
-//	}
-//	defer func(dst *os.File) {
-//		err := dst.Close()
-//		if err != nil {
-//			return
-//		}
-//	}(dst)
-//
-//	if _, err := dst.ReadFrom(src); err != nil {
-//		return "", err
-//	}
-//
-//	return destPath, nil
-//}
+func (service *EmployeeService) UpdateDefaultStatus(EmployeeId uint) error {
+	employee := service.repo.GetEmployee(EmployeeId)
+	updatedEmployee := models.Employee{}
+	updatedEmployee = employee[0]
+	mealActivity, err := service.repo.FindMeal(EmployeeId)
+	if err != nil {
+		return err
+	}
+	if updatedEmployee.DefaultStatus == true {
+		updatedEmployee.DefaultStatus = false
+	} else {
+		updatedEmployee.DefaultStatus = true
+	}
+	for _, val := range mealActivity {
+		updatedMealActivity := models.MealActivity{
+			Date:         val.Date,
+			EmployeeId:   val.EmployeeId,
+			MealType:     val.MealType,
+			EmployeeName: val.EmployeeName,
+			Status:       &updatedEmployee.DefaultStatus,
+			GuestCount:   val.GuestCount,
+			Penalty:      val.Penalty,
+			IsOffDay:     val.IsOffDay,
+		}
+		err := service.repo.UpdateEmployee(&updatedEmployee)
+		if err != nil {
+			return err
+		}
+		err = service.repo.UpdateMealActivityForChangingDefaultStatus(&updatedMealActivity)
+		if err != nil {
+			return err
+		}
+	}
 
-//func (service *EmployeeService) SaveFile(file multipart.File, fileHeader *multipart.FileHeader, photoDir string) (string, error) {
-//	// Ensure the directory exists
-//	err := os.MkdirAll(photoDir, os.ModePerm) // os.ModePerm gives full access permissions (0755)
-//	if err != nil {
-//		fmt.Printf("Failed to create directory %s: %v\n", photoDir, err)
-//		return "", err
-//	}
-//
-//	// Extract the file extension
-//	ext := filepath.Ext(fileHeader.Filename)
-//	if ext == "" {
-//		return "", fmt.Errorf("file has no extension")
-//	}
-//
-//	// Generate a unique filename based on the current time and the original extension
-//	fileName := fmt.Sprintf("%d%s", time.Now().Unix(), ext)
-//	filePath := filepath.Join(photoDir, fileName) // Save it to /tmp/photos or another writable dir
-//
-//	// Create a new file on the system where the photo will be saved
-//	outFile, err := os.Create(filePath)
-//	if err != nil {
-//		fmt.Println("Failed to create file %s: %v", filePath, err)
-//		return "", err
-//	}
-//	defer outFile.Close()
-//
-//	// Copy the content of the uploaded file to the new file
-//	_, err = io.Copy(outFile, file)
-//	if err != nil {
-//		fmt.Println("Failed to copy file content to %s: %v", filePath, err)
-//		return "", err
-//	}
-//
-//	// Return the file path of the saved photo
-//	return filePath, nil
-//}
+	return nil
+}

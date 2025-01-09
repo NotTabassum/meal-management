@@ -11,6 +11,7 @@ func EmployeeRoutes(e *echo.Echo) {
 	emp.GET("/profile", controllers.Profile)
 	emp.POST("", controllers.CreateEmployee)
 	emp.GET("", controllers.GetEmployee)
+	emp.PATCH("/default-status", controllers.UpdateDefaultStatus)
 	emp.PATCH("", controllers.UpdateEmployee)
 	emp.DELETE("", controllers.DeleteEmployee)
 }

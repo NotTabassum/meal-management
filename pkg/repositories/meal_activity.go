@@ -91,3 +91,14 @@ func (repo *MealActivityRepo) GetMealActivity(startDate, endDate string) ([]mode
 	}
 	return mealActivities, nil
 }
+
+func (repo *MealActivityRepo) GetOwnMealActivity(ID uint, startDate, endDate string) ([]models.MealActivity, error) {
+	var mealActivities []models.MealActivity
+	var err error
+	err = repo.db.Where("date >= ? AND date <= ? AND employee_id = ?", startDate, endDate, ID).Find(&mealActivities).Error
+
+	if err != nil {
+		return []models.MealActivity{}, err
+	}
+	return mealActivities, nil
+}

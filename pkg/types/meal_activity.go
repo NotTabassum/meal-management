@@ -7,6 +7,7 @@ type MealActivityRequest struct {
 	Status     *bool  `json:"status"`
 	GuestCount *int   `json:"guest_count"`
 	Penalty    *bool  `json:"penalty"`
+	IsOffDay   bool   `json:"is_off_day"`
 }
 
 type MealActivityResponse struct {

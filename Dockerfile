@@ -15,7 +15,7 @@ RUN apk add --no-cache ca-certificates
 
 
 # Set the working directory outside $GOPATH to enable the support for modules.
-WORKDIR /circle-backend
+WORKDIR /meal-management-backend
 
 # Import the code from the context.
 COPY ./ ./
@@ -37,6 +37,15 @@ COPY --from=builder /app /app
 
 
 RUN apk --no-cache add tzdata
+
+# Create the directory for photo storage
+RUN mkdir -p /tmp/photos
+
+# Ensure proper permissions for the photos directory
+RUN chown nobody:nobody /tmp/photos
+
+# Use the unprivileged user for security
+USER nobody:nobody
 
 # Perform any further action as an unprivileged user.
 #USER nobody:nobody

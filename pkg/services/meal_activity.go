@@ -3,6 +3,7 @@ package services
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"log"
 	"meal-management/pkg/consts"
 	"meal-management/pkg/domain"
@@ -59,14 +60,16 @@ func (service *MealActivityService) GenerateMealActivities() error {
 				}
 				isHoliday := false
 				for _, weekend := range weekends {
-					if weekend == today.String() {
+					if weekend == today.Weekday().String() {
 						isHoliday = true
 						break
 					}
 				}
-				if isHoliday {
+				prevStatus := defaultStatus
+				if isHoliday == true {
 					defaultStatus = false
 				}
+				fmt.Println(isHoliday, defaultStatus)
 				existingActivity, err := service.repo.FindMealActivity(date, emp.EmployeeId, mealType)
 				if err != nil {
 					log.Printf("Error checking meal activity: %v", err)
@@ -81,12 +84,14 @@ func (service *MealActivityService) GenerateMealActivities() error {
 						Status:       &defaultStatus,
 						GuestCount:   &defaultGuestCount,
 						Penalty:      &defaultPenalty,
+						IsOffDay:     &isHoliday,
 					}
 					if err := service.repo.CreateMealActivity(activity); err != nil {
 						log.Printf("Failed to insert activity for EmployeeID %d, MealType %d: %v", emp.EmployeeId, mealType, err)
 						return err
 					}
 				}
+				defaultStatus = prevStatus
 			}
 		}
 	}
@@ -132,9 +137,73 @@ func (service *MealActivityService) GetMealActivity(startDate string, days int) 
 		return nil, err
 	}
 
-	tmpEndDate := tempStDate.AddDate(0, 0, days)
+	tmpEndDate := tempStDate.AddDate(0, 0, days-1)
 	endDate := tmpEndDate.Format(consts.DateFormat)
 	mealActivity, err := service.repo.GetMealActivity(startDate, endDate)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, activity := range mealActivity {
+		var employeeEntry *types.MealActivityResponse
+		for i := range mealActivities {
+			if mealActivities[i].EmployeeId == activity.EmployeeId {
+				employeeEntry = &mealActivities[i]
+				break
+			}
+		}
+		if employeeEntry == nil {
+			mealActivities = append(mealActivities, types.MealActivityResponse{
+				EmployeeId:      activity.EmployeeId,
+				EmployeeName:    activity.EmployeeName,
+				EmployeeDetails: []types.EmployeeDetails{},
+			})
+			employeeEntry = &mealActivities[len(mealActivities)-1]
+		}
+
+		var dateEntry *types.EmployeeDetails
+		for i := range employeeEntry.EmployeeDetails {
+			if employeeEntry.EmployeeDetails[i].Date == activity.Date {
+				dateEntry = &employeeEntry.EmployeeDetails[i]
+				break
+			}
+		}
+
+		if dateEntry == nil {
+			employeeEntry.EmployeeDetails = append(employeeEntry.EmployeeDetails, types.EmployeeDetails{
+				Date:    activity.Date,
+				Holiday: *activity.IsOffDay,
+				Meal:    []types.MealDetails{},
+			})
+			dateEntry = &employeeEntry.EmployeeDetails[len(employeeEntry.EmployeeDetails)-1]
+		}
+
+		mealDetails := types.MealDetails{
+			MealType: activity.MealType,
+			MealStatus: []types.StatusDetails{
+				{
+					Status:     *activity.Status,
+					GuestCount: *activity.GuestCount,
+					Penalty:    *activity.Penalty,
+				},
+			},
+		}
+		dateEntry.Meal = append(dateEntry.Meal, mealDetails)
+	}
+
+	return mealActivities, nil
+}
+
+func (service *MealActivityService) GetOwnMealActivity(ID uint, startDate string, days int) ([]types.MealActivityResponse, error) {
+	var mealActivities []types.MealActivityResponse
+	tempStDate, err := time.Parse(consts.DateFormat, startDate)
+	if err != nil {
+		return nil, err
+	}
+
+	tmpEndDate := tempStDate.AddDate(0, 0, days-1)
+	endDate := tmpEndDate.Format(consts.DateFormat)
+	mealActivity, err := service.repo.GetOwnMealActivity(ID, startDate, endDate)
 	if err != nil {
 		return nil, err
 	}

@@ -13,6 +13,7 @@ type IMealActivityRepo interface {
 	GetMealActivity(startDate, endDate string) ([]models.MealActivity, error)
 	CreateMealActivity(activity *models.MealActivity) error
 	UpdateMealActivity(mealActivity *models.MealActivity) error
+	GetOwnMealActivity(ID uint, startDate, endDate string) ([]models.MealActivity, error)
 }
 
 type IMealActivityService interface {
@@ -20,4 +21,5 @@ type IMealActivityService interface {
 	GetMealActivityById(date string, mealType int, employeeId uint) (*models.MealActivity, error)
 	GetMealActivity(startDate string, days int) ([]types.MealActivityResponse, error)
 	UpdateMealActivity(mealActivity *models.MealActivity) error
+	GetOwnMealActivity(ID uint, startDate string, days int) ([]types.MealActivityResponse, error)
 }

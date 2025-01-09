@@ -111,10 +111,34 @@ func UpdateMealActivity(e echo.Context) error {
 		Status:       reqMealActivity.Status,
 		GuestCount:   reqMealActivity.GuestCount,
 		Penalty:      reqMealActivity.Penalty,
+		IsOffDay:     &reqMealActivity.IsOffDay,
 	}
 
 	if err := MealActivityService.UpdateMealActivity(updatedActivity); err != nil {
 		return e.JSON(http.StatusInternalServerError, err)
 	}
 	return e.JSON(http.StatusCreated, "Meal Activity is updated successfully")
+}
+
+func GetOwnMealActivity(e echo.Context) error {
+	authorizationHeader := e.Request().Header.Get("Authorization")
+	if authorizationHeader == "" {
+		return e.JSON(http.StatusUnauthorized, map[string]string{"res": "Authorization header is empty"})
+	}
+	ID, _, _ := middleware.ParseJWT(authorizationHeader)
+	id, err := strconv.ParseUint(ID, 10, 32)
+
+	stDate := e.QueryParam("start")
+	tempDays := e.QueryParam("days")
+	days, err := strconv.Atoi(tempDays)
+	if err != nil {
+		return e.JSON(http.StatusInternalServerError, map[string]string{"res": "Invalid input"})
+	}
+
+	mealActivity, err := MealActivityService.GetOwnMealActivity(uint(id), stDate, days)
+	if err != nil {
+		return e.JSON(http.StatusInternalServerError, map[string]string{"res": "Internal server error"})
+	}
+	return e.JSON(http.StatusOK, mealActivity)
+
 }
