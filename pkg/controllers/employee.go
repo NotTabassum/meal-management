@@ -68,15 +68,15 @@ func CreateEmployee(e echo.Context) error {
 	//if err != nil {
 	//	return e.JSON(http.StatusBadRequest, "Invalid Data")
 	//}
-
+	//
 	//fileHeader := form.File["photo"][0]
 	//src, err := fileHeader.Open()
 	//if err != nil {
 	//	return e.JSON(http.StatusInternalServerError, err.Error())
 	//}
 	//defer src.Close()
-
-	// Save the file to the Docker volume
+	//
+	//Save the file to the Docker volume
 	//dstPath := fmt.Sprintf("/tmp/photos/%s", fileHeader.Filename)
 	//dst, err := os.Create(dstPath)
 	//if err != nil {
@@ -348,7 +348,8 @@ func UpdateDefaultStatus(e echo.Context) error {
 	if err != nil {
 		return e.JSON(http.StatusBadRequest, "Invalid Data")
 	}
-	err = EmployeeService.UpdateDefaultStatus(uint(EmployeeID))
+	date := e.QueryParam("date")
+	err = EmployeeService.UpdateDefaultStatus(uint(EmployeeID), date)
 	if err != nil {
 		return e.JSON(http.StatusInternalServerError, err)
 	}

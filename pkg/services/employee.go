@@ -87,11 +87,11 @@ func (service *EmployeeService) GetEmployeeWithPassword(EmployeeID uint) ([]mode
 	return allEmployees, nil
 }
 
-func (service *EmployeeService) UpdateDefaultStatus(EmployeeId uint) error {
+func (service *EmployeeService) UpdateDefaultStatus(EmployeeId uint, date string) error {
 	employee := service.repo.GetEmployee(EmployeeId)
 	updatedEmployee := models.Employee{}
 	updatedEmployee = employee[0]
-	mealActivity, err := service.repo.FindMeal(EmployeeId)
+	mealActivity, err := service.repo.FindMeal(EmployeeId, date)
 	if err != nil {
 		return err
 	}
@@ -101,12 +101,18 @@ func (service *EmployeeService) UpdateDefaultStatus(EmployeeId uint) error {
 		updatedEmployee.DefaultStatus = true
 	}
 	for _, val := range mealActivity {
+		stat := updatedEmployee.DefaultStatus
+		if *val.IsOffDay == true {
+			if stat == true {
+				stat = false
+			}
+		}
 		updatedMealActivity := models.MealActivity{
 			Date:         val.Date,
 			EmployeeId:   val.EmployeeId,
 			MealType:     val.MealType,
 			EmployeeName: val.EmployeeName,
-			Status:       &updatedEmployee.DefaultStatus,
+			Status:       &stat,
 			GuestCount:   val.GuestCount,
 			Penalty:      val.Penalty,
 			IsOffDay:     val.IsOffDay,

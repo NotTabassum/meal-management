@@ -52,9 +52,9 @@ func (repo *EmployeeRepo) DeleteEmployee(EmployeeId uint) error {
 	return nil
 }
 
-func (repo *EmployeeRepo) FindMeal(employeeID uint) ([]models.MealActivity, error) {
+func (repo *EmployeeRepo) FindMeal(employeeID uint, date string) ([]models.MealActivity, error) {
 	var activity []models.MealActivity
-	err := repo.db.Where("employee_id = ?", employeeID).Find(&activity).Error
+	err := repo.db.Where("employee_id = ? AND date >= ?", employeeID, date).Find(&activity).Error
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, nil
 	}

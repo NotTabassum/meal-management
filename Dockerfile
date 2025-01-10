@@ -33,6 +33,9 @@ COPY --from=builder /user/group /user/passwd /etc/
 # Import the Certificate-Authority certificates for enabling HTTPS.
 COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 # Import the compiled executable from the first stage.
+
+WORKDIR /meal-management-backend
+
 COPY --from=builder /app /app
 
 

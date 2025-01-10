@@ -10,7 +10,7 @@ type IEmployeeRepo interface {
 	GetEmployee(EmployeeID uint) []models.Employee
 	UpdateEmployee(employee *models.Employee) error
 	DeleteEmployee(EmployeeId uint) error
-	FindMeal(employeeID uint) ([]models.MealActivity, error)
+	FindMeal(employeeID uint, date string) ([]models.MealActivity, error)
 	UpdateMealActivityForChangingDefaultStatus(mealActivity *models.MealActivity) error
 	GetDepartmentById(deptId int) (*models.Department, error)
 }
@@ -21,6 +21,6 @@ type IEmployeeService interface {
 	GetEmployee(EmployeeID uint) ([]types.EmployeeRequest, error)
 	UpdateEmployee(employee *models.Employee) error
 	DeleteEmployee(EmployeeId uint) error
-	UpdateDefaultStatus(EmployeeId uint) error
+	UpdateDefaultStatus(EmployeeId uint, date string) error
 	ForgottenPassword(email string, link string) error
 }
