@@ -12,6 +12,7 @@ func EmployeeRoutes(e *echo.Echo) {
 	emp.POST("", controllers.CreateEmployee)
 	emp.GET("", controllers.GetEmployee)
 	emp.PATCH("/default-status", controllers.UpdateDefaultStatus)
+	emp.PATCH("/forget-password", controllers.ForgottenPassword)
 	emp.PATCH("", controllers.UpdateEmployee)
 	emp.DELETE("", controllers.DeleteEmployee)
 }

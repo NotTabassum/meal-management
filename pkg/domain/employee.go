@@ -22,4 +22,5 @@ type IEmployeeService interface {
 	UpdateEmployee(employee *models.Employee) error
 	DeleteEmployee(EmployeeId uint) error
 	UpdateDefaultStatus(EmployeeId uint) error
+	ForgottenPassword(email string, link string) error
 }

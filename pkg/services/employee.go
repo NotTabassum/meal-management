@@ -3,6 +3,8 @@ package services
 import (
 	"errors"
 	"fmt"
+	"meal-management/envoyer"
+	"meal-management/pkg/consts"
 	"meal-management/pkg/domain"
 	"meal-management/pkg/models"
 	"meal-management/pkg/types"
@@ -119,5 +121,81 @@ func (service *EmployeeService) UpdateDefaultStatus(EmployeeId uint) error {
 		}
 	}
 
+	return nil
+}
+
+func (service *EmployeeService) ForgottenPassword(email string, link string) error {
+	subject := "Password Reset"
+	body := `
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333333;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            border: 1px solid #dddddd;
+            border-radius: 10px;
+            background-color: #f9f9f9;
+        }
+        .header {
+            font-size: 24px;
+            font-weight: bold;
+            color: #0000FF;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .content {
+            margin-bottom: 20px;
+        }
+        .footer {
+            font-size: 14px;
+            color: #888888;
+            text-align: center;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">Vivasoft Ltd.</div>
+        <div class="content">
+            <p>Hey,</p>
+            <p>We received a request to reset the password associated with your account.</p>
+            <p>If you made this request, please use the link below to reset your password : <strong>` + link + `</strong></p>
+            <p>If you did not request a password reset, please ignore this email. Your password will remain unchanged, and your account will continue to be secure.</p>
+            <p>Thank you!</p>
+        </div>
+        <div class="footer">This email was sent by Vivasoft Ltd.</div>
+    </div>
+</body>
+</html>
+`
+	sendEmail := &envoyer.EmailReq{
+		EventName: "general_email",
+		Receivers: []string{email},
+		Variables: []envoyer.TemplateVariable{
+			{
+				Name:  "{{.subject}}",
+				Value: subject,
+			},
+			{
+				Name:  "{{.body}}",
+				Value: body,
+			},
+		},
+	}
+	env := envoyer.New(consts.ENVOYER_URL, consts.ENVOYER_APP_KEY, consts.ENVOYER_CLIENT_KEY)
+	response, err := env.SendEmail(*sendEmail)
+	if err != nil {
+		return err
+	}
+	fmt.Println(response)
 	return nil
 }

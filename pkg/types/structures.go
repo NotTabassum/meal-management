@@ -10,3 +10,8 @@ type EmployeeRequest struct {
 	DefaultStatus bool   `json:"default_status"`
 	IsAdmin       bool   `json:"is_admin"`
 }
+
+type ForgetPasswordRequest struct {
+	Email string `json:"email"`
+	Link  string `json:"link"`
+}

@@ -8,6 +8,7 @@ import (
 	"meal-management/pkg/domain"
 	"meal-management/pkg/middleware"
 	"meal-management/pkg/models"
+	"meal-management/pkg/types"
 	"net/http"
 	"strconv"
 )
@@ -352,4 +353,17 @@ func UpdateDefaultStatus(e echo.Context) error {
 		return e.JSON(http.StatusInternalServerError, err)
 	}
 	return e.JSON(http.StatusCreated, "default status was updated successfully")
+}
+
+func ForgottenPassword(e echo.Context) error {
+	reqForgetPassword := &types.ForgetPasswordRequest{}
+	if err := e.Bind(&reqForgetPassword); err != nil {
+		return e.JSON(http.StatusBadRequest, err.Error())
+	}
+	email := reqForgetPassword.Email
+	link := reqForgetPassword.Link
+	if err := EmployeeService.ForgottenPassword(email, link); err != nil {
+		return err
+	}
+	return e.JSON(http.StatusCreated, "forgotten password is called successfully")
 }
