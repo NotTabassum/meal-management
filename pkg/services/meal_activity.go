@@ -282,3 +282,41 @@ func (service *MealActivityService) GetOwnMealActivity(ID uint, startDate string
 
 	return mealActivities, nil
 }
+
+func (service *MealActivityService) TotalMealADay(date string, mealType int) (int, error) {
+	mealActivity, err := service.repo.FindMealADay(date, mealType)
+	if err != nil {
+		return 0, err
+	}
+	var count = 0
+	for _, activity := range mealActivity {
+		if activity.MealType == mealType && *activity.Status == true {
+			count++
+		}
+	}
+	return count, nil
+
+}
+
+func (service *MealActivityService) TotalPenaltyAMonth(date string, employeeID uint, days int) (int, error) {
+
+	startDate, err := time.Parse(consts.DateFormat, date)
+	if err != nil {
+		return 0, err
+	}
+
+	tmpEndDate := startDate.AddDate(0, 0, days-1)
+	endDate := tmpEndDate.Format(consts.DateFormat)
+	mealActivity, err := service.repo.FindPenaltyAMonth(date, endDate, employeeID)
+	if err != nil {
+		return 0, err
+	}
+
+	var count = 0
+	for _, activity := range mealActivity {
+		if activity.EmployeeId == employeeID && *activity.Penalty == true {
+			count++
+		}
+	}
+	return count, nil
+}

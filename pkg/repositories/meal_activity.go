@@ -102,3 +102,21 @@ func (repo *MealActivityRepo) GetOwnMealActivity(ID uint, startDate, endDate str
 	}
 	return mealActivities, nil
 }
+
+func (repo *MealActivityRepo) FindMealADay(date string, mealType int) ([]models.MealActivity, error) {
+	var mealActivities []models.MealActivity
+	err := repo.db.Where("date = ? AND meal_type = ?", date, mealType).Find(&mealActivities).Error
+	if err != nil {
+		return []models.MealActivity{}, err
+	}
+	return mealActivities, nil
+}
+
+func (repo *MealActivityRepo) FindPenaltyAMonth(startDate string, endDate string, employeeID uint) ([]models.MealActivity, error) {
+	var mealActivities []models.MealActivity
+	err := repo.db.Where("date >= ? AND date <= ? AND employee_id = ?", startDate, endDate, employeeID).Find(&mealActivities).Error
+	if err != nil {
+		return []models.MealActivity{}, err
+	}
+	return mealActivities, nil
+}

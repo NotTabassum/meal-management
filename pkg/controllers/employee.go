@@ -1,7 +1,10 @@
 package controllers
 
 import (
+	"fmt"
 	"github.com/labstack/echo/v4"
+	"meal-management/envoyer"
+	"meal-management/pkg/consts"
 	"meal-management/pkg/domain"
 	"meal-management/pkg/middleware"
 	"meal-management/pkg/models"
@@ -106,23 +109,79 @@ func CreateEmployee(e echo.Context) error {
 	}
 
 	//For Email Sending
-	//body := fmt.Sprint("Hey, You're successfully registered as an employee of Vivasoft Ltd. This is your password %d. Please log in and change your password soon. Thank you", reqEmployee.Password)
-	//fmt.Println(body)
-	//variable := envoyer.TemplateVariable{
-	//	Name:  "{{.subject}}, {{.body}}",
-	//	Value: body,
-	//}
-	//email := &envoyer.EmailReq{
-	//	EventName: "general_email",
-	//	Receivers: []string{reqEmployee.Email},
-	//	Variables: []envoyer.TemplateVariable{variable},
-	//}
-	//env := envoyer.Envoyer{}
-	//response, err := env.SendEmail(*email)
-	//if err != nil {
-	//	return e.JSON(http.StatusInternalServerError, err.Error())
-	//}
-	//fmt.Println(response)
+	subject := "Set Up Your Account"
+	//body := "Hey, You're successfully registered as an employee of Vivasoft Ltd. This is your password " + reqEmployee.Password + ". Please log in and change your password soon. Thank you!"
+	body := `
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333333;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            border: 1px solid #dddddd;
+            border-radius: 10px;
+            background-color: #f9f9f9;
+        }
+        .header {
+            font-size: 24px;
+            font-weight: bold;
+            color: #0000FF;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .content {
+            margin-bottom: 20px;
+        }
+        .footer {
+            font-size: 14px;
+            color: #888888;
+            text-align: center;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">Welcome to Vivasoft Ltd.</div>
+        <div class="content">
+            <p>Hey,</p>
+            <p>You're successfully registered as an employee of <strong>Vivasoft Ltd.</strong></p>
+            <p>Your password is: <strong>` + reqEmployee.Password + `</strong></p>
+            <p>Please log in and change your password as soon as possible.</p>
+            <p>Thank you!</p>
+        </div>
+        <div class="footer">This email was sent by Vivasoft Ltd.</div>
+    </div>
+</body>
+</html>
+`
+	email := &envoyer.EmailReq{
+		EventName: "general_email",
+		Receivers: []string{reqEmployee.Email},
+		Variables: []envoyer.TemplateVariable{
+			{
+				Name:  "{{.subject}}",
+				Value: subject,
+			},
+			{
+				Name:  "{{.body}}",
+				Value: body,
+			},
+		},
+	}
+	env := envoyer.New(consts.ENVOYER_URL, consts.ENVOYER_APP_KEY, consts.ENVOYER_CLIENT_KEY)
+	response, err := env.SendEmail(*email)
+	if err != nil {
+		return e.JSON(http.StatusInternalServerError, err.Error())
+	}
+	fmt.Println(response)
 
 	return e.JSON(http.StatusCreated, "Employee created successfully")
 

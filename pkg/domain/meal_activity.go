@@ -14,6 +14,8 @@ type IMealActivityRepo interface {
 	CreateMealActivity(activity *models.MealActivity) error
 	UpdateMealActivity(mealActivity *models.MealActivity) error
 	GetOwnMealActivity(ID uint, startDate, endDate string) ([]models.MealActivity, error)
+	FindMealADay(date string, mealType int) ([]models.MealActivity, error)
+	FindPenaltyAMonth(startDate string, endDate string, employeeID uint) ([]models.MealActivity, error)
 }
 
 type IMealActivityService interface {
@@ -22,4 +24,6 @@ type IMealActivityService interface {
 	GetMealActivity(startDate string, days int) ([]types.MealActivityResponse, error)
 	UpdateMealActivity(mealActivity *models.MealActivity) error
 	GetOwnMealActivity(ID uint, startDate string, days int) ([]types.MealActivityResponse, error)
+	TotalMealADay(date string, mealType int) (int, error)
+	TotalPenaltyAMonth(date string, employeeID uint, days int) (int, error)
 }

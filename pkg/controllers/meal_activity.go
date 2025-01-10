@@ -142,3 +142,34 @@ func GetOwnMealActivity(e echo.Context) error {
 	return e.JSON(http.StatusOK, mealActivity)
 
 }
+
+func TotalMealADay(e echo.Context) error {
+	reqMealActivity := &types.MealActivityRequest{}
+
+	if err := e.Bind(reqMealActivity); err != nil {
+		return e.JSON(http.StatusUnprocessableEntity, map[string]string{"res": "invalid request"})
+	}
+	date := reqMealActivity.Date
+	mealType := reqMealActivity.MealType
+	mealCount, err := MealActivityService.TotalMealADay(date, mealType)
+	if err != nil {
+		return e.JSON(http.StatusInternalServerError, map[string]string{"res": "Internal server error"})
+	}
+	return e.JSON(http.StatusCreated, mealCount)
+}
+
+func TotalPenalty(e echo.Context) error {
+	reqMealActivity := &types.PenaltyRequest{}
+
+	if err := e.Bind(reqMealActivity); err != nil {
+		return e.JSON(http.StatusUnprocessableEntity, map[string]string{"res": "invalid request"})
+	}
+	date := reqMealActivity.Date
+	employeeID := reqMealActivity.EmployeeId
+	days := reqMealActivity.Days
+	mealCount, err := MealActivityService.TotalPenaltyAMonth(date, employeeID, days)
+	if err != nil {
+		return e.JSON(http.StatusInternalServerError, map[string]string{"res": "Internal server error"})
+	}
+	return e.JSON(http.StatusCreated, mealCount)
+}

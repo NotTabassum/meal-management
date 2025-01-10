@@ -10,6 +10,12 @@ type MealActivityRequest struct {
 	IsOffDay   bool   `json:"is_off_day"`
 }
 
+type PenaltyRequest struct {
+	Date       string `json:"date"`
+	EmployeeId uint   `json:"employee_id"`
+	Days       int    `json:"days"`
+}
+
 type MealActivityResponse struct {
 	EmployeeId      uint              `json:"employee_id"`
 	EmployeeName    string            `json:"employee_name"`
