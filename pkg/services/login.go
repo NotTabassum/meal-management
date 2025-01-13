@@ -2,6 +2,7 @@ package services
 
 import (
 	"errors"
+	"golang.org/x/crypto/bcrypt"
 	"meal-management/pkg/domain"
 	"meal-management/pkg/models"
 )
@@ -16,13 +17,18 @@ func LoginServiceInstance(login domain.ILoginRepo) domain.ILoginService {
 	}
 }
 
+func VerifyPassword(hashedPassword, password string) bool {
+	err := bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(password))
+	return err == nil
+}
+
 func (service *LoginService) Login(Auth models.Login) (string, error) {
 	employee, err := service.repo.Login(Auth.Email)
 	if err != nil {
 		return "", err
 	}
-	if employee.Password != Auth.Password {
-		return "", errors.New("Invalid Email or Password")
+	if VerifyPassword(employee.Password, Auth.Password) {
+		return "", errors.New("invalid Email or Password")
 	}
 	token, err := domain.GenerateJWT(&employee)
 	if err != nil {

@@ -64,7 +64,7 @@ func (service *EmployeeService) DeleteEmployee(EmployeeId uint) error {
 	return nil
 }
 
-func (service *EmployeeService) GetEmployeeWithPassword(EmployeeID uint) ([]models.Employee, error) {
+func (service *EmployeeService) GetEmployeeWithEmployeeID(EmployeeID uint) ([]models.Employee, error) {
 	allEmployees := []models.Employee{}
 	employee := service.repo.GetEmployee(EmployeeID)
 	//if len(employee) == 0 {
@@ -203,5 +203,22 @@ func (service *EmployeeService) ForgottenPassword(email string, link string) err
 		return err
 	}
 	fmt.Println(response)
+	return nil
+}
+
+func (service *EmployeeService) GetPhoto(employeeId uint) (string, error) {
+	employee := service.repo.GetEmployee(employeeId)
+	if employee == nil {
+		return "", errors.New("employee not found")
+	}
+	photoPath := employee[0].Photo
+	return photoPath, nil
+}
+
+func (service *EmployeeService) MakeHash() error {
+	err := service.repo.MakeHashThePreviousValues()
+	if err != nil {
+		return err
+	}
 	return nil
 }

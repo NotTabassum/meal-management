@@ -11,6 +11,7 @@ func main() {
 	fmt.Println("Hello World")
 	//cronjobs.StartCronJob()
 	controllers.StartCronJob()
+
 	e := echo.New()
 	containers.Serve(e)
 }
