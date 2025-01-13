@@ -113,10 +113,11 @@ func CreateEmployee(e echo.Context) error {
 	if err != nil {
 		return e.JSON(http.StatusBadRequest, "Invalid department ID")
 	}
-	Password, err := HashPassword(e.FormValue("password"))
-	if err != nil {
-		return e.JSON(http.StatusInternalServerError, err.Error())
-	}
+	//Password, err := HashPassword(e.FormValue("password"))
+	//if err != nil {
+	//	return e.JSON(http.StatusInternalServerError, err.Error())
+	//}
+	Password := e.FormValue("password")
 	reqEmployee := &models.Employee{
 		Name:          e.FormValue("name"),
 		Email:         e.FormValue("email"),
@@ -240,10 +241,11 @@ func UpdateEmployee(e echo.Context) error {
 	if err != nil {
 		return e.JSON(http.StatusBadRequest, "Invalid department ID")
 	}
-	Password, err := HashPassword(e.FormValue("password"))
-	if err != nil {
-		return e.JSON(http.StatusInternalServerError, err.Error())
-	}
+	//Password, err := HashPassword(e.FormValue("password"))
+	//if err != nil {
+	//	return e.JSON(http.StatusInternalServerError, err.Error())
+	//}
+	Password := e.FormValue("password")
 	remarks := e.FormValue("remarks")
 	Admin := e.FormValue("is_admin") == "true"
 
