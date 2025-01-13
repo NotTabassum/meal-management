@@ -453,11 +453,10 @@ func GetPhoto(e echo.Context) error {
 	return e.File(path)
 }
 
-//
-//func MakeHash(e echo.Context) error {
-//	err := EmployeeService.MakeHash()
-//	if err != nil {
-//		return err
-//	}
-//	return e.JSON(http.StatusCreated, "hash is called successfully")
-//}
+func MakeHash(e echo.Context) error {
+	err := EmployeeService.MakeHash()
+	if err != nil {
+		return err
+	}
+	return e.JSON(http.StatusCreated, "hash is called successfully")
+}

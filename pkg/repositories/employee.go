@@ -2,6 +2,7 @@ package repositories
 
 import (
 	"errors"
+	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 	"meal-management/pkg/domain"
 	"meal-management/pkg/models"
@@ -86,28 +87,28 @@ func (repo *EmployeeRepo) GetDepartmentById(deptId int) (*models.Department, err
 	return &dept, nil
 }
 
-//func HashPassword(password string) (string, error) {
-//	hash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
-//	return string(hash), err
-//}
-//
-//func (repo *EmployeeRepo) MakeHashThePreviousValues() error {
-//	var employees []models.Employee
-//	err := repo.db.Find(&employees).Error
-//	if err != nil {
-//		return err
-//	}
-//	for _, employee := range employees {
-//		updatedEmployee := models.Employee{}
-//		updatedEmployee = employee
-//		updatedEmployee.Password, err = HashPassword(updatedEmployee.Password)
-//		if err != nil {
-//			return err
-//		}
-//		err := repo.UpdateEmployee(&updatedEmployee)
-//		if err != nil {
-//			return err
-//		}
-//	}
-//	return nil
-//}
+func HashPassword(password string) (string, error) {
+	hash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	return string(hash), err
+}
+
+func (repo *EmployeeRepo) MakeHashThePreviousValues() error {
+	var employees []models.Employee
+	err := repo.db.Find(&employees).Error
+	if err != nil {
+		return err
+	}
+	for _, employee := range employees {
+		updatedEmployee := models.Employee{}
+		updatedEmployee = employee
+		updatedEmployee.Password, err = HashPassword(updatedEmployee.Password)
+		if err != nil {
+			return err
+		}
+		err := repo.UpdateEmployee(&updatedEmployee)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}

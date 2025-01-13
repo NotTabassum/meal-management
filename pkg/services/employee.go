@@ -215,10 +215,10 @@ func (service *EmployeeService) GetPhoto(employeeId uint) (string, error) {
 	return photoPath, nil
 }
 
-//func (service *EmployeeService) MakeHash() error {
-//	err := service.repo.MakeHashThePreviousValues()
-//	if err != nil {
-//		return err
-//	}
-//	return nil
-//}
+func (service *EmployeeService) MakeHash() error {
+	err := service.repo.MakeHashThePreviousValues()
+	if err != nil {
+		return err
+	}
+	return nil
+}
