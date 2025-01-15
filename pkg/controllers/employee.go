@@ -74,7 +74,12 @@ func CreateEmployee(e echo.Context) error {
 		return e.JSON(http.StatusBadRequest, "Invalid Data")
 	}
 
-	fileHeader := form.File["photo"][0]
+	fileHeaders, ok := form.File["photo"]
+	if !ok || len(fileHeaders) == 0 {
+		return e.JSON(http.StatusBadRequest, "No file uploaded under 'photo'")
+	}
+
+	fileHeader := fileHeaders[0]
 	src, err := fileHeader.Open()
 	if err != nil {
 		return e.JSON(http.StatusInternalServerError, err.Error())
