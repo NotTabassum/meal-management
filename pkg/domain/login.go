@@ -32,3 +32,19 @@ func GenerateJWT(employee *models.Employee) (string, error) {
 	}
 	return tokenString, nil
 }
+
+//func GenerateResetToken(employee models.Employee) (string, error) {
+//	claims := jwt.MapClaims{
+//		"employee_id": employee.EmployeeId,
+//		"email":       employee.Email,
+//		"is_admin":    employee.IsAdmin,
+//		"exp":     time.Now().Add(15 * time.Minute).Unix(), // Token expires in 15 minutes
+//	}
+//
+//	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+//	tokenString, err := token.SignedString(secretKey)
+//	if err != nil {
+//		return "", fmt.Errorf("could not sign the token: %w", err)
+//	}
+//	return tokenString, nil
+//}

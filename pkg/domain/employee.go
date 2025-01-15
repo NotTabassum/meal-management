@@ -14,6 +14,7 @@ type IEmployeeRepo interface {
 	UpdateMealActivityForChangingDefaultStatus(mealActivity *models.MealActivity) error
 	GetDepartmentById(deptId int) (*models.Department, error)
 	MakeHashThePreviousValues() error
+	GetEmployeeByEmail(email string) (models.Employee, error)
 }
 
 type IEmployeeService interface {

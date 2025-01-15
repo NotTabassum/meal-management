@@ -432,6 +432,7 @@ func ForgottenPassword(e echo.Context) error {
 	}
 	email := reqForgetPassword.Email
 	link := reqForgetPassword.Link
+
 	if err := EmployeeService.ForgottenPassword(email, link); err != nil {
 		return err
 	}
@@ -461,4 +462,41 @@ func MakeHash(e echo.Context) error {
 		return err
 	}
 	return e.JSON(http.StatusCreated, "hash is called successfully")
+}
+
+func PasswordChange(e echo.Context) error {
+	authorizationHeader := e.Request().Header.Get("Authorization")
+	if authorizationHeader == "" {
+		return e.JSON(http.StatusUnauthorized, map[string]string{"res": "Authorization header is empty"})
+	}
+	ID, _, _ := middleware.ParseJWT(authorizationHeader)
+	EmployeeID, err := strconv.ParseUint(ID, 0, 0)
+	if err != nil {
+		return e.JSON(http.StatusBadRequest, "Invalid Data")
+	}
+
+	pass := types.PasswordRequest{}
+	if err := e.Bind(&pass); err != nil {
+		return e.JSON(http.StatusBadRequest, err.Error())
+	}
+	password, err := security.HashPassword(pass.Password)
+	employees, err := EmployeeService.GetEmployeeWithEmployeeID(uint(EmployeeID))
+	employee := employees[0]
+	updatedEmployee := &models.Employee{
+		EmployeeId:    uint(EmployeeID),
+		Name:          employee.Name,
+		Email:         employee.Email,
+		PhoneNumber:   employee.PhoneNumber,
+		Password:      password,
+		DeptID:        employee.DeptID,
+		Remarks:       employee.Remarks,
+		DefaultStatus: employee.DefaultStatus,
+		IsAdmin:       employee.IsAdmin,
+		Photo:         employee.Photo,
+	}
+
+	if err := EmployeeService.UpdateEmployee(updatedEmployee); err != nil {
+		return e.JSON(http.StatusInternalServerError, err.Error())
+	}
+	return e.JSON(http.StatusCreated, "password was updated successfully")
 }

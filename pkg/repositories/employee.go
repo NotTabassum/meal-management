@@ -112,3 +112,11 @@ func (repo *EmployeeRepo) MakeHashThePreviousValues() error {
 	}
 	return nil
 }
+
+func (repo *EmployeeRepo) GetEmployeeByEmail(email string) (models.Employee, error) {
+	var employee models.Employee
+	if err := repo.db.Where("email = ?", email).First(&employee).Error; err != nil {
+		return models.Employee{}, err
+	}
+	return employee, nil
+}

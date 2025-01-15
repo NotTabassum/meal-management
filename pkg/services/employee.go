@@ -130,7 +130,20 @@ func (service *EmployeeService) UpdateDefaultStatus(EmployeeId uint, date string
 	return nil
 }
 
+func createResetLink(baseURL, token string) string {
+	return fmt.Sprintf("%s?token=%s", baseURL, token)
+}
+
 func (service *EmployeeService) ForgottenPassword(email string, link string) error {
+	employee, err := service.repo.GetEmployeeByEmail(email)
+	if err != nil {
+		return err
+	}
+	token, err := domain.GenerateJWT(&employee)
+	if err != nil {
+		return err
+	}
+	Link := createResetLink(link, token)
 	subject := "Password Reset"
 	body := `
 <!DOCTYPE html>
@@ -174,7 +187,7 @@ func (service *EmployeeService) ForgottenPassword(email string, link string) err
         <div class="content">
             <p>Hey,</p>
             <p>We received a request to reset the password associated with your account.</p>
-            <p>If you made this request, please use the link below to reset your password : <strong>` + link + `</strong></p>
+            <p>If you made this request, please use the link below to reset your password : <strong>` + Link + `</strong></p>
             <p>If you did not request a password reset, please ignore this email. Your password will remain unchanged, and your account will continue to be secure.</p>
             <p>Thank you!</p>
         </div>

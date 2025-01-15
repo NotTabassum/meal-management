@@ -15,3 +15,7 @@ type ForgetPasswordRequest struct {
 	Email string `json:"email"`
 	Link  string `json:"link"`
 }
+
+type PasswordRequest struct {
+	Password string `json:"password"`
+}
