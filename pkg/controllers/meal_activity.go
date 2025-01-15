@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"fmt"
 	"github.com/labstack/echo/v4"
 	"github.com/robfig/cron/v3"
 	"log"
@@ -172,4 +173,58 @@ func TotalPenalty(e echo.Context) error {
 		return e.JSON(http.StatusInternalServerError, map[string]string{"res": "Internal server error"})
 	}
 	return e.JSON(http.StatusCreated, mealCount)
+}
+
+func UpdateGroupMealActivity(e echo.Context) error {
+	var groupMeal []types.MealActivityRequest
+	if err := e.Bind(&groupMeal); err != nil {
+		fmt.Println(err)
+		return e.JSON(http.StatusUnprocessableEntity, map[string]string{"res": "invalid request"})
+	}
+	for _, val := range groupMeal {
+		if val.Date == "" || val.MealType == 0 || val.EmployeeId == 0 {
+			return e.JSON(http.StatusBadRequest, map[string]string{"res": "Employee ID, Date and Meal Type are required"})
+		}
+
+		date := val.Date
+		mealType := val.MealType
+		employeeId := val.EmployeeId
+
+		existingActivity, err := MealActivityService.GetMealActivityById(string(date), int(mealType), uint(employeeId))
+		if err != nil {
+			return e.JSON(http.StatusInternalServerError, map[string]string{"res": "Internal server error"})
+		}
+
+		authorizationHeader := e.Request().Header.Get("Authorization")
+		if authorizationHeader == "" {
+			return e.JSON(http.StatusUnauthorized, map[string]string{"res": "Authorization header is empty"})
+		}
+		ID, isAdmin, _ := middleware.ParseJWT(authorizationHeader)
+		if !isAdmin {
+			val.Penalty = existingActivity.Penalty
+		}
+		NewID, err := strconv.ParseUint(ID, 10, 32)
+		if err != nil {
+			return e.JSON(http.StatusBadRequest, err.Error())
+		}
+		if !isAdmin && uint(NewID) != employeeId {
+			return e.JSON(http.StatusBadRequest, "You cannot change others activity")
+		}
+
+		updatedActivity := &models.MealActivity{
+			EmployeeId:   uint(employeeId),
+			Date:         date,
+			MealType:     mealType,
+			EmployeeName: existingActivity.EmployeeName,
+			Status:       val.Status,
+			GuestCount:   val.GuestCount,
+			Penalty:      val.Penalty,
+			IsOffDay:     &val.IsOffDay,
+		}
+
+		if err := MealActivityService.UpdateMealActivity(updatedActivity); err != nil {
+			return e.JSON(http.StatusInternalServerError, err)
+		}
+	}
+	return e.JSON(http.StatusCreated, "Meal Activity is updated successfully")
 }

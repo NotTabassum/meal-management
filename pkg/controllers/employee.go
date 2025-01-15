@@ -234,25 +234,57 @@ func UpdateEmployee(e echo.Context) error {
 
 	tempEmployeeID, err := strconv.ParseUint(e.FormValue("employee_id"), 10, 32)
 	EmployeeID := uint(tempEmployeeID)
-	Name := e.FormValue("name")
-	Email := e.FormValue("email")
-	PhoneNumber := e.FormValue("phone_number")
-	DeptID, err := strconv.Atoi(e.FormValue("dept_id"))
-	if err != nil {
-		return e.JSON(http.StatusBadRequest, "Invalid department ID")
-	}
-	Password, err := security.HashPassword(e.FormValue("password"))
-	if err != nil {
-		return e.JSON(http.StatusInternalServerError, err.Error())
-	}
-	//Password := e.FormValue("password")
-	remarks := e.FormValue("remarks")
-	Admin := e.FormValue("is_admin") == "true"
-
 	existingEmployee, err := EmployeeService.GetEmployeeWithEmployeeID(EmployeeID)
+	employee := existingEmployee[0]
 	if err != nil {
 		return e.JSON(http.StatusBadRequest, err.Error())
 	}
+	Name := e.FormValue("name")
+	if Name == "" {
+		Name = employee.Name
+	}
+	Email := e.FormValue("email")
+	if Email == "" {
+		Email = employee.Email
+	}
+	PhoneNumber := e.FormValue("phone_number")
+	if PhoneNumber == "" {
+		PhoneNumber = employee.PhoneNumber
+	}
+	Dept := e.FormValue("dept_id")
+	DeptID, err := strconv.Atoi(Dept)
+	if err != nil {
+		return e.JSON(http.StatusBadRequest, "Invalid department ID")
+	}
+	if Dept == "" {
+		DeptID = employee.DeptID
+	}
+
+	tmpPassword := e.FormValue("password")
+	if tmpPassword == "" {
+		tmpPassword = employee.Password
+	} else {
+		tmpPassword, err = security.HashPassword(tmpPassword)
+		if err != nil {
+			return e.JSON(http.StatusBadRequest, "problem in hashing password")
+		}
+	}
+	Password := tmpPassword
+	remarks := e.FormValue("remarks")
+	if remarks == "" {
+		remarks = employee.Remarks
+	}
+	tmpAdmin := e.FormValue("is_admin")
+	Admin := employee.IsAdmin
+	if tmpAdmin != "" {
+		Admin = tmpAdmin == "true"
+	}
+	defaultStatus := e.FormValue("default_status")
+	default_status := employee.DefaultStatus
+	if defaultStatus != "" {
+		default_status = defaultStatus == "true"
+	}
+
 	authorizationHeader := e.Request().Header.Get("Authorization")
 	if authorizationHeader == "" {
 		return e.JSON(http.StatusUnauthorized, map[string]string{"res": "Authorization header is empty"})
@@ -308,14 +340,14 @@ func UpdateEmployee(e echo.Context) error {
 	//ei obdhi
 
 	updatedEmployee := &models.Employee{
-		EmployeeId:    uint(tempEmployeeID),
-		Name:          ifNotEmpty(Name, existingEmployee[0].Name),
-		Email:         ifNotEmpty(Email, existingEmployee[0].Email),
+		EmployeeId:    EmployeeID,
+		Name:          Name,
+		Email:         Email,
 		PhoneNumber:   ifNot11(PhoneNumber, existingEmployee[0].PhoneNumber),
-		Password:      ifNotEmpty(Password, existingEmployee[0].Password),
-		DeptID:        ifNotZero(DeptID, existingEmployee[0].DeptID),
-		Remarks:       ifNotEmpty(remarks, existingEmployee[0].Remarks),
-		DefaultStatus: e.FormValue("default_status") == "true",
+		Password:      Password,
+		DeptID:        DeptID,
+		Remarks:       remarks,
+		DefaultStatus: default_status,
 		IsAdmin:       Admin,
 		Photo:         dstPath,
 	}
@@ -346,12 +378,13 @@ func ifNotEmpty(new, existing string) string {
 	return existing
 }
 
-func ifNotZero(new, existing int) int {
-	if new != 0 {
-		return new
-	}
-	return existing
-}
+//
+//func ifNotZero(new, existing int) int {
+//	if new != 0 {
+//		return new
+//	}
+//	return existing
+//}
 
 //
 //func ifNotFalse(new, existing bool) bool {
