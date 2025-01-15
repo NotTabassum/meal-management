@@ -3,13 +3,13 @@ package controllers
 import (
 	"fmt"
 	"github.com/labstack/echo/v4"
-	"golang.org/x/crypto/bcrypt"
 	"io"
 	"meal-management/envoyer"
 	"meal-management/pkg/consts"
 	"meal-management/pkg/domain"
 	"meal-management/pkg/middleware"
 	"meal-management/pkg/models"
+	"meal-management/pkg/security"
 	"meal-management/pkg/types"
 	"mime/multipart"
 	"net/http"
@@ -56,11 +56,6 @@ func SetEmployeeService(empService domain.IEmployeeService) {
 //
 //	return e.JSON(http.StatusCreated, "Employee created successfully")
 //}
-
-func HashPassword(password string) (string, error) {
-	hash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
-	return string(hash), err
-}
 
 func CreateEmployee(e echo.Context) error {
 	authorizationHeader := e.Request().Header.Get("Authorization")
@@ -113,11 +108,11 @@ func CreateEmployee(e echo.Context) error {
 	if err != nil {
 		return e.JSON(http.StatusBadRequest, "Invalid department ID")
 	}
-	//Password, err := HashPassword(e.FormValue("password"))
-	//if err != nil {
-	//	return e.JSON(http.StatusInternalServerError, err.Error())
-	//}
-	Password := e.FormValue("password")
+	Pass := e.FormValue("password")
+	Password, err := security.HashPassword(Pass)
+	if err != nil {
+		return e.JSON(http.StatusInternalServerError, err.Error())
+	}
 	reqEmployee := &models.Employee{
 		Name:          e.FormValue("name"),
 		Email:         e.FormValue("email"),
@@ -178,7 +173,7 @@ func CreateEmployee(e echo.Context) error {
         <div class="content">
             <p>Hey,</p>
             <p>You're successfully registered as an employee of <strong>Vivasoft Ltd.</strong></p>
-            <p>Your password is: <strong>` + reqEmployee.Password + `</strong></p>
+            <p>Your password is: <strong>` + Pass + `</strong></p>
             <p>Please log in and change your password as soon as possible.</p>
             <p>Thank you!</p>
         </div>
@@ -241,11 +236,11 @@ func UpdateEmployee(e echo.Context) error {
 	if err != nil {
 		return e.JSON(http.StatusBadRequest, "Invalid department ID")
 	}
-	//Password, err := HashPassword(e.FormValue("password"))
-	//if err != nil {
-	//	return e.JSON(http.StatusInternalServerError, err.Error())
-	//}
-	Password := e.FormValue("password")
+	Password, err := security.HashPassword(e.FormValue("password"))
+	if err != nil {
+		return e.JSON(http.StatusInternalServerError, err.Error())
+	}
+	//Password := e.FormValue("password")
 	remarks := e.FormValue("remarks")
 	Admin := e.FormValue("is_admin") == "true"
 
