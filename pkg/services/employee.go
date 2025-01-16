@@ -82,6 +82,7 @@ func (service *EmployeeService) GetEmployeeWithEmployeeID(EmployeeID uint) ([]mo
 			Remarks:       val.Remarks,
 			DefaultStatus: val.DefaultStatus,
 			IsAdmin:       val.IsAdmin,
+			Photo:         val.Photo,
 		})
 	}
 	return allEmployees, nil

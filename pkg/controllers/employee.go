@@ -304,40 +304,43 @@ func UpdateEmployee(e echo.Context) error {
 	}
 
 	//photoooo
+	dstPath := employee.Photo
+	fmt.Println(dstPath)
+
 	form, err := e.MultipartForm()
 	if err != nil {
 		return e.JSON(http.StatusBadRequest, "Invalid Data")
 	}
 
-	fileHeader := form.File["photo"][0]
-	src, err := fileHeader.Open()
-	if err != nil {
-		return e.JSON(http.StatusInternalServerError, err.Error())
-	}
-	defer func(src multipart.File) {
-		err := src.Close()
+	files, ok := form.File["photo"]
+	if ok && len(files) > 0 {
+		fileHeader := files[0]
+		src, err := fileHeader.Open()
 		if err != nil {
-			return
+			return e.JSON(http.StatusInternalServerError, err.Error())
 		}
-	}(src)
-
-	//Save the file to the Docker volume
-	dstPath := fmt.Sprintf("/tmp/photos/%s", fileHeader.Filename)
-	dst, err := os.Create(dstPath)
-	if err != nil {
-		return e.JSON(http.StatusInternalServerError, err.Error())
-	}
-	defer func(dst *os.File) {
-		err := dst.Close()
+		defer func(src multipart.File) {
+			err := src.Close()
+			if err != nil {
+				return
+			}
+		}(src)
+		dstPath = fmt.Sprintf("/tmp/photos/%s", fileHeader.Filename)
+		dst, err := os.Create(dstPath)
 		if err != nil {
-			return
+			return e.JSON(http.StatusInternalServerError, err.Error())
 		}
-	}(dst)
+		defer func(dst *os.File) {
+			err := dst.Close()
+			if err != nil {
+				return
+			}
+		}(dst)
 
-	if _, err := io.Copy(dst, src); err != nil {
-		return e.JSON(http.StatusInternalServerError, err.Error())
+		if _, err := io.Copy(dst, src); err != nil {
+			return e.JSON(http.StatusInternalServerError, err.Error())
+		}
 	}
-	//ei obdhi
 
 	updatedEmployee := &models.Employee{
 		EmployeeId:    EmployeeID,
