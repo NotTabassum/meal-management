@@ -252,12 +252,12 @@ func UpdateEmployee(e echo.Context) error {
 		PhoneNumber = employee.PhoneNumber
 	}
 	Dept := e.FormValue("dept_id")
-	DeptID, err := strconv.Atoi(Dept)
-	if err != nil {
-		return e.JSON(http.StatusBadRequest, "Invalid department ID")
-	}
-	if Dept == "" {
-		DeptID = employee.DeptID
+	DeptID := employee.DeptID
+	if Dept != "" {
+		DeptID, err = strconv.Atoi(Dept)
+		if err != nil {
+			return e.JSON(http.StatusBadRequest, "Invalid department ID")
+		}
 	}
 
 	tmpPassword := e.FormValue("password")
