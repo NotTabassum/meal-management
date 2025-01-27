@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"fmt"
 	"github.com/labstack/echo/v4"
 	"meal-management/pkg/domain"
 	"meal-management/pkg/middleware"
@@ -26,8 +27,8 @@ func CreateMealPlan(e echo.Context) error {
 		return e.JSON(http.StatusForbidden, map[string]string{"res": "Unauthorized"})
 	}
 
-	reqMeal := &types.CreateMealPlanRequest{}
-	if err := e.Bind(reqMeal); err != nil {
+	var reqMeals []types.CreateMealPlanRequest
+	if err := e.Bind(&reqMeals); err != nil {
 		//fmt.Println(err)
 		return e.JSON(http.StatusBadRequest, "Invalid Data")
 	}
@@ -36,16 +37,29 @@ func CreateMealPlan(e echo.Context) error {
 	//	return e.JSON(http.StatusBadRequest, err.Error())
 	//}
 
-	meal := &models.MealPlan{
-		Date:     reqMeal.Date,
-		MealType: reqMeal.MealType,
-		Food:     reqMeal.Food,
-	}
-	if err := MealPlanService.CreateMealPlan(meal); err != nil {
-		e.JSON(http.StatusInternalServerError, err.Error())
-	}
+	var createdMealPlans []models.MealPlan
+	for _, reqMeal := range reqMeals {
+		// Create a meal plan instance
+		meal := &models.MealPlan{
+			Date:     reqMeal.Date,
+			MealType: reqMeal.MealType,
+			Food:     reqMeal.Food,
+		}
 
-	return e.JSON(http.StatusCreated, "MealPlan created successfully")
+		// Save the meal plan using the service
+		if err := MealPlanService.CreateMealPlan(meal); err != nil {
+			return e.JSON(http.StatusInternalServerError, map[string]string{
+				"error": fmt.Sprintf("Failed to create meal plan for date %s: %s", reqMeal.Date, err.Error()),
+			})
+		}
+
+		// Add the successfully created meal plan to the list
+		createdMealPlans = append(createdMealPlans, *meal)
+	}
+	return e.JSON(http.StatusCreated, map[string]interface{}{
+		"message":           "Meal plans created successfully",
+		"created_mealplans": createdMealPlans,
+	})
 }
 
 func GetMealPlanByPrimaryKey(e echo.Context) error {
