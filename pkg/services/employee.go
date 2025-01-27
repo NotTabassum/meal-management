@@ -44,7 +44,7 @@ func (service *EmployeeService) GetEmployee(EmployeeID uint) ([]types.EmployeeRe
 }
 func (service *EmployeeService) CreateEmployee(employee *models.Employee) error {
 	if err := service.repo.CreateEmployee(employee); err != nil {
-		return errors.New("employee was not created")
+		return errors.New("email or phone number is duplicate")
 	}
 	return nil
 }
