@@ -130,10 +130,6 @@ func CreateEmployee(e echo.Context) error {
 		Photo:         dstPath,
 	}
 
-	if err := EmployeeService.CreateEmployee(reqEmployee); err != nil {
-		return e.JSON(http.StatusInternalServerError, err.Error())
-	}
-
 	//For Email Sending
 	subject := "Set Up Your Account"
 	body := `
@@ -208,6 +204,9 @@ func CreateEmployee(e echo.Context) error {
 	}
 	fmt.Println(response)
 
+	if err := EmployeeService.CreateEmployee(reqEmployee); err != nil {
+		return e.JSON(http.StatusInternalServerError, err.Error())
+	}
 	return e.JSON(http.StatusCreated, "Employee created successfully")
 
 }
@@ -219,7 +218,6 @@ func GetEmployee(e echo.Context) error {
 		return e.JSON(http.StatusBadRequest, "Invalid Employee ID")
 	}
 	Employee, err := EmployeeService.GetEmployee(uint(EmployeeID))
-
 	if err != nil {
 		return e.JSON(http.StatusInternalServerError, err.Error())
 	}
