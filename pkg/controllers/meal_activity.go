@@ -251,3 +251,27 @@ func TotalMealAMonth(e echo.Context) error {
 	}
 	return e.JSON(http.StatusCreated, mealSummary)
 }
+
+func TotalMealPerPerson(e echo.Context) error {
+	authorizationHeader := e.Request().Header.Get("Authorization")
+	if authorizationHeader == "" {
+		return e.JSON(http.StatusUnauthorized, map[string]string{"res": "Authorization header is empty"})
+	}
+	ID, _, _ := middleware.ParseJWT(authorizationHeader)
+	id, err := strconv.ParseUint(ID, 10, 32)
+	if err != nil {
+		return e.JSON(http.StatusBadRequest, err.Error())
+	}
+	reqMealActivity := &types.MealSummaryReq{}
+
+	if err := e.Bind(reqMealActivity); err != nil {
+		return e.JSON(http.StatusUnprocessableEntity, map[string]string{"res": "invalid request"})
+	}
+	stdate := reqMealActivity.StartDate
+	days := reqMealActivity.Days
+	mealCount, err := MealActivityService.TotalMealPerPerson(stdate, days, uint(id))
+	if err != nil {
+		return e.JSON(http.StatusInternalServerError, map[string]string{"res": "Internal server error"})
+	}
+	return e.JSON(http.StatusCreated, mealCount)
+}

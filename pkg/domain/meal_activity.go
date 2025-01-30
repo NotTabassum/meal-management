@@ -28,4 +28,5 @@ type IMealActivityService interface {
 	TotalMealADay(date string, mealType int) (int, error)
 	TotalPenaltyAMonth(date string, employeeID uint, days int) (int, error)
 	TotalMealAMonth(date string, days int) ([]types.MealSummaryResponse, error)
+	TotalMealPerPerson(date string, days int, employeeID uint) (int, error)
 }
