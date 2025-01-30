@@ -179,7 +179,7 @@ func CreateEmployee(e echo.Context) error {
             <p>Hey,</p>
             <p>You're successfully registered as an employee of <strong>Vivasoft Ltd.</strong></p>
             <p>Your password is: <strong>` + Pass + `</strong></p>
-            <p>Please log in and change your password as soon as possible.</p>
+            <p>Please log in at http://43.224.110.129:3000 and change your password as soon as possible.</p>
             <p>Thank you!</p>
         </div>
         <div class="footer">This email was sent by Vivasoft Ltd.</div>
