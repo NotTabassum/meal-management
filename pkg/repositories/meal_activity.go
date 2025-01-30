@@ -5,6 +5,7 @@ import (
 	"gorm.io/gorm"
 	"meal-management/pkg/domain"
 	"meal-management/pkg/models"
+	"meal-management/pkg/types"
 )
 
 type MealActivityRepo struct {
@@ -119,4 +120,13 @@ func (repo *MealActivityRepo) FindPenaltyAMonth(startDate string, endDate string
 		return []models.MealActivity{}, err
 	}
 	return mealActivities, nil
+}
+
+func (repo *MealActivityRepo) TotalEmployees() ([]types.Employee, error) {
+	var employees []types.Employee
+	err := repo.db.Select("employee_id", "name").Find(&employees).Error
+	if err != nil {
+		return []types.Employee{}, err
+	}
+	return employees, nil
 }

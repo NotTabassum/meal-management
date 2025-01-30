@@ -320,3 +320,43 @@ func (service *MealActivityService) TotalPenaltyAMonth(date string, employeeID u
 	}
 	return count, nil
 }
+
+func (service *MealActivityService) TotalMealAMonth(date string, days int) ([]types.MealSummaryResponse, error) {
+	startDate, err := time.Parse(consts.DateFormat, date)
+	if err != nil {
+		return []types.MealSummaryResponse{}, err
+	}
+	tmpEndDate := startDate.AddDate(0, 0, days-1)
+	endDate := tmpEndDate.Format(consts.DateFormat)
+	employees, err := service.repo.TotalEmployees()
+	if err != nil {
+		return []types.MealSummaryResponse{}, err
+	}
+	mealSummaryResponse := []types.MealSummaryResponse{}
+	var tot_count int = 0
+	for _, employee := range employees {
+		mealActivity, err := service.repo.FindPenaltyAMonth(date, endDate, employee.EmployeeId)
+		if err != nil {
+			return []types.MealSummaryResponse{}, err
+		}
+		var count int = 0
+		for _, activity := range mealActivity {
+			if *activity.Status == true {
+				count++
+			}
+			count += *activity.GuestCount
+		}
+		meal := types.MealSummaryResponse{
+			Name:       employee.Name,
+			TotalCount: count,
+		}
+		tot_count += count
+		mealSummaryResponse = append(mealSummaryResponse, meal)
+	}
+	meal := types.MealSummaryResponse{
+		Name:       "Total Meal",
+		TotalCount: tot_count,
+	}
+	mealSummaryResponse = append(mealSummaryResponse, meal)
+	return mealSummaryResponse, nil
+}

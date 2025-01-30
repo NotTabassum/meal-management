@@ -38,3 +38,18 @@ type StatusDetails struct {
 	GuestCount int  `json:"guest_count"`
 	Penalty    bool `json:"penalty"`
 }
+
+type MealSummaryReq struct {
+	StartDate string `json:"start_date"`
+	Days      int    `json:"days"`
+}
+
+type MealSummaryResponse struct {
+	Name       string `json:"name"`
+	TotalCount int    `json:"total_count"`
+}
+
+type Employee struct {
+	EmployeeId uint   `json:"employee_id"`
+	Name       string `json:"name"`
+}
