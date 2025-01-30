@@ -120,3 +120,11 @@ func (repo *EmployeeRepo) GetEmployeeByEmail(email string) (models.Employee, err
 	}
 	return employee, nil
 }
+
+func (repo *EmployeeRepo) DeleteMealActivity(date string, EmployeeId uint) error {
+	var mealActivities []models.MealActivity
+	if err := repo.db.Where("date >= ? AND employee_id = ?", date, EmployeeId).Delete(&mealActivities).Error; err != nil {
+		return err
+	}
+	return nil
+}

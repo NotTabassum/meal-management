@@ -15,6 +15,7 @@ type IEmployeeRepo interface {
 	GetDepartmentById(deptId int) (*models.Department, error)
 	MakeHashThePreviousValues() error
 	GetEmployeeByEmail(email string) (models.Employee, error)
+	DeleteMealActivity(date string, EmployeeId uint) error
 }
 
 type IEmployeeService interface {
@@ -27,4 +28,5 @@ type IEmployeeService interface {
 	ForgottenPassword(email string, link string) error
 	GetPhoto(employeeId uint) (string, error)
 	MakeHash() error
+	DeleteMealActivity(date string, EmployeeId uint) error
 }

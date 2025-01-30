@@ -410,10 +410,10 @@ func DeleteEmployee(e echo.Context) error {
 	if err != nil {
 		return e.JSON(http.StatusBadRequest, "Invalid Data")
 	}
+	date := e.QueryParam("date")
 
-	_, err = EmployeeService.GetEmployee(uint(EmployeeID))
-	if err != nil {
-		return e.JSON(http.StatusBadRequest, err.Error())
+	if err := EmployeeService.DeleteMealActivity(date, uint(EmployeeID)); err != nil {
+		return e.JSON(http.StatusInternalServerError, err)
 	}
 
 	if err := EmployeeService.DeleteEmployee(uint(EmployeeID)); err != nil {

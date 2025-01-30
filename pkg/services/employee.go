@@ -64,6 +64,14 @@ func (service *EmployeeService) DeleteEmployee(EmployeeId uint) error {
 	return nil
 }
 
+func (service *EmployeeService) DeleteMealActivity(date string, EmployeeId uint) error {
+	if err := service.repo.DeleteMealActivity(date, EmployeeId); err != nil {
+		fmt.Println(err)
+		return errors.New("employee was not deleted")
+	}
+	return nil
+}
+
 func (service *EmployeeService) GetEmployeeWithEmployeeID(EmployeeID uint) ([]models.Employee, error) {
 	allEmployees := []models.Employee{}
 	employee := service.repo.GetEmployee(EmployeeID)
