@@ -122,6 +122,32 @@ func (repo *MealActivityRepo) FindPenaltyAMonth(startDate string, endDate string
 	return mealActivities, nil
 }
 
+func (repo *MealActivityRepo) GetEmployeeMealCounts(startDate, endDate string) ([]types.MealSummaryResponse, error) {
+	var results []types.MealSummaryResponse
+
+	if err := repo.db.
+		Table("meal_activities").
+		Select("employee_name AS name, SUM(CASE WHEN status = true THEN 1 ELSE 0 END + guest_count) AS total_count").
+		Where("date BETWEEN ? AND ?", startDate, endDate).
+		Group("employee_id, employee_name").
+		Order("total_count DESC").
+		Scan(&results).Error; err != nil {
+		return nil, err
+	}
+
+	totalMealCount := 0
+	for _, result := range results {
+		totalMealCount += result.TotalCount
+	}
+
+	results = append(results, types.MealSummaryResponse{
+		Name:       "Total Meal",
+		TotalCount: totalMealCount,
+	})
+
+	return results, nil
+}
+
 func (repo *MealActivityRepo) TotalEmployees() ([]types.Employee, error) {
 	var employees []types.Employee
 	err := repo.db.Select("employee_id", "name").Find(&employees).Error
