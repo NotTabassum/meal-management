@@ -55,3 +55,8 @@ type Employee struct {
 	EmployeeId uint   `json:"employee_id"`
 	Name       string `json:"name"`
 }
+
+type TotalMealCounts struct {
+	TotalLunch  int `json:"total_lunch"`
+	TotalSnacks int `json:"total_snacks"`
+}

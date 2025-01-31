@@ -357,3 +357,18 @@ func (service *MealActivityService) TotalMealPerPerson(date string, days int, em
 	}
 	return count, nil
 }
+
+func (service *MealActivityService) TotalMealCount(date string, days int) (types.TotalMealCounts, error) {
+	startDate, err := time.Parse(consts.DateFormat, date)
+	if err != nil {
+		return types.TotalMealCounts{}, err
+	}
+	tmpEndDate := startDate.AddDate(0, 0, days-1)
+	endDate := tmpEndDate.Format(consts.DateFormat)
+
+	totalMeal, err := service.repo.GetTotalMealCounts(date, endDate)
+	if err != nil {
+		return types.TotalMealCounts{}, err
+	}
+	return totalMeal, nil
+}

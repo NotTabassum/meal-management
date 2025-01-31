@@ -156,6 +156,23 @@ func (repo *MealActivityRepo) GetEmployeeMealCounts(startDate, endDate string) (
 	return results, nil
 }
 
+func (repo *MealActivityRepo) GetTotalMealCounts(startDate, endDate string) (types.TotalMealCounts, error) {
+	var result types.TotalMealCounts
+
+	if err := repo.db.
+		Table("meal_activities").
+		Select(`
+            SUM(CASE WHEN meal_type = 1 AND status = true THEN 1 ELSE 0 END) + SUM(CASE WHEN meal_type = 1 THEN guest_count ELSE 0 END) AS total_lunch,
+            SUM(CASE WHEN meal_type = 2 AND status = true THEN 1 ELSE 0 END) + SUM(CASE WHEN meal_type = 2 THEN guest_count ELSE 0 END) AS total_snacks
+        `).
+		Where("date BETWEEN ? AND ?", startDate, endDate).
+		Scan(&result).Error; err != nil {
+		return types.TotalMealCounts{}, err
+	}
+
+	return result, nil
+}
+
 func (repo *MealActivityRepo) TotalEmployees() ([]types.Employee, error) {
 	var employees []types.Employee
 	err := repo.db.Select("employee_id", "name").Find(&employees).Error
