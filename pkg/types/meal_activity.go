@@ -15,6 +15,16 @@ type PenaltyRequest struct {
 	EmployeeId uint   `json:"employee_id"`
 	Days       int    `json:"days"`
 }
+type TotalMealGroupRequest struct {
+	Date     string `json:"date" validate:"required"`
+	Days     int    `json:"days"`
+	MealType int    `json:"meal_type" validate:"required"`
+}
+
+type TotalMealGroupResponse struct {
+	Date  string `json:"date"`
+	Count int    `json:"count"`
+}
 
 type MealActivityResponse struct {
 	EmployeeId      uint              `json:"employee_id"`

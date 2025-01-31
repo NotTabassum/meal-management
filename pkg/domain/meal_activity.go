@@ -19,6 +19,7 @@ type IMealActivityRepo interface {
 	TotalEmployees() ([]types.Employee, error)
 	GetEmployeeMealCounts(startDate, endDate string) ([]types.MealSummaryResponse, error)
 	GetTotalMealCounts(startDate, endDate string) (types.TotalMealCounts, error)
+	TotalMealADayGroup(startDate, endDate string, mealType int) ([]types.TotalMealGroupResponse, error)
 }
 
 type IMealActivityService interface {
@@ -32,4 +33,5 @@ type IMealActivityService interface {
 	TotalMealAMonth(date string, days int) ([]types.MealSummaryResponse, error)
 	TotalMealPerPerson(date string, days int, employeeID uint) (int, error)
 	TotalMealCount(date string, days int) (types.TotalMealCounts, error)
+	TotalMealADayGroup(date string, mealType int, days int) ([]types.TotalMealGroupResponse, error)
 }
