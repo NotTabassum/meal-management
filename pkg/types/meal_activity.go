@@ -45,8 +45,10 @@ type MealSummaryReq struct {
 }
 
 type MealSummaryResponse struct {
+	EmployeeId uint   `json:"employee_id"`
 	Name       string `json:"name"`
-	TotalCount int    `json:"total_count"`
+	Lunch      int    `json:"lunch"`
+	Snacks     int    `json:"snacks"`
 }
 
 type Employee struct {

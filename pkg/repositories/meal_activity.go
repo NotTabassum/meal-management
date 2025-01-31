@@ -127,22 +127,30 @@ func (repo *MealActivityRepo) GetEmployeeMealCounts(startDate, endDate string) (
 
 	if err := repo.db.
 		Table("meal_activities").
-		Select("employee_name AS name, SUM(CASE WHEN status = true THEN 1 ELSE 0 END + guest_count) AS total_count").
+		Select(`
+            employee_id, 
+            employee_name AS name,
+            SUM(CASE WHEN meal_type = 1 AND status = true THEN 1 ELSE 0 END) AS lunch,
+            SUM(CASE WHEN meal_type = 2 AND status = true THEN 1 ELSE 0 END) AS snacks
+        `).
 		Where("date BETWEEN ? AND ?", startDate, endDate).
 		Group("employee_id, employee_name").
-		Order("total_count DESC").
+		Order("employee_id ASC").
 		Scan(&results).Error; err != nil {
 		return nil, err
 	}
 
-	totalMealCount := 0
+	var totalLunch, totalSnacks int
 	for _, result := range results {
-		totalMealCount += result.TotalCount
+		totalLunch += result.Lunch
+		totalSnacks += result.Snacks
 	}
 
 	results = append(results, types.MealSummaryResponse{
-		Name:       "Total Meal",
-		TotalCount: totalMealCount,
+		EmployeeId: 0,
+		Name:       "Total Counts",
+		Lunch:      totalLunch,
+		Snacks:     totalSnacks,
 	})
 
 	return results, nil
