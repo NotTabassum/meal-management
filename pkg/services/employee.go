@@ -20,9 +20,33 @@ func EmployeeServiceInstance(employeeRepo domain.IEmployeeRepo) domain.IEmployee
 	}
 }
 
-func (service *EmployeeService) GetEmployee(EmployeeID uint) ([]types.EmployeeRequest, error) {
+func (service *EmployeeService) GetSpecificEmployee(EmployeeID uint) (types.EmployeeRequest, error) {
+	allEmployees := types.EmployeeRequest{}
+	employee, err := service.repo.GetSpecificEmployee(EmployeeID)
+	if err != nil {
+		return allEmployees, err
+	}
+	dept, err := service.repo.GetDepartmentById(employee.DeptID)
+	if err != nil {
+		return types.EmployeeRequest{}, err
+	}
+	deptName := dept.DeptName
+	allEmployees = types.EmployeeRequest{
+		EmployeeId:    employee.EmployeeId,
+		Name:          employee.Name,
+		Email:         employee.Email,
+		PhoneNumber:   employee.PhoneNumber,
+		DeptName:      deptName,
+		Remarks:       employee.Remarks,
+		DefaultStatus: employee.DefaultStatus,
+		IsAdmin:       employee.IsAdmin,
+	}
+	return allEmployees, nil
+}
+
+func (service *EmployeeService) GetEmployee() ([]types.EmployeeRequest, error) {
 	allEmployees := []types.EmployeeRequest{}
-	employee := service.repo.GetEmployee(EmployeeID)
+	employee := service.repo.GetEmployee()
 	for _, val := range employee {
 		dept, err := service.repo.GetDepartmentById(val.DeptID)
 		if err != nil {
@@ -72,34 +96,35 @@ func (service *EmployeeService) DeleteMealActivity(date string, EmployeeId uint)
 	return nil
 }
 
-func (service *EmployeeService) GetEmployeeWithEmployeeID(EmployeeID uint) ([]models.Employee, error) {
-	allEmployees := []models.Employee{}
-	employee := service.repo.GetEmployee(EmployeeID)
-	//if len(employee) == 0 {
-	//	//fmt.Println(EmployeeID)
-	//	return nil, errors.New("employee not found")
-	//}
-	for _, val := range employee {
-		allEmployees = append(allEmployees, models.Employee{
-			EmployeeId:    val.EmployeeId,
-			Name:          val.Name,
-			Email:         val.Email,
-			PhoneNumber:   val.PhoneNumber,
-			DeptID:        val.DeptID,
-			Password:      val.Password,
-			Remarks:       val.Remarks,
-			DefaultStatus: val.DefaultStatus,
-			IsAdmin:       val.IsAdmin,
-			Photo:         val.Photo,
-		})
+func (service *EmployeeService) GetEmployeeWithEmployeeID(EmployeeID uint) (models.Employee, error) {
+	allEmployees := models.Employee{}
+	employee, err := service.repo.GetSpecificEmployee(EmployeeID)
+	if err != nil {
+		return models.Employee{}, err
+	}
+
+	allEmployees = models.Employee{
+		EmployeeId:    employee.EmployeeId,
+		Name:          employee.Name,
+		Email:         employee.Email,
+		PhoneNumber:   employee.PhoneNumber,
+		DeptID:        employee.DeptID,
+		Password:      employee.Password,
+		Remarks:       employee.Remarks,
+		DefaultStatus: employee.DefaultStatus,
+		IsAdmin:       employee.IsAdmin,
+		Photo:         employee.Photo,
 	}
 	return allEmployees, nil
 }
 
 func (service *EmployeeService) UpdateDefaultStatus(EmployeeId uint, date string) error {
-	employee := service.repo.GetEmployee(EmployeeId)
+	employee, err := service.repo.GetSpecificEmployee(EmployeeId)
+	if err != nil {
+		return err
+	}
 	updatedEmployee := models.Employee{}
-	updatedEmployee = employee[0]
+	updatedEmployee = *employee
 	mealActivity, err := service.repo.FindMeal(EmployeeId, date)
 	if err != nil {
 		return err
@@ -229,11 +254,14 @@ func (service *EmployeeService) ForgottenPassword(email string, link string) err
 }
 
 func (service *EmployeeService) GetPhoto(employeeId uint) (string, error) {
-	employee := service.repo.GetEmployee(employeeId)
+	employee, err := service.repo.GetSpecificEmployee(employeeId)
+	if err != nil {
+		return "", err
+	}
 	if employee == nil {
 		return "", errors.New("employee not found")
 	}
-	photoPath := employee[0].Photo
+	photoPath := employee.Photo
 	return photoPath, nil
 }
 

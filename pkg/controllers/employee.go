@@ -222,12 +222,22 @@ func CreateEmployee(e echo.Context) error {
 }
 
 func GetEmployee(e echo.Context) error {
-	tempEmployeeID := e.QueryParam("employee_id")
-	EmployeeID, err := strconv.ParseUint(tempEmployeeID, 0, 0)
-	if err != nil && tempEmployeeID != "" {
-		return e.JSON(http.StatusBadRequest, "Invalid Employee ID")
+	authorizationHeader := e.Request().Header.Get("Authorization")
+	if authorizationHeader == "" {
+		return e.JSON(http.StatusUnauthorized, map[string]string{"res": "Authorization header is empty"})
 	}
-	Employee, err := EmployeeService.GetEmployee(uint(EmployeeID))
+	_, isAdmin, err := middleware.ParseJWT(authorizationHeader)
+	if err != nil {
+		if err.Error() == "token expired" {
+			return e.JSON(http.StatusUnauthorized, map[string]string{"error": "Token expired"})
+		}
+		return e.JSON(http.StatusUnauthorized, map[string]string{"error": err.Error()})
+	}
+	if isAdmin != true {
+		return e.JSON(http.StatusUnauthorized, map[string]string{"error": "You are not administrator"})
+	}
+
+	Employee, err := EmployeeService.GetEmployee()
 	if err != nil {
 		return e.JSON(http.StatusInternalServerError, err.Error())
 	}
@@ -243,7 +253,7 @@ func UpdateEmployee(e echo.Context) error {
 	tempEmployeeID, err := strconv.ParseUint(e.FormValue("employee_id"), 10, 32)
 	EmployeeID := uint(tempEmployeeID)
 	existingEmployee, err := EmployeeService.GetEmployeeWithEmployeeID(EmployeeID)
-	employee := existingEmployee[0]
+	employee := existingEmployee
 	if err != nil {
 		return e.JSON(http.StatusBadRequest, err.Error())
 	}
@@ -305,9 +315,9 @@ func UpdateEmployee(e echo.Context) error {
 		return e.JSON(http.StatusUnauthorized, map[string]string{"error": err.Error()})
 	}
 	if !isAdmin {
-		Email = existingEmployee[0].Email
-		DeptID = existingEmployee[0].DeptID
-		Admin = existingEmployee[0].IsAdmin
+		Email = existingEmployee.Email
+		DeptID = existingEmployee.DeptID
+		Admin = existingEmployee.IsAdmin
 	}
 	NewID, err := strconv.ParseUint(ID, 10, 32)
 	if err != nil {
@@ -360,7 +370,7 @@ func UpdateEmployee(e echo.Context) error {
 		EmployeeId:    EmployeeID,
 		Name:          Name,
 		Email:         Email,
-		PhoneNumber:   ifNot11(PhoneNumber, existingEmployee[0].PhoneNumber),
+		PhoneNumber:   ifNot11(PhoneNumber, existingEmployee.PhoneNumber),
 		Password:      Password,
 		DeptID:        DeptID,
 		Remarks:       remarks,
@@ -461,7 +471,7 @@ func Profile(e echo.Context) error {
 	if err != nil {
 		return e.JSON(http.StatusBadRequest, "Invalid Data")
 	}
-	employee, err := EmployeeService.GetEmployee(uint(EmployeeID))
+	employee, err := EmployeeService.GetSpecificEmployee(uint(EmployeeID))
 	if err != nil {
 		return e.JSON(http.StatusInternalServerError, err.Error())
 	}
@@ -562,7 +572,7 @@ func PasswordChange(e echo.Context) error {
 	}
 	password, err := security.HashPassword(pass.Password)
 	employees, err := EmployeeService.GetEmployeeWithEmployeeID(uint(EmployeeID))
-	employee := employees[0]
+	employee := employees
 	updatedEmployee := &models.Employee{
 		EmployeeId:    uint(EmployeeID),
 		Name:          employee.Name,

@@ -7,7 +7,8 @@ import (
 
 type IEmployeeRepo interface {
 	CreateEmployee(employee *models.Employee) error
-	GetEmployee(EmployeeID uint) []models.Employee
+	GetEmployee() []models.Employee
+	GetSpecificEmployee(EmployeeID uint) (*models.Employee, error)
 	UpdateEmployee(employee *models.Employee) error
 	DeleteEmployee(EmployeeId uint) error
 	FindMeal(employeeID uint, date string) ([]models.MealActivity, error)
@@ -19,9 +20,10 @@ type IEmployeeRepo interface {
 }
 
 type IEmployeeService interface {
-	GetEmployeeWithEmployeeID(EmployeeID uint) ([]models.Employee, error)
+	GetEmployeeWithEmployeeID(EmployeeID uint) (models.Employee, error)
 	CreateEmployee(employee *models.Employee) error
-	GetEmployee(EmployeeID uint) ([]types.EmployeeRequest, error)
+	GetSpecificEmployee(EmployeeID uint) (types.EmployeeRequest, error)
+	GetEmployee() ([]types.EmployeeRequest, error)
 	UpdateEmployee(employee *models.Employee) error
 	DeleteEmployee(EmployeeId uint) error
 	UpdateDefaultStatus(EmployeeId uint, date string) error

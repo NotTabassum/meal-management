@@ -17,15 +17,17 @@ func EmployeeDBInstance(d *gorm.DB) domain.IEmployeeRepo {
 		db: d,
 	}
 }
-func (repo *EmployeeRepo) GetEmployee(EmployeeID uint) []models.Employee {
-	var Employee []models.Employee
-	var err error
-	if EmployeeID != 0 {
-		err = repo.db.Where("employee_id = ? ", EmployeeID).Find(&Employee).Error
-	} else {
-		err = repo.db.Find(&Employee).Error
+func (repo *EmployeeRepo) GetSpecificEmployee(EmployeeID uint) (*models.Employee, error) {
+	var Employee models.Employee
+	if err := repo.db.Where("employee_id = ? ", EmployeeID).Find(&Employee).Error; err != nil {
+		return &models.Employee{}, err
 	}
-	if err != nil {
+	return &Employee, nil
+}
+
+func (repo *EmployeeRepo) GetEmployee() []models.Employee {
+	var Employee []models.Employee
+	if err := repo.db.Find(&Employee).Error; err != nil {
 		return []models.Employee{}
 	}
 	return Employee
