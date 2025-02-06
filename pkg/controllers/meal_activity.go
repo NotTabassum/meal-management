@@ -41,12 +41,18 @@ func CreateMealActivity(e echo.Context) error {
 	if authorizationHeader == "" {
 		return e.JSON(http.StatusUnauthorized, map[string]string{"res": "Authorization header is empty"})
 	}
-	_, isAdmin, _ := middleware.ParseJWT(authorizationHeader)
+	_, isAdmin, err := middleware.ParseJWT(authorizationHeader)
+	if err != nil {
+		if err.Error() == "token expired" {
+			return e.JSON(http.StatusUnauthorized, map[string]string{"error": "Token expired"})
+		}
+		return e.JSON(http.StatusUnauthorized, map[string]string{"error": err.Error()})
+	}
 	if !isAdmin {
 		return e.JSON(http.StatusForbidden, map[string]string{"res": "Unauthorized"})
 	}
 
-	err := MealActivityService.GenerateMealActivities()
+	err = MealActivityService.GenerateMealActivities()
 	if err != nil {
 		return e.JSON(http.StatusInternalServerError, map[string]string{"res": "Internal server error"})
 	}
@@ -92,7 +98,13 @@ func UpdateMealActivity(e echo.Context) error {
 	if authorizationHeader == "" {
 		return e.JSON(http.StatusUnauthorized, map[string]string{"res": "Authorization header is empty"})
 	}
-	ID, isAdmin, _ := middleware.ParseJWT(authorizationHeader)
+	ID, isAdmin, err := middleware.ParseJWT(authorizationHeader)
+	if err != nil {
+		if err.Error() == "token expired" {
+			return e.JSON(http.StatusUnauthorized, map[string]string{"error": "Token expired"})
+		}
+		return e.JSON(http.StatusUnauthorized, map[string]string{"error": err.Error()})
+	}
 	if !isAdmin {
 		reqMealActivity.Penalty = existingActivity.Penalty
 	}
@@ -126,7 +138,13 @@ func GetOwnMealActivity(e echo.Context) error {
 	if authorizationHeader == "" {
 		return e.JSON(http.StatusUnauthorized, map[string]string{"res": "Authorization header is empty"})
 	}
-	ID, _, _ := middleware.ParseJWT(authorizationHeader)
+	ID, _, err := middleware.ParseJWT(authorizationHeader)
+	if err != nil {
+		if err.Error() == "token expired" {
+			return e.JSON(http.StatusUnauthorized, map[string]string{"error": "Token expired"})
+		}
+		return e.JSON(http.StatusUnauthorized, map[string]string{"error": err.Error()})
+	}
 	id, err := strconv.ParseUint(ID, 10, 32)
 
 	stDate := e.QueryParam("start")
@@ -164,7 +182,13 @@ func TotalMealADayGroup(e echo.Context) error {
 	if authorizationHeader == "" {
 		return e.JSON(http.StatusUnauthorized, map[string]string{"res": "Authorization header is empty"})
 	}
-	_, isAdmin, _ := middleware.ParseJWT(authorizationHeader)
+	_, isAdmin, err := middleware.ParseJWT(authorizationHeader)
+	if err != nil {
+		if err.Error() == "token expired" {
+			return e.JSON(http.StatusUnauthorized, map[string]string{"error": "Token expired"})
+		}
+		return e.JSON(http.StatusUnauthorized, map[string]string{"error": err.Error()})
+	}
 	if !isAdmin {
 		return e.JSON(http.StatusForbidden, map[string]string{"res": "Unauthorized"})
 	}
@@ -223,7 +247,13 @@ func UpdateGroupMealActivity(e echo.Context) error {
 		if authorizationHeader == "" {
 			return e.JSON(http.StatusUnauthorized, map[string]string{"res": "Authorization header is empty"})
 		}
-		ID, isAdmin, _ := middleware.ParseJWT(authorizationHeader)
+		ID, isAdmin, err := middleware.ParseJWT(authorizationHeader)
+		if err != nil {
+			if err.Error() == "token expired" {
+				return e.JSON(http.StatusUnauthorized, map[string]string{"error": "Token expired"})
+			}
+			return e.JSON(http.StatusUnauthorized, map[string]string{"error": err.Error()})
+		}
 		if !isAdmin {
 			val.Penalty = existingActivity.Penalty
 		}
@@ -258,7 +288,13 @@ func TotalMealAMonth(e echo.Context) error {
 	if authorizationHeader == "" {
 		return e.JSON(http.StatusUnauthorized, map[string]string{"res": "Authorization header is empty"})
 	}
-	_, isAdmin, _ := middleware.ParseJWT(authorizationHeader)
+	_, isAdmin, err := middleware.ParseJWT(authorizationHeader)
+	if err != nil {
+		if err.Error() == "token expired" {
+			return e.JSON(http.StatusUnauthorized, map[string]string{"error": "Token expired"})
+		}
+		return e.JSON(http.StatusUnauthorized, map[string]string{"error": err.Error()})
+	}
 	if !isAdmin {
 		return e.JSON(http.StatusUnauthorized, map[string]string{"res": "Not Authorized"})
 	}
@@ -281,7 +317,13 @@ func TotalMealPerPerson(e echo.Context) error {
 	if authorizationHeader == "" {
 		return e.JSON(http.StatusUnauthorized, map[string]string{"res": "Authorization header is empty"})
 	}
-	ID, _, _ := middleware.ParseJWT(authorizationHeader)
+	ID, _, err := middleware.ParseJWT(authorizationHeader)
+	if err != nil {
+		if err.Error() == "token expired" {
+			return e.JSON(http.StatusUnauthorized, map[string]string{"error": "Token expired"})
+		}
+		return e.JSON(http.StatusUnauthorized, map[string]string{"error": err.Error()})
+	}
 	id, err := strconv.ParseUint(ID, 10, 32)
 	if err != nil {
 		return e.JSON(http.StatusBadRequest, err.Error())
@@ -305,7 +347,13 @@ func TotalMealCount(e echo.Context) error {
 	if authorizationHeader == "" {
 		return e.JSON(http.StatusUnauthorized, map[string]string{"res": "Authorization header is empty"})
 	}
-	_, isAdmin, _ := middleware.ParseJWT(authorizationHeader)
+	_, isAdmin, err := middleware.ParseJWT(authorizationHeader)
+	if err != nil {
+		if err.Error() == "token expired" {
+			return e.JSON(http.StatusUnauthorized, map[string]string{"error": "Token expired"})
+		}
+		return e.JSON(http.StatusUnauthorized, map[string]string{"error": err.Error()})
+	}
 	if !isAdmin {
 		return e.JSON(http.StatusUnauthorized, map[string]string{"res": "Not Authorized"})
 	}

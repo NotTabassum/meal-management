@@ -21,7 +21,13 @@ func CreateDepartment(e echo.Context) error {
 	if authorizationHeader == "" {
 		return e.JSON(http.StatusUnauthorized, map[string]string{"res": "Authorization header is empty"})
 	}
-	_, isAdmin, _ := middleware.ParseJWT(authorizationHeader)
+	_, isAdmin, err := middleware.ParseJWT(authorizationHeader)
+	if err != nil {
+		if err.Error() == "token expired" { // ✅ Check for expiration error
+			return e.JSON(http.StatusUnauthorized, map[string]string{"error": "Token expired"})
+		}
+		return e.JSON(http.StatusUnauthorized, map[string]string{"error": err.Error()})
+	}
 	if !isAdmin {
 		return e.JSON(http.StatusForbidden, map[string]string{"res": "Unauthorized"})
 	}
@@ -49,7 +55,13 @@ func DeleteDepartment(e echo.Context) error {
 	if authorizationHeader == "" {
 		return e.JSON(http.StatusUnauthorized, map[string]string{"res": "Authorization header is empty"})
 	}
-	_, isAdmin, _ := middleware.ParseJWT(authorizationHeader)
+	_, isAdmin, err := middleware.ParseJWT(authorizationHeader)
+	if err != nil {
+		if err.Error() == "token expired" {
+			return e.JSON(http.StatusUnauthorized, map[string]string{"error": "Token expired"})
+		}
+		return e.JSON(http.StatusUnauthorized, map[string]string{"error": err.Error()})
+	}
 	if !isAdmin {
 		return e.JSON(http.StatusForbidden, map[string]string{"res": "Unauthorized"})
 	}
@@ -81,7 +93,13 @@ func UpdateDepartment(e echo.Context) error {
 	if authorizationHeader == "" {
 		return e.JSON(http.StatusUnauthorized, map[string]string{"res": "Authorization header is empty"})
 	}
-	_, isAdmin, _ := middleware.ParseJWT(authorizationHeader)
+	_, isAdmin, err := middleware.ParseJWT(authorizationHeader)
+	if err != nil {
+		if err.Error() == "token expired" {
+			return e.JSON(http.StatusUnauthorized, map[string]string{"error": "Token expired"})
+		}
+		return e.JSON(http.StatusUnauthorized, map[string]string{"error": err.Error()})
+	}
 	if !isAdmin {
 		return e.JSON(http.StatusForbidden, map[string]string{"res": "Unauthorized"})
 	}

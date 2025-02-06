@@ -6,6 +6,7 @@ import (
 	"github.com/labstack/echo/v4"
 	"meal-management/pkg/consts"
 	"net/http"
+	"time"
 )
 
 func Auth() echo.MiddlewareFunc {
@@ -26,16 +27,19 @@ func Auth() echo.MiddlewareFunc {
 	}
 }
 
-func GetEmployeeIDHandler(c echo.Context) error {
-	authorizationHeader := c.Request().Header.Get("Authorization")
+func GetEmployeeIDHandler(e echo.Context) error {
+	authorizationHeader := e.Request().Header.Get("Authorization")
 	if authorizationHeader == "" {
-		return c.JSON(http.StatusUnauthorized, map[string]string{"res": "Authorization header is empty"})
+		return e.JSON(http.StatusUnauthorized, map[string]string{"res": "Authorization header is empty"})
 	}
 	EmployeeID, _, err := ParseJWT(authorizationHeader)
 	if err != nil {
-		return c.JSON(http.StatusBadRequest, err)
+		if err.Error() == "token expired" {
+			return e.JSON(http.StatusUnauthorized, map[string]string{"error": "Token expired"})
+		}
+		return e.JSON(http.StatusBadRequest, err)
 	}
-	return c.JSON(http.StatusOK, map[string]string{"EmployeeID": EmployeeID})
+	return e.JSON(http.StatusOK, map[string]string{"EmployeeID": EmployeeID})
 }
 
 func ParseJWT(jwtToken string) (string, bool, error) {
@@ -52,6 +56,21 @@ func ParseJWT(jwtToken string) (string, bool, error) {
 	claims, ok := token.Claims.(jwt.MapClaims)
 	if !ok || !token.Valid {
 		return "", false, err
+	}
+
+	exp, found := claims["exp"]
+	if !found {
+		return "", false, fmt.Errorf("expiration claim (exp) not found")
+	}
+
+	expFloat, ok := exp.(float64)
+	if !ok {
+		return "", false, fmt.Errorf("expiration claim (exp) is not a valid number")
+	}
+
+	// Convert to time.Time and compare with current time
+	if time.Unix(int64(expFloat), 0).Before(time.Now()) {
+		return "", false, fmt.Errorf("token expired")
 	}
 
 	EmployeeID, found := claims["employee_id"]
