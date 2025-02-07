@@ -2,7 +2,6 @@ package services
 
 import (
 	"errors"
-	"fmt"
 	"meal-management/pkg/domain"
 	"meal-management/pkg/models"
 	"meal-management/pkg/security"
@@ -23,7 +22,6 @@ func (service *LoginService) Login(Auth models.Login) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	fmt.Println(employee.Password, Auth.Password)
 	if ok := security.CheckPasswordHash(Auth.Password, employee.Password); ok == false {
 		return "", errors.New("invalid Email or Password")
 	}

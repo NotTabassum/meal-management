@@ -36,7 +36,7 @@ func SetConfig() {
 	LocalConfig = &Config{}
 	err := godotenv.Load()
 	if err != nil {
-		log.Error(context.Background(), fmt.Sprintf("Error loading .env file. Error: %v. No problem in non-local env", err))
+		log.Error(context.Background(), fmt.Sprintf(" Error loading .env file. Error: %v. ", err))
 	}
 	if err := env.Parse(LocalConfig); err != nil {
 		panic(fmt.Sprintf("Error reading the environment variables: %v", err))

@@ -89,9 +89,28 @@ func UpdateMealActivity(e echo.Context) error {
 	mealType := reqMealActivity.MealType
 	employeeId := reqMealActivity.EmployeeId
 
-	existingActivity, err := MealActivityService.GetMealActivityById(string(date), int(mealType), uint(employeeId))
+	requestedDate, err := time.Parse("2006-01-02", date)
 	if err != nil {
-		return e.JSON(http.StatusInternalServerError, map[string]string{"res": "Internal server error"})
+		return e.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid date format, use YYYY-MM-DD"})
+	}
+
+	now := time.Now()
+	if requestedDate.Year() == now.Year() && requestedDate.YearDay() < now.YearDay() {
+		return e.JSON(http.StatusForbidden, map[string]string{"error": "You cant change previous meal activity"})
+	} else if requestedDate.Year() == now.Year() && requestedDate.YearDay() == now.YearDay() {
+		if mealType == 1 {
+			cutoff := time.Date(now.Year(), now.Month(), now.Day(), 10, 0, 0, 0, now.Location())
+
+			if now.After(cutoff) {
+				return e.JSON(http.StatusForbidden, map[string]string{"error": "Lunch update is not allowed after 10 AM"})
+			}
+		} else if mealType == 2 {
+			cutoff := time.Date(now.Year(), now.Month(), now.Day(), 14, 0, 0, 0, now.Location())
+
+			if now.After(cutoff) {
+				return e.JSON(http.StatusForbidden, map[string]string{"error": "Snacks update is not allowed after 2 PM"})
+			}
+		}
 	}
 
 	authorizationHeader := e.Request().Header.Get("Authorization")
@@ -105,6 +124,12 @@ func UpdateMealActivity(e echo.Context) error {
 		}
 		return e.JSON(http.StatusUnauthorized, map[string]string{"error": err.Error()})
 	}
+
+	existingActivity, err := MealActivityService.GetMealActivityById(string(date), int(mealType), uint(employeeId))
+	if err != nil {
+		return e.JSON(http.StatusInternalServerError, map[string]string{"res": "Internal server error"})
+	}
+
 	if !isAdmin {
 		reqMealActivity.Penalty = existingActivity.Penalty
 	}
@@ -228,6 +253,32 @@ func UpdateGroupMealActivity(e echo.Context) error {
 	if err := e.Bind(&groupMeal); err != nil {
 		fmt.Println(err)
 		return e.JSON(http.StatusUnprocessableEntity, map[string]string{"res": "invalid request"})
+	}
+	now := time.Now()
+	for _, val := range groupMeal {
+		mealType := val.MealType
+		date := val.Date
+		requestedDate, err := time.Parse("2006-01-02", date)
+		if err != nil {
+			return e.JSON(http.StatusUnprocessableEntity, map[string]string{"res": "invalid request"})
+		}
+		if requestedDate.Year() == now.Year() && requestedDate.YearDay() < now.YearDay() {
+			return e.JSON(http.StatusForbidden, map[string]string{"error": "You cant change previous meal activity"})
+		} else if requestedDate.Year() == now.Year() && requestedDate.YearDay() == now.YearDay() {
+			if mealType == 1 {
+				cutoff := time.Date(now.Year(), now.Month(), now.Day(), 10, 0, 0, 0, now.Location())
+
+				if now.After(cutoff) {
+					return e.JSON(http.StatusForbidden, map[string]string{"error": "Lunch update is not allowed after 10 AM"})
+				}
+			} else if mealType == 2 {
+				cutoff := time.Date(now.Year(), now.Month(), now.Day(), 14, 0, 0, 0, now.Location())
+
+				if now.After(cutoff) {
+					return e.JSON(http.StatusForbidden, map[string]string{"error": "Snacks update is not allowed after 2 PM"})
+				}
+			}
+		}
 	}
 	for _, val := range groupMeal {
 		if val.Date == "" || val.MealType == 0 || val.EmployeeId == 0 {

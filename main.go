@@ -8,6 +8,7 @@ import (
 
 func main() {
 	controllers.StartCronJob()
+	controllers.StartCronJobExtraMeal()
 	e := echo.New()
 	containers.Serve(e)
 }
