@@ -63,7 +63,7 @@ type MealSummaryResponse struct {
 
 type Employee struct {
 	EmployeeId uint   `json:"employee_id"`
-	Name       string `json:"name"`
+	Name       string `json:"employee_name" gorm:"column:employee_name"`
 }
 
 type TotalMealCounts struct {

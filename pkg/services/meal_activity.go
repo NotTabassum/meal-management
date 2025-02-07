@@ -400,6 +400,9 @@ func (service *MealActivityService) TotalMealADayGroup(date string, mealType int
 func (service *MealActivityService) LunchSummaryForEmail() error {
 	today := time.Now().Format("2006-01-02")
 	lunchToday, err := service.repo.LunchToday(today)
+	//for _, val := range lunchToday {
+	//	fmt.Println(val.Name)
+	//}
 	if err != nil {
 		return err
 	}
@@ -408,7 +411,7 @@ func (service *MealActivityService) LunchSummaryForEmail() error {
 
 	email := &envoyer.EmailReq{
 		EventName: "general_email",
-		Receivers: []string{"tabassumoyshee@gmail.com"},
+		Receivers: []string{"ashikur.rahman@vivasoftltd.com"},
 		Variables: []envoyer.TemplateVariable{
 			{
 				Name:  "{{.subject}}",
@@ -522,6 +525,7 @@ func GenerateLunchSummaryEmailBody(date string, employee []types.Employee) strin
 	var mealRows strings.Builder
 	for i, val := range employee {
 		mealRows.WriteString(fmt.Sprintf("<tr><td>%d</td><td>%s</td></tr>", i+1, val.Name))
+		//fmt.Println(val.Name)
 	}
 
 	// Replace placeholders
@@ -543,7 +547,7 @@ func (service *MealActivityService) SnackSummaryForEmail() error {
 
 	email := &envoyer.EmailReq{
 		EventName: "general_email",
-		Receivers: []string{"tabassumoyshee@gmail.com"},
+		Receivers: []string{"ashikur.rahman@vivasoftltd.com"},
 		Variables: []envoyer.TemplateVariable{
 			{
 				Name:  "{{.subject}}",
