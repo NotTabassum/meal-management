@@ -18,6 +18,55 @@ func SetMealActivityService(mealActivityService domain.IMealActivityService) {
 	MealActivityService = mealActivityService
 }
 
+//func StartCronJobMealActivity() {
+//	c := cron.New()
+//	_, err := c.AddFunc("*/1 * * * *", func() { //"*/1 * * * *" for every minute
+//		log.Println("Running GenerateMealActivities at:", time.Now())
+//		if err := MealActivityService.GenerateMealActivities(); err != nil {
+//			log.Printf("Error generating meal activities: %v", err)
+//		}
+//	})
+//
+//	if err != nil {
+//		log.Fatalf("Failed to schedule cron job: %v", err)
+//	}
+//	c.Start()
+//	log.Println("Cron job started")
+//	select {}
+//}
+
+//func StartCronJobMealActivity() {
+//	log.Println("✅ Initializing CronJob for MealActivity")
+//
+//	if MealActivityService == nil {
+//		log.Fatal("🚨 MealActivityService is nil! Check initialization.")
+//	}
+//
+//	c := cron.New()
+//
+//	_, err := c.AddFunc("*/1 * * * *", func() {
+//		log.Println("🕛 Running GenerateMealActivities at:", time.Now())
+//
+//		if MealActivityService == nil {
+//			log.Println("🚨 MealActivityService is nil! Skipping job.")
+//			return
+//		}
+//
+//		if err := MealActivityService.GenerateMealActivities(); err != nil {
+//			log.Printf("❌ Error generating meal activities: %v", err)
+//		}
+//	})
+//
+//	if err != nil {
+//		log.Fatalf("🚨 Failed to schedule GenerateMealActivities: %v", err)
+//	}
+//
+//	c.Start()
+//	log.Println("✅ Cron jobs started successfully.")
+//
+//	//select {} // Keep running
+//}
+
 func CreateMealActivity(e echo.Context) error {
 	authorizationHeader := e.Request().Header.Get("Authorization")
 	if authorizationHeader == "" {
@@ -169,20 +218,21 @@ func GetOwnMealActivity(e echo.Context) error {
 
 }
 
-func TotalMealADay(e echo.Context) error {
-	reqMealActivity := &types.MealActivityRequest{}
-
-	if err := e.Bind(reqMealActivity); err != nil {
-		return e.JSON(http.StatusUnprocessableEntity, map[string]string{"res": "invalid request"})
-	}
-	date := reqMealActivity.Date
-	mealType := reqMealActivity.MealType
-	mealCount, err := MealActivityService.TotalMealADay(date, mealType)
-	if err != nil {
-		return e.JSON(http.StatusInternalServerError, map[string]string{"res": "Internal server error"})
-	}
-	return e.JSON(http.StatusCreated, mealCount)
-}
+//
+//func TotalMealADay(e echo.Context) error {
+//	reqMealActivity := &types.MealActivityRequest{}
+//
+//	if err := e.Bind(reqMealActivity); err != nil {
+//		return e.JSON(http.StatusUnprocessableEntity, map[string]string{"res": "invalid request"})
+//	}
+//	date := reqMealActivity.Date
+//	mealType := reqMealActivity.MealType
+//	mealCount, err := MealActivityService.TotalMealADay(date, mealType)
+//	if err != nil {
+//		return e.JSON(http.StatusInternalServerError, map[string]string{"res": "Internal server error"})
+//	}
+//	return e.JSON(http.StatusCreated, mealCount)
+//}
 
 func TotalMealADayGroup(e echo.Context) error {
 	authorizationHeader := e.Request().Header.Get("Authorization")
