@@ -3,11 +3,14 @@ package services
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"log"
+	"meal-management/envoyer"
 	"meal-management/pkg/consts"
 	"meal-management/pkg/domain"
 	"meal-management/pkg/models"
 	"meal-management/pkg/types"
+	"strings"
 	"time"
 )
 
@@ -386,4 +389,138 @@ func (service *MealActivityService) TotalMealADayGroup(date string, mealType int
 		return []types.TotalMealGroupResponse{}, err
 	}
 	return totalMealGroup, nil
+}
+
+func (service *MealActivityService) LunchSummaryForEmail() error {
+	today := time.Now().Format("2006-01-02")
+	lunchToday, err := service.repo.LunchToday(today)
+	if err != nil {
+		return err
+	}
+	subject := "Lunch Summary"
+	body := GenerateLunchSummaryEmailBody(today, lunchToday)
+
+	email := &envoyer.EmailReq{
+		EventName: "general_email",
+		Receivers: []string{"tabassumoyshee@gmail.com"},
+		Variables: []envoyer.TemplateVariable{
+			{
+				Name:  "{{.subject}}",
+				Value: subject,
+			},
+			{
+				Name:  "{{.body}}",
+				Value: body,
+			},
+		},
+	}
+	env := envoyer.New(consts.ENVOYER_URL, consts.ENVOYER_APP_KEY, consts.ENVOYER_CLIENT_KEY)
+	response, err := env.SendEmail(*email)
+	if err != nil {
+		return err
+	}
+	fmt.Println(response)
+	return nil
+}
+
+func GenerateLunchSummaryEmailBody(date string, employee []types.Employee) string {
+	total := len(employee)
+	template := `<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daily Lunch Summary</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 600px;
+            margin: 20px auto;
+            background: #ffffff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h2 {
+            text-align: center;
+            color: #333;
+        }
+        .meal-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        .meal-table th, .meal-table td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        .meal-table th {
+            background: #007bff;
+            color: #ffffff;
+        }
+        .meal-table tr:nth-child(even) {
+            background: #f9f9f9;
+        }
+        .total {
+            text-align: center;
+            font-size: 18px;
+            font-weight: bold;
+            color: #007bff;
+            margin-top: 20px;
+        }
+        .footer {
+            text-align: center;
+            font-size: 12px;
+            color: #888;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>🍽️ Daily Lunch Summary</h2>
+        <p>Hello,</p>
+        <p>Here is the lunch summary for <strong>{{DATE}}</strong>:</p>
+
+        <table class="meal-table">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Employee Name</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{MEAL_ROWS}}
+            </tbody>
+        </table>
+
+        <p class="total">Total Meals: <strong>{{TOTAL_MEALS}}</strong></p>
+
+        <div class="footer">
+            <p>This is an automated email. Please do not reply.</p>
+        </div>
+    </div>
+
+</body>
+</html>`
+
+	// Generate meal rows dynamically
+	var mealRows strings.Builder
+	for i, val := range employee {
+		mealRows.WriteString(fmt.Sprintf("<tr><td>%d</td><td>%s</td></tr>", i+1, val.Name))
+	}
+
+	// Replace placeholders
+	emailBody := strings.Replace(template, "{{DATE}}", date, -1)
+	emailBody = strings.Replace(emailBody, "{{MEAL_ROWS}}", mealRows.String(), -1)
+	emailBody = strings.Replace(emailBody, "{{TOTAL_MEALS}}", fmt.Sprintf("%d", total), -1)
+
+	return emailBody
 }

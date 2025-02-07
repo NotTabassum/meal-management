@@ -3,8 +3,6 @@ package controllers
 import (
 	"fmt"
 	"github.com/labstack/echo/v4"
-	"github.com/robfig/cron/v3"
-	"log"
 	"meal-management/pkg/domain"
 	"meal-management/pkg/middleware"
 	"meal-management/pkg/models"
@@ -18,22 +16,6 @@ var MealActivityService domain.IMealActivityService
 
 func SetMealActivityService(mealActivityService domain.IMealActivityService) {
 	MealActivityService = mealActivityService
-}
-
-func StartCronJob() {
-	c := cron.New()
-	_, err := c.AddFunc("@hourly", func() { //"*/1 * * * *" for every minute
-		log.Println("Running GenerateMealActivities at:", time.Now())
-		if err := MealActivityService.GenerateMealActivities(); err != nil {
-			log.Printf("Error generating meal activities: %v", err)
-		}
-	})
-
-	if err != nil {
-		log.Fatalf("Failed to schedule cron job: %v", err)
-	}
-	c.Start()
-	log.Println("Cron job started")
 }
 
 func CreateMealActivity(e echo.Context) error {

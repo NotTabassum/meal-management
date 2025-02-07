@@ -201,3 +201,16 @@ func (repo *MealActivityRepo) TotalMealADayGroup(startDate, endDate string, meal
 
 	return results, nil
 }
+
+func (repo *MealActivityRepo) LunchToday(date string) ([]types.Employee, error) {
+	var results []types.Employee
+	err := repo.db.
+		Table("meal_activities").
+		Select("employee_id, employee_name").
+		Where("date == ? AND meal_type == 1", date).Find(&results).Error
+
+	if err != nil {
+		return []types.Employee{}, err
+	}
+	return results, nil
+}

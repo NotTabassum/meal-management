@@ -2,8 +2,6 @@ package controllers
 
 import (
 	"github.com/labstack/echo/v4"
-	"github.com/robfig/cron/v3"
-	"log"
 	"meal-management/pkg/domain"
 	"meal-management/pkg/middleware"
 	"meal-management/pkg/models"
@@ -15,22 +13,6 @@ var ExtraMealService domain.IExtraMealService
 
 func SetExtraMealService(extraMealService domain.IExtraMealService) {
 	ExtraMealService = extraMealService
-}
-
-func StartCronJobExtraMeal() {
-	c := cron.New()
-	_, err := c.AddFunc("0 0 * * *", func() { //"0 0 * * *" for every day at 12:00
-		log.Println("Running Extra Meal at:", time.Now())
-		if err := ExtraMealService.GenerateExtraMeal; err != nil {
-			log.Printf("Error generating extra meal activities: %v", err)
-		}
-	})
-
-	if err != nil {
-		log.Fatalf("Failed to schedule cron job for extra meal: %v", err)
-	}
-	c.Start()
-	log.Println("Cron job started for extra meal")
 }
 
 func CreateExtraMeal(e echo.Context) error {
