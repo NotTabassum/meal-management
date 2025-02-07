@@ -7,6 +7,7 @@ import (
 )
 
 func main() {
+	containers.InitServe()
 	controllers.CronJob()
 	e := echo.New()
 	containers.Serve(e)

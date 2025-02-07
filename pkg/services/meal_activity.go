@@ -286,20 +286,20 @@ func (service *MealActivityService) GetOwnMealActivity(ID uint, startDate string
 	return mealActivities, nil
 }
 
-func (service *MealActivityService) TotalMealADay(date string, mealType int) (int, error) {
-	mealActivity, err := service.repo.FindMealADay(date, mealType)
-	if err != nil {
-		return 0, err
-	}
-	var count = 0
-	for _, activity := range mealActivity {
-		if activity.MealType == mealType && *activity.Status == true {
-			count++
-		}
-	}
-	return count, nil
-
-}
+//func (service *MealActivityService) TotalMealADay(date string, mealType int) (int, error) {
+//	mealActivity, err := service.repo.FindMealADay(date, mealType)
+//	if err != nil {
+//		return 0, err
+//	}
+//	var count = 0
+//	for _, activity := range mealActivity {
+//		if activity.MealType == mealType && *activity.Status == true {
+//			count++
+//		}
+//	}
+//	return count, nil
+//
+//}
 
 func (service *MealActivityService) TotalPenaltyAMonth(date string, employeeID uint, days int) (int, error) {
 
@@ -373,6 +373,12 @@ func (service *MealActivityService) TotalMealCount(date string, days int) (types
 	if err != nil {
 		return types.TotalMealCounts{}, err
 	}
+	totalExtraMeal, err := service.repo.GetTotalExtraMealCounts(date, endDate)
+	totalMeal.TotalLunch += int(totalExtraMeal)
+	totalMeal.TotalSnacks += int(totalExtraMeal)
+	if err != nil {
+		return types.TotalMealCounts{}, err
+	}
 	return totalMeal, nil
 }
 
@@ -414,12 +420,13 @@ func (service *MealActivityService) LunchSummaryForEmail() error {
 			},
 		},
 	}
+
 	env := envoyer.New(consts.ENVOYER_URL, consts.ENVOYER_APP_KEY, consts.ENVOYER_CLIENT_KEY)
 	response, err := env.SendEmail(*email)
 	if err != nil {
 		return err
 	}
-	fmt.Println(response)
+	log.Println(response)
 	return nil
 }
 
@@ -488,6 +495,141 @@ func GenerateLunchSummaryEmailBody(date string, employee []types.Employee) strin
         <h2>🍽️ Daily Lunch Summary</h2>
         <p>Hello,</p>
         <p>Here is the lunch summary for <strong>{{DATE}}</strong>:</p>
+
+        <table class="meal-table">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Employee Name</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{MEAL_ROWS}}
+            </tbody>
+        </table>
+
+        <p class="total">Total Meals: <strong>{{TOTAL_MEALS}}</strong></p>
+
+        <div class="footer">
+            <p>This is an automated email. Please do not reply.</p>
+        </div>
+    </div>
+
+</body>
+</html>`
+
+	// Generate meal rows dynamically
+	var mealRows strings.Builder
+	for i, val := range employee {
+		mealRows.WriteString(fmt.Sprintf("<tr><td>%d</td><td>%s</td></tr>", i+1, val.Name))
+	}
+
+	// Replace placeholders
+	emailBody := strings.Replace(template, "{{DATE}}", date, -1)
+	emailBody = strings.Replace(emailBody, "{{MEAL_ROWS}}", mealRows.String(), -1)
+	emailBody = strings.Replace(emailBody, "{{TOTAL_MEALS}}", fmt.Sprintf("%d", total), -1)
+
+	return emailBody
+}
+
+func (service *MealActivityService) SnackSummaryForEmail() error {
+	today := time.Now().Format("2006-01-02")
+	snackToday, err := service.repo.SnackToday(today)
+	if err != nil {
+		return err
+	}
+	subject := "Snacks Summary"
+	body := GenerateSnackSummaryEmailBody(today, snackToday)
+
+	email := &envoyer.EmailReq{
+		EventName: "general_email",
+		Receivers: []string{"tabassumoyshee@gmail.com"},
+		Variables: []envoyer.TemplateVariable{
+			{
+				Name:  "{{.subject}}",
+				Value: subject,
+			},
+			{
+				Name:  "{{.body}}",
+				Value: body,
+			},
+		},
+	}
+
+	env := envoyer.New(consts.ENVOYER_URL, consts.ENVOYER_APP_KEY, consts.ENVOYER_CLIENT_KEY)
+	response, err := env.SendEmail(*email)
+	if err != nil {
+		return err
+	}
+	log.Println(response)
+	return nil
+}
+
+func GenerateSnackSummaryEmailBody(date string, employee []types.Employee) string {
+	total := len(employee)
+	template := `<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daily Snacks Summary</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 600px;
+            margin: 20px auto;
+            background: #ffffff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h2 {
+            text-align: center;
+            color: #333;
+        }
+        .meal-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        .meal-table th, .meal-table td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        .meal-table th {
+            background: #007bff;
+            color: #ffffff;
+        }
+        .meal-table tr:nth-child(even) {
+            background: #f9f9f9;
+        }
+        .total {
+            text-align: center;
+            font-size: 18px;
+            font-weight: bold;
+            color: #007bff;
+            margin-top: 20px;
+        }
+        .footer {
+            text-align: center;
+            font-size: 12px;
+            color: #888;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>🍽️ Daily Snacks Summary</h2>
+        <p>Hello,</p>
+        <p>Here is the snack summary for <strong>{{DATE}}</strong>:</p>
 
         <table class="meal-table">
             <thead>

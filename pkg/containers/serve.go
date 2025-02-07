@@ -12,7 +12,7 @@ import (
 	"meal-management/pkg/services"
 )
 
-func Serve(e *echo.Echo) {
+func InitServe() {
 	config.SetConfig()
 
 	db := connection.GetDB()
@@ -37,7 +37,9 @@ func Serve(e *echo.Echo) {
 	controllers.SetMealActivityService(MealActivityService)
 	controllers.SetDeptService(DeptService)
 	controllers.SetExtraMealService(ExtraMealService)
+}
 
+func Serve(e *echo.Echo) {
 	routes.EmployeeRoutes(e)
 	routes.MealPlanRoutes(e)
 	routes.LoginRoutes(e)

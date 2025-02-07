@@ -22,6 +22,7 @@ func (repo *ExtraMealRepo) GenerateExtraMeal(date string) error {
 	var cnt int64 = 0
 	err := repo.db.Model(&models.ExtraMeal{}).Where("date = ?", date).Count(&cnt).Error
 	if err != nil {
+		fmt.Println(err)
 		return err
 	}
 	if cnt == 0 {
@@ -34,12 +35,26 @@ func (repo *ExtraMealRepo) GenerateExtraMeal(date string) error {
 	return nil
 }
 
+//
+//func (repo *ExtraMealRepo) UpdateExtraMeal(date string, count int) error {
+//	if err := repo.db.Model(&models.ExtraMeal{}).
+//		Where("date = ?", date).
+//		Updates(models.ExtraMeal{
+//			Date:  date,
+//			Count: count,
+//		}).Error; err != nil {
+//		fmt.Println(err)
+//		return err
+//	}
+//	return nil
+//}
+
 func (repo *ExtraMealRepo) UpdateExtraMeal(date string, count int) error {
 	if err := repo.db.Model(&models.ExtraMeal{}).
 		Where("date = ?", date).
-		Updates(models.ExtraMeal{
-			Date:  date,
-			Count: count,
+		Updates(map[string]interface{}{
+			"date":  date,
+			"count": count, // This ensures 0 is updated properly
 		}).Error; err != nil {
 		fmt.Println(err)
 		return err

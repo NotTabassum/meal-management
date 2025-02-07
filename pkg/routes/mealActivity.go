@@ -11,7 +11,7 @@ func MealActivityRoutes(e *echo.Echo) {
 	emp.POST("", controllers.CreateMealActivity)
 	emp.PATCH("/total-meal-summary", controllers.TotalMealCount)
 	emp.PATCH("/total-meal-group", controllers.TotalMealADayGroup)
-	emp.PATCH("/total-meal", controllers.TotalMealADay)
+	//emp.PATCH("/total-meal", controllers.TotalMealADay)
 	emp.PATCH("/total-penalty", controllers.TotalPenalty)
 	emp.PATCH("/meal-summary", controllers.TotalMealAMonth)
 	emp.PATCH("/meal-per-person", controllers.TotalMealPerPerson)

@@ -2,6 +2,7 @@ package repositories
 
 import (
 	"errors"
+	"fmt"
 	"gorm.io/gorm"
 	"meal-management/pkg/domain"
 	"meal-management/pkg/models"
@@ -104,14 +105,14 @@ func (repo *MealActivityRepo) GetOwnMealActivity(ID uint, startDate, endDate str
 	return mealActivities, nil
 }
 
-func (repo *MealActivityRepo) FindMealADay(date string, mealType int) ([]models.MealActivity, error) {
-	var mealActivities []models.MealActivity
-	err := repo.db.Where("date = ? AND meal_type = ?", date, mealType).Find(&mealActivities).Error
-	if err != nil {
-		return []models.MealActivity{}, err
-	}
-	return mealActivities, nil
-}
+//func (repo *MealActivityRepo) FindMealADay(date string, mealType int) ([]models.MealActivity, error) {
+//	var mealActivities []models.MealActivity
+//	err := repo.db.Where("date = ? AND meal_type = ?", date, mealType).Find(&mealActivities).Error
+//	if err != nil {
+//		return []models.MealActivity{}, err
+//	}
+//	return mealActivities, nil
+//}
 
 func (repo *MealActivityRepo) FindPenaltyAMonth(startDate string, endDate string, employeeID uint) ([]models.MealActivity, error) {
 	var mealActivities []models.MealActivity
@@ -173,6 +174,20 @@ func (repo *MealActivityRepo) GetTotalMealCounts(startDate, endDate string) (typ
 	return result, nil
 }
 
+func (repo *MealActivityRepo) GetTotalExtraMealCounts(startDate, endDate string) (int64, error) {
+	var totalCount int64
+	err := repo.db.Table("extra_meals").
+		Select("COALESCE(SUM(count), 0)").
+		Where("date BETWEEN ? AND ?", startDate, endDate).
+		Scan(&totalCount).Error
+
+	if err != nil {
+		return 0, err
+	}
+	fmt.Println(totalCount)
+	return totalCount, nil
+}
+
 func (repo *MealActivityRepo) TotalEmployees() ([]types.Employee, error) {
 	var employees []types.Employee
 	err := repo.db.Select("employee_id", "name").Find(&employees).Error
@@ -198,7 +213,17 @@ func (repo *MealActivityRepo) TotalMealADayGroup(startDate, endDate string, meal
 		Scan(&results).Error; err != nil {
 		return nil, err
 	}
-
+	for i, result := range results {
+		var totalCount int64 = 0
+		err := repo.db.Table("extra_meals").
+			Select("COALESCE(SUM(count), 0)").
+			Where("date = ?", result.Date).
+			Scan(&totalCount).Error
+		if err != nil {
+			return nil, err
+		}
+		results[i].Count += int(totalCount)
+	}
 	return results, nil
 }
 
@@ -207,7 +232,20 @@ func (repo *MealActivityRepo) LunchToday(date string) ([]types.Employee, error) 
 	err := repo.db.
 		Table("meal_activities").
 		Select("employee_id, employee_name").
-		Where("date == ? AND meal_type == 1", date).Find(&results).Error
+		Where("date = ? AND meal_type = 1", date).Find(&results).Error
+
+	if err != nil {
+		return []types.Employee{}, err
+	}
+	return results, nil
+}
+
+func (repo *MealActivityRepo) SnackToday(date string) ([]types.Employee, error) {
+	var results []types.Employee
+	err := repo.db.
+		Table("meal_activities").
+		Select("employee_id, employee_name").
+		Where("date = ? AND meal_type = 2", date).Find(&results).Error
 
 	if err != nil {
 		return []types.Employee{}, err
