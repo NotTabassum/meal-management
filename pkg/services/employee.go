@@ -125,10 +125,7 @@ func (service *EmployeeService) UpdateDefaultStatus(EmployeeId uint, date string
 	}
 	//updatedEmployee := models.Employee{}
 	updatedEmployee := *employee
-	mealActivity, err := service.repo.FindMeal(EmployeeId, date)
-	if err != nil {
-		return err
-	}
+
 	if updatedEmployee.DefaultStatus == true {
 		updatedEmployee.DefaultStatus = false
 	} else {
@@ -138,29 +135,39 @@ func (service *EmployeeService) UpdateDefaultStatus(EmployeeId uint, date string
 	if err != nil {
 		return err
 	}
-	for _, val := range mealActivity {
-		stat := updatedEmployee.DefaultStatus
-		if *val.IsOffDay == true {
-			if stat == true {
-				stat = false
-			}
-		}
-		updatedMealActivity := models.MealActivity{
-			Date:         val.Date,
-			EmployeeId:   val.EmployeeId,
-			MealType:     val.MealType,
-			EmployeeName: val.EmployeeName,
-			Status:       &stat,
-			GuestCount:   val.GuestCount,
-			Penalty:      val.Penalty,
-			IsOffDay:     val.IsOffDay,
-		}
 
-		err = service.repo.UpdateMealActivityForChangingDefaultStatus(&updatedMealActivity)
-		if err != nil {
-			return err
-		}
+	err = service.repo.UpdateMealStatus(EmployeeId, date)
+	if err != nil {
+		return err
 	}
+
+	//mealActivity, err := service.repo.FindMeal(EmployeeId, date)
+	//if err != nil {
+	//	return err
+	//}
+	//for _, val := range mealActivity {
+	//	stat := updatedEmployee.DefaultStatus
+	//	if *val.IsOffDay == true {
+	//		if stat == true {
+	//			stat = false
+	//		}
+	//	}
+	//	updatedMealActivity := models.MealActivity{
+	//		Date:         val.Date,
+	//		EmployeeId:   val.EmployeeId,
+	//		MealType:     val.MealType,
+	//		EmployeeName: val.EmployeeName,
+	//		Status:       &stat,
+	//		GuestCount:   val.GuestCount,
+	//		Penalty:      val.Penalty,
+	//		IsOffDay:     val.IsOffDay,
+	//	}
+	//
+	//	err = service.repo.UpdateMealActivityForChangingDefaultStatus(&updatedMealActivity)
+	//	if err != nil {
+	//		return err
+	//	}
+	//}
 
 	return nil
 }

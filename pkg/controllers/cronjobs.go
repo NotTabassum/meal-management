@@ -14,8 +14,8 @@ func CronJob() {
 
 	var err error
 
-	_, err = c.AddFunc("@hourly", func() {
-		log.Println("🕛 Running GenerateMealActivities at:", time.Now())
+	_, err = c.AddFunc("0 0 * * *", func() {
+		log.Println("Running GenerateMealActivities at:", time.Now())
 		if err := MealActivityService.GenerateMealActivities(); err != nil {
 			log.Printf("Error generating meal activities: %v", err)
 		}
@@ -25,7 +25,7 @@ func CronJob() {
 	}
 
 	_, err = c.AddFunc("0 0 * * *", func() {
-		log.Println("🍽️ Running Extra Meal at:", time.Now())
+		log.Println("Running Extra Meal at:", time.Now())
 		if err := ExtraMealService.GenerateExtraMeal(); err != nil {
 			log.Printf(" Error generating extra meal activities: %v", err)
 		}
@@ -35,7 +35,7 @@ func CronJob() {
 	}
 
 	_, err = c.AddFunc("05 10 * * *", func() {
-		log.Println(" Sending Lunch Summary at:", time.Now())
+		log.Println("Sending Lunch Summary at:", time.Now())
 		if err := MealActivityService.LunchSummaryForEmail(); err != nil {
 			log.Printf(" Error generating lunch summary: %v", err)
 		}
@@ -45,7 +45,7 @@ func CronJob() {
 	}
 
 	_, err = c.AddFunc("05 14 * * *", func() {
-		log.Println(" Sending Snacks Summary at:", time.Now())
+		log.Println("Sending Snacks Summary at:", time.Now())
 		if err := MealActivityService.SnackSummaryForEmail(); err != nil {
 			log.Printf(" Error generating snacks summary: %v", err)
 		}

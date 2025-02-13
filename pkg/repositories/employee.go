@@ -81,6 +81,15 @@ func (repo *EmployeeRepo) UpdateMealActivityForChangingDefaultStatus(mealActivit
 	return nil
 }
 
+func (repo *EmployeeRepo) UpdateMealStatus(employeeID uint, date string) error {
+	if err := repo.db.Model(&models.MealActivity{}).
+		Where("employee_id = ? AND date >= ? AND is_off_day = false", employeeID, date).
+		Update("status", gorm.Expr("CASE WHEN status = true THEN false ELSE true END")).Error; err != nil {
+		return err
+	}
+	return nil
+}
+
 func (repo *EmployeeRepo) GetDepartmentById(deptId int) (*models.Department, error) {
 	var dept models.Department
 	if err := repo.db.Where(" dept_id = ?", deptId).First(&dept).Error; err != nil {

@@ -17,6 +17,7 @@ type IEmployeeRepo interface {
 	MakeHashThePreviousValues() error
 	GetEmployeeByEmail(email string) (models.Employee, error)
 	DeleteMealActivity(date string, EmployeeId uint) error
+	UpdateMealStatus(employeeID uint, date string) error
 }
 
 type IEmployeeService interface {
