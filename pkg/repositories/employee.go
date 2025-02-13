@@ -64,22 +64,22 @@ func (repo *EmployeeRepo) FindMeal(employeeID uint, date string) ([]models.MealA
 	return activity, err
 }
 
-func (repo *EmployeeRepo) UpdateMealActivityForChangingDefaultStatus(mealActivity *models.MealActivity) error {
-	if err := repo.db.Model(&models.MealActivity{}).
-		Where("date = ? AND employee_id = ? AND meal_type = ?",
-			mealActivity.Date,
-			mealActivity.EmployeeId,
-			mealActivity.MealType,
-		).
-		Updates(models.MealActivity{
-			Status:     mealActivity.Status,
-			GuestCount: mealActivity.GuestCount,
-			Penalty:    mealActivity.Penalty,
-		}).Error; err != nil {
-		return err
-	}
-	return nil
-}
+//func (repo *EmployeeRepo) UpdateMealActivityForChangingDefaultStatus(mealActivity *models.MealActivity) error {
+//	if err := repo.db.Model(&models.MealActivity{}).
+//		Where("date = ? AND employee_id = ? AND meal_type = ?",
+//			mealActivity.Date,
+//			mealActivity.EmployeeId,
+//			mealActivity.MealType,
+//		).
+//		Updates(models.MealActivity{
+//			Status:     mealActivity.Status,
+//			GuestCount: mealActivity.GuestCount,
+//			Penalty:    mealActivity.Penalty,
+//		}).Error; err != nil {
+//		return err
+//	}
+//	return nil
+//}
 
 func (repo *EmployeeRepo) UpdateMealStatus(employeeID uint, date string) error {
 	if err := repo.db.Model(&models.MealActivity{}).

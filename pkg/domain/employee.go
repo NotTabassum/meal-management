@@ -12,7 +12,7 @@ type IEmployeeRepo interface {
 	UpdateEmployee(employee *models.Employee) error
 	DeleteEmployee(EmployeeId uint) error
 	FindMeal(employeeID uint, date string) ([]models.MealActivity, error)
-	UpdateMealActivityForChangingDefaultStatus(mealActivity *models.MealActivity) error
+	//UpdateMealActivityForChangingDefaultStatus(mealActivity *models.MealActivity) error
 	GetDepartmentById(deptId int) (*models.Department, error)
 	MakeHashThePreviousValues() error
 	GetEmployeeByEmail(email string) (models.Employee, error)
