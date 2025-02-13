@@ -23,6 +23,8 @@ type IMealActivityRepo interface {
 	TotalMealADayGroup(startDate, endDate string, mealType int) ([]types.TotalMealGroupResponse, error)
 	LunchToday(date string) ([]types.Employee, error)
 	SnackToday(date string) ([]types.Employee, error)
+	MealSummaryAYear(year string) ([]models.MealActivity, error)
+	ExtraMealSummaryAYear(year string) ([]models.ExtraMeal, error)
 }
 
 type IMealActivityService interface {
@@ -39,4 +41,5 @@ type IMealActivityService interface {
 	TotalMealADayGroup(date string, mealType int, days int) ([]types.TotalMealGroupResponse, error)
 	LunchSummaryForEmail() error
 	SnackSummaryForEmail() error
+	MealSummaryAYear(year string) ([]types.MealSummaryAYear, error)
 }

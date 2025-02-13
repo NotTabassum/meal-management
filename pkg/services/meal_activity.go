@@ -670,3 +670,56 @@ func GenerateSnackSummaryEmailBody(date string, employee []types.Employee) strin
 
 	return emailBody
 }
+
+func (service *MealActivityService) MealSummaryAYear(year string) ([]types.MealSummaryAYear, error) {
+	var mealCounts [12][2]int
+	mealActivity, err := service.repo.MealSummaryAYear(year)
+	if err != nil {
+		return []types.MealSummaryAYear{}, nil
+	}
+
+	for _, meal := range mealActivity {
+		date, err := time.Parse("2006-01-02", meal.Date)
+		if err != nil {
+			log.Printf("Failed to parse date %s: %v", meal.Date, err)
+		}
+		month := date.Month()
+
+		monthIndex := month - 1
+		cn := 0
+		if *meal.Status {
+			cn = 1
+		}
+		cn += *meal.GuestCount
+		if meal.MealType == 1 {
+			mealCounts[monthIndex][0] += cn
+		} else {
+			mealCounts[monthIndex][1] += cn
+		}
+	}
+	extraMeal, err := service.repo.ExtraMealSummaryAYear(year)
+	if err != nil {
+		return []types.MealSummaryAYear{}, nil
+	}
+	for _, meal := range extraMeal {
+		date, err := time.Parse("2006-01-02", meal.Date)
+		if err != nil {
+			log.Printf("Failed to parse date %s: %v", meal.Date, err)
+		}
+		month := date.Month()
+
+		mealCounts[(int(month) - 1)][0] += meal.Count
+		mealCounts[(int(month) - 1)][1] += meal.Count
+	}
+
+	response := make([]types.MealSummaryAYear, 0)
+	for month := 0; month < 12; month++ {
+		monthData := types.MealSummaryAYear{
+			Month: time.Month(month + 1).String(),
+			Lunch: mealCounts[month][0],
+			Snack: mealCounts[month][1],
+		}
+		response = append(response, monthData)
+	}
+	return response, nil
+}

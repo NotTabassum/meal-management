@@ -453,3 +453,27 @@ func TotalMealCount(e echo.Context) error {
 	}
 	return e.JSON(http.StatusCreated, mealCount)
 }
+
+func MealSummaryAYear(e echo.Context) error {
+	authorizationHeader := e.Request().Header.Get("Authorization")
+	if authorizationHeader == "" {
+		return e.JSON(http.StatusUnauthorized, map[string]string{"res": "Authorization header is empty"})
+	}
+	_, isAdmin, err := middleware.ParseJWT(authorizationHeader)
+	if err != nil {
+		if err.Error() == "token expired" {
+			return e.JSON(http.StatusUnauthorized, map[string]string{"error": "Token expired"})
+		}
+		return e.JSON(http.StatusUnauthorized, map[string]string{"error": err.Error()})
+	}
+	if !isAdmin {
+		return e.JSON(http.StatusUnauthorized, map[string]string{"res": "Not Authorized"})
+	}
+
+	year := e.QueryParam("year")
+	mealSummary, err := MealActivityService.MealSummaryAYear(year)
+	if err != nil {
+		return e.JSON(http.StatusInternalServerError, map[string]string{"res": "Internal server error"})
+	}
+	return e.JSON(http.StatusCreated, mealSummary)
+}
