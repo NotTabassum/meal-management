@@ -11,6 +11,7 @@ type IMealPlanRepo interface {
 	GetMealPlan(startDate, endDate string) []models.MealPlan
 	UpdateMealPlan(mealPlan *models.MealPlan) error
 	DeleteMealPlan(date string, mealType string) error
+	CreateOrUpdateMealPlan(mealPlan *models.MealPlan) error
 }
 
 type IMealPlanService interface {

@@ -23,6 +23,25 @@ func (repo *MealPlanRepo) CreateMealPlan(mealPlan *models.MealPlan) error {
 	return nil
 }
 
+func (repo *MealPlanRepo) CreateOrUpdateMealPlan(mealPlan *models.MealPlan) error {
+	var existingMealPlan models.MealPlan
+
+	result := repo.db.Where("date = ? AND meal_type = ?", mealPlan.Date, mealPlan.MealType).Find(&existingMealPlan)
+
+	if result.RowsAffected > 0 {
+		existingMealPlan.Food = mealPlan.Food
+		if err := repo.db.Save(&existingMealPlan).Error; err != nil {
+			return err
+		}
+	} else {
+		if err := repo.db.Create(mealPlan).Error; err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
 func (repo *MealPlanRepo) GetMealPlanByPrimaryKey(Date string, MealType string) (*models.MealPlan, error) {
 	var mealPlan models.MealPlan
 	err := repo.db.Where("date = ? AND meal_type = ?", Date, MealType).First(&mealPlan).Error

@@ -39,27 +39,20 @@ func CreateMealPlan(e echo.Context) error {
 		return e.JSON(http.StatusBadRequest, "Invalid Data")
 	}
 
-	//if err := reqEmployee.Validate(); err != nil {
-	//	return e.JSON(http.StatusBadRequest, err.Error())
-	//}
-
 	var createdMealPlans []models.MealPlan
 	for _, reqMeal := range reqMeals {
-		// Create a meal plan instance
 		meal := &models.MealPlan{
 			Date:     reqMeal.Date,
 			MealType: reqMeal.MealType,
 			Food:     reqMeal.Food,
 		}
 
-		// Save the meal plan using the service
 		if err := MealPlanService.CreateMealPlan(meal); err != nil {
 			return e.JSON(http.StatusInternalServerError, map[string]string{
 				"error": fmt.Sprintf("Failed to create meal plan for date %s: %s", reqMeal.Date, err.Error()),
 			})
 		}
 
-		// Add the successfully created meal plan to the list
 		createdMealPlans = append(createdMealPlans, *meal)
 	}
 	return e.JSON(http.StatusCreated, map[string]interface{}{
