@@ -123,8 +123,8 @@ func (service *EmployeeService) UpdateDefaultStatus(EmployeeId uint, date string
 	if err != nil {
 		return err
 	}
-	updatedEmployee := models.Employee{}
-	updatedEmployee = *employee
+	//updatedEmployee := models.Employee{}
+	updatedEmployee := *employee
 	mealActivity, err := service.repo.FindMeal(EmployeeId, date)
 	if err != nil {
 		return err
@@ -133,6 +133,10 @@ func (service *EmployeeService) UpdateDefaultStatus(EmployeeId uint, date string
 		updatedEmployee.DefaultStatus = false
 	} else {
 		updatedEmployee.DefaultStatus = true
+	}
+	err = service.repo.UpdateEmployee(&updatedEmployee)
+	if err != nil {
+		return err
 	}
 	for _, val := range mealActivity {
 		stat := updatedEmployee.DefaultStatus
@@ -151,10 +155,7 @@ func (service *EmployeeService) UpdateDefaultStatus(EmployeeId uint, date string
 			Penalty:      val.Penalty,
 			IsOffDay:     val.IsOffDay,
 		}
-		err := service.repo.UpdateEmployee(&updatedEmployee)
-		if err != nil {
-			return err
-		}
+
 		err = service.repo.UpdateMealActivityForChangingDefaultStatus(&updatedMealActivity)
 		if err != nil {
 			return err
