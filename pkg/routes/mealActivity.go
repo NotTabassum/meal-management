@@ -13,11 +13,11 @@ func MealActivityRoutes(e *echo.Echo) {
 	emp.PATCH("/total-meal-group", controllers.TotalMealADayGroup)
 	//emp.PATCH("/total-meal", controllers.TotalMealADay)
 	emp.PATCH("/total-penalty", controllers.TotalPenalty)
-	emp.PATCH("/meal-summary-year", controllers.MealSummaryAYear)
 	emp.PATCH("/meal-summary", controllers.TotalMealAMonth)
 	emp.PATCH("/meal-per-person", controllers.TotalMealPerPerson)
 	emp.PATCH("/group-update", controllers.UpdateGroupMealActivity)
 	emp.PATCH("", controllers.UpdateMealActivity)
+	emp.GET("/meal-summary-year", controllers.MealSummaryAYear)
 	emp.GET("", controllers.GetOwnMealActivity)
 	emp.GET("/admin", controllers.GetMealActivity)
 }
