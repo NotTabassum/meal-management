@@ -71,8 +71,9 @@ type TotalMealCounts struct {
 	TotalSnacks int `json:"total_snacks"`
 }
 
-type MealSummaryAYear struct {
+type MealSummaryForGraph struct {
 	Month string `json:"month"`
+	Year  string `json:"year"`
 	Lunch int    `json:"lunch"`
 	Snack int    `json:"snack"`
 }

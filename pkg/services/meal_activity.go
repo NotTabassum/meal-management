@@ -10,6 +10,7 @@ import (
 	"meal-management/pkg/domain"
 	"meal-management/pkg/models"
 	"meal-management/pkg/types"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -656,13 +657,11 @@ func GenerateSnackSummaryEmailBody(date string, employee []types.Employee) strin
 </body>
 </html>`
 
-	// Generate meal rows dynamically
 	var mealRows strings.Builder
 	for i, val := range employee {
 		mealRows.WriteString(fmt.Sprintf("<tr><td>%d</td><td>%s</td></tr>", i+1, val.Name))
 	}
 
-	// Replace placeholders
 	emailBody := strings.Replace(template, "{{DATE}}", date, -1)
 	emailBody = strings.Replace(emailBody, "{{MEAL_ROWS}}", mealRows.String(), -1)
 	emailBody = strings.Replace(emailBody, "{{TOTAL_MEALS}}", fmt.Sprintf("%d", total), -1)
@@ -670,55 +669,69 @@ func GenerateSnackSummaryEmailBody(date string, employee []types.Employee) strin
 	return emailBody
 }
 
-func (service *MealActivityService) MealSummaryAYear(year string) ([]types.MealSummaryAYear, error) {
-	var mealCounts [12][2]int
-	mealActivity, err := service.repo.MealSummaryAYear(year)
+func (service *MealActivityService) MealSummaryForGraph(monthCount int) ([]types.MealSummaryForGraph, error) {
+	response := make([]types.MealSummaryForGraph, monthCount)
+
+	startDate := time.Now().AddDate(0, -monthCount, 0).Format(consts.DateFormat)
+	endDate := time.Now().Format(consts.DateFormat)
+
+	mealActivity, err := service.repo.MealSummaryForGraph(startDate, endDate)
 	if err != nil {
-		return []types.MealSummaryAYear{}, nil
+		return []types.MealSummaryForGraph{}, nil
+	}
+
+	for i := 0; i < monthCount; i++ {
+		date := time.Now().AddDate(0, -i, 0)
+		response[i] = types.MealSummaryForGraph{
+			Month: date.Month().String(),
+			Year:  strconv.Itoa(date.Year()),
+			Lunch: 0,
+			Snack: 0,
+		}
 	}
 
 	for _, meal := range mealActivity {
 		date, err := time.Parse(consts.DateFormat, meal.Date)
 		if err != nil {
 			log.Printf("Failed to parse date %s: %v", meal.Date, err)
+			continue
 		}
-		month := date.Month()
 
-		monthIndex := month - 1
-		cn := 0
+		monthIndex := time.Now().Month() - date.Month()
+		if monthIndex < 0 {
+			monthIndex += 12
+		}
+
+		count := 0
 		if *meal.Status {
-			cn = 1
+			count = 1
 		}
-		cn += *meal.GuestCount
+		count += *meal.GuestCount
+
 		if meal.MealType == 1 {
-			mealCounts[monthIndex][0] += cn
+			response[monthIndex].Lunch += count
 		} else {
-			mealCounts[monthIndex][1] += cn
+			response[monthIndex].Snack += count
 		}
 	}
-	extraMeal, err := service.repo.ExtraMealSummaryAYear(year)
+
+	extraMeal, err := service.repo.ExtraMealSummaryForGraph(startDate, endDate)
 	if err != nil {
-		return []types.MealSummaryAYear{}, nil
+		return []types.MealSummaryForGraph{}, nil
 	}
+
 	for _, meal := range extraMeal {
 		date, err := time.Parse(consts.DateFormat, meal.Date)
 		if err != nil {
 			log.Printf("Failed to parse date %s: %v", meal.Date, err)
+			continue
 		}
-		month := date.Month()
-
-		mealCounts[(int(month) - 1)][0] += meal.Count
-		mealCounts[(int(month) - 1)][1] += meal.Count
-	}
-
-	response := make([]types.MealSummaryAYear, 0)
-	for month := 0; month < 12; month++ {
-		monthData := types.MealSummaryAYear{
-			Month: time.Month(month + 1).String(),
-			Lunch: mealCounts[month][0],
-			Snack: mealCounts[month][1],
+		monthIndex := time.Now().Month() - date.Month()
+		if monthIndex < 0 {
+			monthIndex += 12
 		}
-		response = append(response, monthData)
+		response[monthIndex].Lunch += meal.Count
+		response[monthIndex].Snack += meal.Count
 	}
 	return response, nil
 }

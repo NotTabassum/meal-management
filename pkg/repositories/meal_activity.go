@@ -253,18 +253,18 @@ func (repo *MealActivityRepo) SnackToday(date string) ([]types.Employee, error) 
 	return results, nil
 }
 
-func (repo *MealActivityRepo) MealSummaryAYear(year string) ([]models.MealActivity, error) {
+func (repo *MealActivityRepo) MealSummaryForGraph(startDate, endDate string) ([]models.MealActivity, error) {
 	var results []models.MealActivity
-	err := repo.db.Where("LEFT(date, 4) = ?", year).Find(&results).Error
+	err := repo.db.Where("date BETWEEN ? AND ?", startDate, endDate).Find(&results).Error
 	if err != nil {
 		return []models.MealActivity{}, err
 	}
 	return results, nil
 }
 
-func (repo *MealActivityRepo) ExtraMealSummaryAYear(year string) ([]models.ExtraMeal, error) {
+func (repo *MealActivityRepo) ExtraMealSummaryForGraph(startDate, endDate string) ([]models.ExtraMeal, error) {
 	var results []models.ExtraMeal
-	err := repo.db.Where("LEFT(date, 4) = ?", year).Find(&results).Error
+	err := repo.db.Where("date BETWEEN ? AND ?", startDate, endDate).Find(&results).Error
 	if err != nil {
 		return []models.ExtraMeal{}, err
 	}

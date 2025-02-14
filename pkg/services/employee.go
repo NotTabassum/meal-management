@@ -174,7 +174,7 @@ func (service *EmployeeService) UpdateMealStatusAsync(EmployeeId uint, date stri
 		time.Sleep(sleepDuration)
 	}
 
-	log.Printf("Update failed after %d attempts for Employee %d. Retrying later...", consts.MaxRetries, EmployeeId)
+	log.Printf("Update failed after %d attempts for Employee %d", consts.MaxRetries, EmployeeId)
 }
 
 func createResetLink(baseURL, token string) string {

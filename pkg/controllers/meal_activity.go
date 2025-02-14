@@ -455,7 +455,7 @@ func TotalMealCount(e echo.Context) error {
 	return e.JSON(http.StatusCreated, mealCount)
 }
 
-func MealSummaryAYear(e echo.Context) error {
+func MealSummaryForGraph(e echo.Context) error {
 	authorizationHeader := e.Request().Header.Get("Authorization")
 	if authorizationHeader == "" {
 		return e.JSON(http.StatusUnauthorized, map[string]string{"res": "Authorization header is empty"})
@@ -471,8 +471,9 @@ func MealSummaryAYear(e echo.Context) error {
 		return e.JSON(http.StatusUnauthorized, map[string]string{"res": "Not Authorized"})
 	}
 
-	year := e.QueryParam("year")
-	mealSummary, err := MealActivityService.MealSummaryAYear(year)
+	monthStr := e.QueryParam("month")
+	month, err := strconv.Atoi(monthStr)
+	mealSummary, err := MealActivityService.MealSummaryForGraph(month)
 	if err != nil {
 		return e.JSON(http.StatusInternalServerError, map[string]string{"res": "Internal server error"})
 	}
