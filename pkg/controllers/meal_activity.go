@@ -3,6 +3,7 @@ package controllers
 import (
 	"fmt"
 	"github.com/labstack/echo/v4"
+	"meal-management/pkg/consts"
 	"meal-management/pkg/domain"
 	"meal-management/pkg/middleware"
 	"meal-management/pkg/models"
@@ -120,7 +121,7 @@ func UpdateMealActivity(e echo.Context) error {
 	mealType := reqMealActivity.MealType
 	employeeId := reqMealActivity.EmployeeId
 
-	requestedDate, err := time.Parse("2006-01-02", date)
+	requestedDate, err := time.Parse(consts.DateFormat, date)
 	if err != nil {
 		return e.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid date format, use YYYY-MM-DD"})
 	}
@@ -290,7 +291,7 @@ func UpdateGroupMealActivity(e echo.Context) error {
 	//for _, val := range groupMeal {
 	//	mealType := val.MealType
 	//	date := val.Date
-	//	requestedDate, err := time.Parse("2006-01-02", date)
+	//	requestedDate, err := time.Parse(consts.DateFormat, date)
 	//	if err != nil {
 	//		return e.JSON(http.StatusUnprocessableEntity, map[string]string{"res": "invalid request"})
 	//	}

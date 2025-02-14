@@ -18,6 +18,7 @@ type IEmployeeRepo interface {
 	GetEmployeeByEmail(email string) (models.Employee, error)
 	DeleteMealActivity(date string, EmployeeId uint) error
 	UpdateMealStatus(employeeID uint, date string) error
+	MarkMealStatusUpdateComplete(EmployeeId uint) error
 }
 
 type IEmployeeService interface {

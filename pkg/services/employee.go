@@ -3,11 +3,14 @@ package services
 import (
 	"errors"
 	"fmt"
+	"log"
+	"math"
 	"meal-management/envoyer"
 	"meal-management/pkg/consts"
 	"meal-management/pkg/domain"
 	"meal-management/pkg/models"
 	"meal-management/pkg/types"
+	"time"
 )
 
 type EmployeeService struct {
@@ -123,7 +126,6 @@ func (service *EmployeeService) UpdateDefaultStatus(EmployeeId uint, date string
 	if err != nil {
 		return err
 	}
-	//updatedEmployee := models.Employee{}
 	updatedEmployee := *employee
 
 	if updatedEmployee.DefaultStatus == true {
@@ -131,45 +133,48 @@ func (service *EmployeeService) UpdateDefaultStatus(EmployeeId uint, date string
 	} else {
 		updatedEmployee.DefaultStatus = true
 	}
+	updatedEmployee.StatusUpdated = false
 	err = service.repo.UpdateEmployee(&updatedEmployee)
 	if err != nil {
 		return err
 	}
 
-	err = service.repo.UpdateMealStatus(EmployeeId, date)
-	if err != nil {
-		return err
-	}
+	log.Println("Default status updated, starting async meal status update...")
 
-	//mealActivity, err := service.repo.FindMeal(EmployeeId, date)
-	//if err != nil {
-	//	return err
-	//}
-	//for _, val := range mealActivity {
-	//	stat := updatedEmployee.DefaultStatus
-	//	if *val.IsOffDay == true {
-	//		if stat == true {
-	//			stat = false
-	//		}
-	//	}
-	//	updatedMealActivity := models.MealActivity{
-	//		Date:         val.Date,
-	//		EmployeeId:   val.EmployeeId,
-	//		MealType:     val.MealType,
-	//		EmployeeName: val.EmployeeName,
-	//		Status:       &stat,
-	//		GuestCount:   val.GuestCount,
-	//		Penalty:      val.Penalty,
-	//		IsOffDay:     val.IsOffDay,
-	//	}
-	//
-	//	err = service.repo.UpdateMealActivityForChangingDefaultStatus(&updatedMealActivity)
-	//	if err != nil {
-	//		return err
-	//	}
-	//}
+	go func() {
+		log.Println("Goroutine started for meal status update...")
+		service.UpdateMealStatusAsync(EmployeeId, date)
+	}()
 
 	return nil
+}
+
+func (service *EmployeeService) UpdateMealStatusAsync(EmployeeId uint, date string) {
+	log.Printf("Updating meal status for Employee %d, Date: %s\n", EmployeeId, date)
+
+	var err error
+	for attempt := 1; attempt <= consts.MaxRetries; attempt++ {
+		err = service.repo.UpdateMealStatus(EmployeeId, date)
+		if err == nil {
+			log.Println("Meal status update successful!")
+
+			err = service.repo.MarkMealStatusUpdateComplete(EmployeeId)
+			if err == nil {
+				log.Println("Marked status_updated = true")
+				return
+			}
+		}
+
+		log.Printf("Attempt %d: Meal status update failed for Employee %d, Error: %v", attempt, EmployeeId, err)
+
+		sleepDuration := time.Duration(math.Pow(2, float64(attempt))) * time.Second
+		if sleepDuration > 10*time.Second {
+			sleepDuration = 10 * time.Second
+		}
+		time.Sleep(sleepDuration)
+	}
+
+	log.Printf("Update failed after %d attempts for Employee %d. Retrying later...", consts.MaxRetries, EmployeeId)
 }
 
 func createResetLink(baseURL, token string) string {

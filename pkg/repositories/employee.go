@@ -90,6 +90,13 @@ func (repo *EmployeeRepo) UpdateMealStatus(employeeID uint, date string) error {
 	return nil
 }
 
+func (repo *EmployeeRepo) MarkMealStatusUpdateComplete(EmployeeId uint) error {
+	return repo.db.Model(&models.Employee{}).
+		Where("employee_id = ?", EmployeeId).
+		Update("status_updated", true).Error
+
+}
+
 func (repo *EmployeeRepo) GetDepartmentById(deptId int) (*models.Department, error) {
 	var dept models.Department
 	if err := repo.db.Where(" dept_id = ?", deptId).First(&dept).Error; err != nil {

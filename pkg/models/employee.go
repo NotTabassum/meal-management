@@ -10,6 +10,7 @@ type Employee struct {
 	DeptID        int
 	Remarks       string
 	DefaultStatus bool
+	StatusUpdated bool `json:"status_updated"`
 	IsAdmin       bool
 	Photo         string `json:"photo"`
 }

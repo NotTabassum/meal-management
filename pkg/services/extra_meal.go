@@ -3,6 +3,7 @@ package services
 import (
 	"errors"
 	"fmt"
+	"meal-management/pkg/consts"
 	"meal-management/pkg/domain"
 	"meal-management/pkg/models"
 	"time"
@@ -20,7 +21,7 @@ func ExtraMealServiceInstance(extraMealRepo domain.IExtraMealRepo) domain.IExtra
 
 func (service *ExtraMealService) GenerateExtraMeal() error {
 	now := time.Now()
-	date := now.Format("2006-01-02")
+	date := now.Format(consts.DateFormat)
 	dates, err := getNext30Dates(date)
 	if err != nil {
 		fmt.Println(err)

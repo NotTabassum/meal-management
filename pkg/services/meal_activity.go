@@ -26,7 +26,7 @@ func MealActivityServiceInstance(mealActivityRepo domain.IMealActivityRepo) doma
 
 func (service *MealActivityService) GenerateMealActivities() error {
 	now := time.Now()
-	date := now.Format("2006-01-02")
+	date := now.Format(consts.DateFormat)
 	dates, err := getNext30Dates(date)
 
 	employees, err := service.repo.FindAllEmployees()
@@ -101,8 +101,7 @@ func (service *MealActivityService) GenerateMealActivities() error {
 }
 
 func getNext30Dates(dateStr string) ([]string, error) {
-	const layout = "2006-01-02"
-	startDate, err := time.Parse(layout, dateStr)
+	startDate, err := time.Parse(consts.DateFormat, dateStr)
 	if err != nil {
 		return nil, err
 	}
@@ -110,7 +109,7 @@ func getNext30Dates(dateStr string) ([]string, error) {
 	var dates []string
 	for i := 0; i < 30; i++ {
 		nextDate := startDate.AddDate(0, 0, i) // Add i days to the start date
-		dates = append(dates, nextDate.Format(layout))
+		dates = append(dates, nextDate.Format(consts.DateFormat))
 	}
 
 	return dates, nil
@@ -398,7 +397,7 @@ func (service *MealActivityService) TotalMealADayGroup(date string, mealType int
 }
 
 func (service *MealActivityService) LunchSummaryForEmail() error {
-	today := time.Now().Format("2006-01-02")
+	today := time.Now().Format(consts.DateFormat)
 	lunchToday, err := service.repo.LunchToday(today)
 	//for _, val := range lunchToday {
 	//	fmt.Println(val.Name)
@@ -537,7 +536,7 @@ func GenerateLunchSummaryEmailBody(date string, employee []types.Employee) strin
 }
 
 func (service *MealActivityService) SnackSummaryForEmail() error {
-	today := time.Now().Format("2006-01-02")
+	today := time.Now().Format(consts.DateFormat)
 	snackToday, err := service.repo.SnackToday(today)
 	if err != nil {
 		return err
@@ -679,7 +678,7 @@ func (service *MealActivityService) MealSummaryAYear(year string) ([]types.MealS
 	}
 
 	for _, meal := range mealActivity {
-		date, err := time.Parse("2006-01-02", meal.Date)
+		date, err := time.Parse(consts.DateFormat, meal.Date)
 		if err != nil {
 			log.Printf("Failed to parse date %s: %v", meal.Date, err)
 		}
@@ -702,7 +701,7 @@ func (service *MealActivityService) MealSummaryAYear(year string) ([]types.MealS
 		return []types.MealSummaryAYear{}, nil
 	}
 	for _, meal := range extraMeal {
-		date, err := time.Parse("2006-01-02", meal.Date)
+		date, err := time.Parse(consts.DateFormat, meal.Date)
 		if err != nil {
 			log.Printf("Failed to parse date %s: %v", meal.Date, err)
 		}

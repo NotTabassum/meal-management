@@ -495,6 +495,7 @@ func UpdateDefaultStatus(e echo.Context) error {
 	if err != nil {
 		return e.JSON(http.StatusBadRequest, "Invalid Data")
 	}
+
 	date := e.QueryParam("date")
 	err = EmployeeService.UpdateDefaultStatus(uint(EmployeeID), date)
 	if err != nil {
