@@ -287,32 +287,7 @@ func UpdateGroupMealActivity(e echo.Context) error {
 		fmt.Println(err)
 		return e.JSON(http.StatusUnprocessableEntity, map[string]string{"res": "invalid request"})
 	}
-	//now := time.Now()
-	//for _, val := range groupMeal {
-	//	mealType := val.MealType
-	//	date := val.Date
-	//	requestedDate, err := time.Parse(consts.DateFormat, date)
-	//	if err != nil {
-	//		return e.JSON(http.StatusUnprocessableEntity, map[string]string{"res": "invalid request"})
-	//	}
-	//	if requestedDate.Year() == now.Year() && requestedDate.YearDay() < now.YearDay() {
-	//		return e.JSON(http.StatusForbidden, map[string]string{"error": "You cant change previous meal activity"})
-	//	} else if requestedDate.Year() == now.Year() && requestedDate.YearDay() == now.YearDay() {
-	//		if mealType == 1 {
-	//			cutoff := time.Date(now.Year(), now.Month(), now.Day(), 10, 0, 0, 0, now.Location())
-	//
-	//			if now.After(cutoff) {
-	//				return e.JSON(http.StatusForbidden, map[string]string{"error": "Lunch update is not allowed after 10 AM"})
-	//			}
-	//		} else if mealType == 2 {
-	//			cutoff := time.Date(now.Year(), now.Month(), now.Day(), 14, 0, 0, 0, now.Location())
-	//
-	//			if now.After(cutoff) {
-	//				return e.JSON(http.StatusForbidden, map[string]string{"error": "Snacks update is not allowed after 2 PM"})
-	//			}
-	//		}
-	//	}
-	//}
+
 	for _, val := range groupMeal {
 		if val.Date == "" || val.MealType == 0 || val.EmployeeId == 0 {
 			return e.JSON(http.StatusBadRequest, map[string]string{"res": "Employee ID, Date and Meal Type are required"})
@@ -326,7 +301,6 @@ func UpdateGroupMealActivity(e echo.Context) error {
 		if err != nil {
 			return e.JSON(http.StatusInternalServerError, map[string]string{"res": "Internal server error"})
 		}
-
 		authorizationHeader := e.Request().Header.Get("Authorization")
 		if authorizationHeader == "" {
 			return e.JSON(http.StatusUnauthorized, map[string]string{"res": "Authorization header is empty"})
@@ -341,6 +315,7 @@ func UpdateGroupMealActivity(e echo.Context) error {
 		if !isAdmin {
 			val.Penalty = existingActivity.Penalty
 		}
+
 		NewID, err := strconv.ParseUint(ID, 10, 32)
 		if err != nil {
 			return e.JSON(http.StatusBadRequest, err.Error())
@@ -358,6 +333,7 @@ func UpdateGroupMealActivity(e echo.Context) error {
 			GuestCount:   val.GuestCount,
 			Penalty:      val.Penalty,
 			IsOffDay:     &val.IsOffDay,
+			PenaltyScore: &val.PenaltyScore,
 		}
 
 		if err := MealActivityService.UpdateMealActivity(updatedActivity); err != nil {

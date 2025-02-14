@@ -1,13 +1,14 @@
 package types
 
 type MealActivityRequest struct {
-	Date       string `json:"date" validate:"required"`
-	EmployeeId uint   `json:"employee_id" validate:"required"`
-	MealType   int    `json:"meal_type" validate:"required"`
-	Status     *bool  `json:"status"`
-	GuestCount *int   `json:"guest_count"`
-	Penalty    *bool  `json:"penalty"`
-	IsOffDay   bool   `json:"is_off_day"`
+	Date         string `json:"date" validate:"required"`
+	EmployeeId   uint   `json:"employee_id" validate:"required"`
+	MealType     int    `json:"meal_type" validate:"required"`
+	Status       *bool  `json:"status"`
+	GuestCount   *int   `json:"guest_count"`
+	Penalty      *bool  `json:"penalty"`
+	IsOffDay     bool   `json:"is_off_day"`
+	PenaltyScore int    `json:"penalty_score"`
 }
 
 type PenaltyRequest struct {
@@ -44,9 +45,10 @@ type MealDetails struct {
 }
 
 type StatusDetails struct {
-	Status     bool `json:"status"`
-	GuestCount int  `json:"guest_count"`
-	Penalty    bool `json:"penalty"`
+	Status       bool `json:"status"`
+	GuestCount   int  `json:"guest_count"`
+	Penalty      bool `json:"penalty"`
+	PenaltyScore int  `json:"penalty_score"`
 }
 
 type MealSummaryReq struct {

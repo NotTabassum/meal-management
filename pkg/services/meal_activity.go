@@ -55,6 +55,7 @@ func (service *MealActivityService) GenerateMealActivities() error {
 			return err
 		}
 
+		value := 0
 		for mealType := 1; mealType <= 2; mealType++ {
 			for _, date := range dates {
 				today, err := time.Parse(consts.DateFormat, date)
@@ -87,6 +88,7 @@ func (service *MealActivityService) GenerateMealActivities() error {
 						GuestCount:   &defaultGuestCount,
 						Penalty:      &defaultPenalty,
 						IsOffDay:     &isHoliday,
+						PenaltyScore: &value,
 					}
 					if err := service.repo.CreateMealActivity(activity); err != nil {
 						log.Printf("Failed to insert activity for EmployeeID %d, MealType %d: %v", emp.EmployeeId, mealType, err)
@@ -274,9 +276,10 @@ func (service *MealActivityService) GetOwnMealActivity(ID uint, startDate string
 			MealType: activity.MealType,
 			MealStatus: []types.StatusDetails{
 				{
-					Status:     *activity.Status,
-					GuestCount: *activity.GuestCount,
-					Penalty:    *activity.Penalty,
+					Status:       *activity.Status,
+					GuestCount:   *activity.GuestCount,
+					Penalty:      *activity.Penalty,
+					PenaltyScore: *activity.PenaltyScore,
 				},
 			},
 		}
@@ -318,7 +321,7 @@ func (service *MealActivityService) TotalPenaltyAMonth(date string, employeeID u
 	var count = 0
 	for _, activity := range mealActivity {
 		if activity.EmployeeId == employeeID && *activity.Penalty == true {
-			count++
+			count += *activity.PenaltyScore
 		}
 	}
 	return count, nil
@@ -673,6 +676,7 @@ func (service *MealActivityService) MealSummaryForGraph(monthCount int) ([]types
 	response := make([]types.MealSummaryForGraph, monthCount)
 
 	startDate := time.Now().AddDate(0, -monthCount, 0).Format(consts.DateFormat)
+	//startDate := time.Now().AddDate(0, -(monthCount - 1 - monthCount), 0).String()
 	endDate := time.Now().Format(consts.DateFormat)
 
 	mealActivity, err := service.repo.MealSummaryForGraph(startDate, endDate)

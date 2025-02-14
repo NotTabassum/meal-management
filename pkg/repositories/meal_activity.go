@@ -74,9 +74,10 @@ func (repo *MealActivityRepo) UpdateMealActivity(mealActivity *models.MealActivi
 			mealActivity.MealType,
 		).
 		Updates(models.MealActivity{
-			Status:     mealActivity.Status,
-			GuestCount: mealActivity.GuestCount,
-			Penalty:    mealActivity.Penalty,
+			Status:       mealActivity.Status,
+			GuestCount:   mealActivity.GuestCount,
+			Penalty:      mealActivity.Penalty,
+			PenaltyScore: mealActivity.PenaltyScore,
 		}).Error; err != nil {
 		return err
 	}
@@ -104,15 +105,6 @@ func (repo *MealActivityRepo) GetOwnMealActivity(ID uint, startDate, endDate str
 	}
 	return mealActivities, nil
 }
-
-//func (repo *MealActivityRepo) FindMealADay(date string, mealType int) ([]models.MealActivity, error) {
-//	var mealActivities []models.MealActivity
-//	err := repo.db.Where("date = ? AND meal_type = ?", date, mealType).Find(&mealActivities).Error
-//	if err != nil {
-//		return []models.MealActivity{}, err
-//	}
-//	return mealActivities, nil
-//}
 
 func (repo *MealActivityRepo) FindPenaltyAMonth(startDate string, endDate string, employeeID uint) ([]models.MealActivity, error) {
 	var mealActivities []models.MealActivity
