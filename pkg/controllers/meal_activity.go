@@ -455,3 +455,23 @@ func MealSummaryForGraph(e echo.Context) error {
 	}
 	return e.JSON(http.StatusCreated, mealSummary)
 }
+
+func TodayLunch(e echo.Context) error {
+	authorizationHeader := e.Request().Header.Get("Authorization")
+	if authorizationHeader == "" {
+		return e.JSON(http.StatusUnauthorized, map[string]string{"res": "Authorization header is empty"})
+	}
+	_, isAdmin, err := middleware.ParseJWT(authorizationHeader)
+	if err != nil {
+		if err.Error() == "token expired" {
+			return e.JSON(http.StatusUnauthorized, map[string]string{"error": "Token expired"})
+		}
+		return e.JSON(http.StatusUnauthorized, map[string]string{"error": err.Error()})
+	}
+	if !isAdmin {
+		return e.JSON(http.StatusUnauthorized, map[string]string{"res": "Not Authorized"})
+	}
+
+	TodayLunchSummary := MealActivityService.LunchToday()
+	return e.JSON(http.StatusOK, TodayLunchSummary)
+}

@@ -275,6 +275,9 @@ func (service *EmployeeService) GetPhoto(employeeId uint) (string, error) {
 		return "", errors.New("employee not found")
 	}
 	photoPath := employee.Photo
+	if photoPath == "" {
+		return "", errors.New("this employee has no photo")
+	}
 	return photoPath, nil
 }
 

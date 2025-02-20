@@ -24,3 +24,12 @@ func (repo *LoginRepo) Login(Email string) (models.Employee, error) {
 	}
 	return employee, nil
 }
+
+func (repo *LoginRepo) LoginPhone(Phone string) (models.Employee, error) {
+	var employee models.Employee
+	result := repo.db.Where("phone_number = ?", Phone).First(&employee)
+	if result.Error != nil {
+		return models.Employee{}, result.Error
+	}
+	return employee, nil
+}

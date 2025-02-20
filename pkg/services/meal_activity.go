@@ -403,9 +403,7 @@ func (service *MealActivityService) TotalMealADayGroup(date string, mealType int
 func (service *MealActivityService) LunchSummaryForEmail() error {
 	today := time.Now().Format(consts.DateFormat)
 	lunchToday, err := service.repo.LunchToday(today)
-	//for _, val := range lunchToday {
-	//	fmt.Println(val.Name)
-	//}
+
 	if err != nil {
 		return err
 	}
@@ -435,6 +433,17 @@ func (service *MealActivityService) LunchSummaryForEmail() error {
 	}
 	log.Println(response)
 	return nil
+}
+
+func (service *MealActivityService) LunchToday() string {
+	today := time.Now().Format(consts.DateFormat)
+	lunchToday, err := service.repo.LunchToday(today)
+
+	if err != nil {
+		return "Not Found"
+	}
+	body := GenerateLunchSummaryEmailBody(today, lunchToday)
+	return body
 }
 
 func GenerateLunchSummaryEmailBody(date string, employee []types.Employee) string {

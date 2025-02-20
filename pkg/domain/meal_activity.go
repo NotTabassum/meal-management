@@ -42,4 +42,5 @@ type IMealActivityService interface {
 	LunchSummaryForEmail() error
 	SnackSummaryForEmail() error
 	MealSummaryForGraph(month int) ([]types.MealSummaryForGraph, error)
+	LunchToday() string
 }

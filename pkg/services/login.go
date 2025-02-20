@@ -25,9 +25,22 @@ func (service *LoginService) Login(Auth models.Login) (string, error) {
 	if ok := security.CheckPasswordHash(Auth.Password, employee.Password); ok == false {
 		return "", errors.New("invalid Email or Password")
 	}
-	//if employee.Password != Auth.Password {
-	//	return "", errors.New("invalid password")
-	//}
+
+	token, err := domain.GenerateJWT(&employee)
+	if err != nil {
+		return "", err
+	}
+	return token, nil
+}
+
+func (service *LoginService) LoginPhone(Auth models.Login) (string, error) {
+	employee, err := service.repo.LoginPhone(Auth.PhoneNumber)
+	if err != nil {
+		return "", err
+	}
+	if ok := security.CheckPasswordHash(Auth.Password, employee.Password); ok == false {
+		return "", errors.New("invalid Email or Password")
+	}
 
 	token, err := domain.GenerateJWT(&employee)
 	if err != nil {

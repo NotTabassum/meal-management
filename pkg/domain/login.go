@@ -9,10 +9,12 @@ import (
 
 type ILoginRepo interface {
 	Login(Email string) (models.Employee, error)
+	LoginPhone(Phone string) (models.Employee, error)
 }
 
 type ILoginService interface {
 	Login(Auth models.Login) (string, error)
+	LoginPhone(Auth models.Login) (string, error)
 }
 
 var secretKey = []byte("jwtserversidesecret")
