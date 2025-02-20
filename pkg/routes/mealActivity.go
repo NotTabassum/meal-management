@@ -18,7 +18,7 @@ func MealActivityRoutes(e *echo.Echo) {
 	emp.PATCH("/group-update", controllers.UpdateGroupMealActivity)
 	emp.PATCH("", controllers.UpdateMealActivity)
 	emp.GET("/today-lunch", controllers.TodayLunch)
-	emp.GET("/today-lunch", controllers.TodaySnack)
+	emp.GET("/today-snack", controllers.TodaySnack)
 	emp.GET("/meal-summary-graph", controllers.MealSummaryForGraph)
 	emp.GET("", controllers.GetOwnMealActivity)
 	emp.GET("/admin", controllers.GetMealActivity)
