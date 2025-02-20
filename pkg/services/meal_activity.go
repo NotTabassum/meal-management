@@ -435,15 +435,15 @@ func (service *MealActivityService) LunchSummaryForEmail() error {
 	return nil
 }
 
-func (service *MealActivityService) LunchToday() string {
+func (service *MealActivityService) LunchToday() (string, error) {
 	today := time.Now().Format(consts.DateFormat)
 	lunchToday, err := service.repo.LunchToday(today)
 
 	if err != nil {
-		return "Not Found"
+		return "", err
 	}
 	body := GenerateLunchSummaryEmailBody(today, lunchToday)
-	return body
+	return body, nil
 }
 
 func GenerateLunchSummaryEmailBody(date string, employee []types.Employee) string {
@@ -581,6 +581,16 @@ func (service *MealActivityService) SnackSummaryForEmail() error {
 	}
 	log.Println(response)
 	return nil
+}
+
+func (service *MealActivityService) SnackToday() (string, error) {
+	today := time.Now().Format(consts.DateFormat)
+	snackToday, err := service.repo.SnackToday(today)
+	if err != nil {
+		return "", err
+	}
+	body := GenerateSnackSummaryEmailBody(today, snackToday)
+	return body, nil
 }
 
 func GenerateSnackSummaryEmailBody(date string, employee []types.Employee) string {
