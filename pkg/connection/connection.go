@@ -44,6 +44,10 @@ func migrate() {
 	if err != nil {
 		return
 	}
+	err = db.Migrator().AutoMigrate(&models.Preference{})
+	if err != nil {
+		return
+	}
 }
 
 func GetDB() *gorm.DB {

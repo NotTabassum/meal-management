@@ -10,7 +10,7 @@ type DeptService struct {
 	repo domain.IDeptRepo
 }
 
-func DeptServiceInstance(deptRepo domain.IDeptRepo) domain.IDeptRepo {
+func DeptServiceInstance(deptRepo domain.IDeptRepo) domain.IDeptService {
 	return &DeptService{
 		repo: deptRepo,
 	}

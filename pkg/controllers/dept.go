@@ -23,7 +23,7 @@ func CreateDepartment(e echo.Context) error {
 	}
 	_, isAdmin, err := middleware.ParseJWT(authorizationHeader)
 	if err != nil {
-		if err.Error() == "token expired" { // ✅ Check for expiration error
+		if err.Error() == "token expired" {
 			return e.JSON(http.StatusUnauthorized, map[string]string{"error": "Token expired"})
 		}
 		return e.JSON(http.StatusUnauthorized, map[string]string{"error": err.Error()})
