@@ -1,14 +1,14 @@
 package types
 
 type MealActivityRequest struct {
-	Date         string `json:"date" validate:"required"`
-	EmployeeId   uint   `json:"employee_id" validate:"required"`
-	MealType     int    `json:"meal_type" validate:"required"`
-	Status       *bool  `json:"status"`
-	GuestCount   *int   `json:"guest_count"`
-	Penalty      *bool  `json:"penalty"`
-	IsOffDay     bool   `json:"is_off_day"`
-	PenaltyScore int    `json:"penalty_score"`
+	Date         string   `json:"date" validate:"required"`
+	EmployeeId   uint     `json:"employee_id" validate:"required"`
+	MealType     int      `json:"meal_type" validate:"required"`
+	Status       *bool    `json:"status"`
+	GuestCount   *int     `json:"guest_count"`
+	Penalty      *bool    `json:"penalty"`
+	IsOffDay     bool     `json:"is_off_day"`
+	PenaltyScore *float64 `gorm:"type:decimal(10,2);" json:"penalty_score"`
 }
 
 type PenaltyRequest struct {
@@ -45,10 +45,10 @@ type MealDetails struct {
 }
 
 type StatusDetails struct {
-	Status       bool `json:"status"`
-	GuestCount   int  `json:"guest_count"`
-	Penalty      bool `json:"penalty"`
-	PenaltyScore int  `json:"penalty_score"`
+	Status       bool     `json:"status"`
+	GuestCount   int      `json:"guest_count"`
+	Penalty      bool     `json:"penalty"`
+	PenaltyScore *float64 `gorm:"type:decimal(10,2);" json:"penaltyScore"`
 }
 
 type MealSummaryReq struct {
@@ -81,10 +81,12 @@ type MealSummaryForGraph struct {
 }
 
 type MonthData struct {
-	Month        string `json:"month"`
-	Year         string `json:"year"`
-	TotalLunch   int    `json:"total_lunch"`
-	TotalSnack   int    `json:"total_snack"`
-	LunchPenalty int    `json:"lunch_penalty"`
-	SnackPenalty int    `json:"snack_penalty"`
+	Month           string  `json:"month"`
+	Year            string  `json:"year"`
+	TotalLunch      int     `json:"total_lunch"`
+	TotalGuestLunch int     `json:"total_guest_lunch"`
+	TotalSnack      int     `json:"total_snack"`
+	TotalGuestSnack int     `json:"total_guest_snack"`
+	LunchPenalty    float64 `json:"lunch_penalty"`
+	SnackPenalty    float64 `json:"snack_penalty"`
 }

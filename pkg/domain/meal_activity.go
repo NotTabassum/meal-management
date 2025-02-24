@@ -37,7 +37,7 @@ type IMealActivityService interface {
 	UpdateMealActivity(mealActivity *models.MealActivity) error
 	GetOwnMealActivity(ID uint, startDate string, days int) ([]types.MealActivityResponse, error)
 	//TotalMealADay(date string, mealType int) (int, error)
-	TotalPenaltyAMonth(date string, employeeID uint, days int) (int, error)
+	TotalPenaltyAMonth(date string, employeeID uint, days int) (float64, error)
 	TotalMealAMonth(date string, days int) ([]types.MealSummaryResponse, error)
 	TotalMealPerPerson(date string, days int, employeeID uint) (int, error)
 	TotalMealCount(date string, days int) (types.TotalMealCounts, error)

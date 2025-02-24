@@ -8,6 +8,6 @@ type MealActivity struct {
 	Status       *bool
 	GuestCount   *int
 	Penalty      *bool
-	PenaltyScore *int
+	PenaltyScore *float64 `gorm:"type:decimal(10,2);"`
 	IsOffDay     *bool
 }

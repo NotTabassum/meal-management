@@ -55,7 +55,7 @@ func (service *MealActivityService) GenerateMealActivities() error {
 			return err
 		}
 
-		value := 0
+		value := 0.0
 		for mealType := 1; mealType <= 2; mealType++ {
 			for _, date := range dates {
 				today, err := time.Parse(consts.DateFormat, date)
@@ -286,7 +286,7 @@ func (service *MealActivityService) GetOwnMealActivity(ID uint, startDate string
 					Status:       *activity.Status,
 					GuestCount:   *activity.GuestCount,
 					Penalty:      *activity.Penalty,
-					PenaltyScore: *activity.PenaltyScore,
+					PenaltyScore: activity.PenaltyScore,
 				},
 			},
 		}
@@ -311,7 +311,7 @@ func (service *MealActivityService) GetOwnMealActivity(ID uint, startDate string
 //
 //}
 
-func (service *MealActivityService) TotalPenaltyAMonth(date string, employeeID uint, days int) (int, error) {
+func (service *MealActivityService) TotalPenaltyAMonth(date string, employeeID uint, days int) (float64, error) {
 
 	startDate, err := time.Parse(consts.DateFormat, date)
 	if err != nil {
@@ -325,7 +325,7 @@ func (service *MealActivityService) TotalPenaltyAMonth(date string, employeeID u
 		return 0, err
 	}
 
-	var count = 0
+	var count = 0.0
 	for _, activity := range mealActivity {
 		if activity.EmployeeId == employeeID && *activity.Penalty == true {
 			count += *activity.PenaltyScore
@@ -361,7 +361,7 @@ func (service *MealActivityService) TotalMealPerPerson(date string, days int, em
 	if err != nil {
 		return 0, err
 	}
-	var count int = 0
+	var count = 0
 	for _, activity := range mealActivity {
 		if *activity.Status == true {
 			count++
@@ -807,14 +807,16 @@ func (service *MealActivityService) MonthData(monthCount int, id uint) ([]types.
 		if *meal.Status {
 			count = 1
 		}
-		count += *meal.GuestCount
 
 		if meal.MealType == 1 {
 			response[monthIndex].TotalLunch += count
 			response[monthIndex].LunchPenalty += *meal.PenaltyScore
+			response[monthIndex].TotalGuestLunch += *meal.GuestCount
 		} else {
 			response[monthIndex].TotalSnack += count
 			response[monthIndex].SnackPenalty += *meal.PenaltyScore
+			response[monthIndex].TotalGuestSnack += *meal.GuestCount
+
 		}
 	}
 	return response, nil

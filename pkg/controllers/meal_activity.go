@@ -157,7 +157,7 @@ func UpdateMealActivity(e echo.Context) error {
 		return e.JSON(http.StatusUnauthorized, map[string]string{"error": err.Error()})
 	}
 
-	existingActivity, err := MealActivityService.GetMealActivityById(string(date), int(mealType), uint(employeeId))
+	existingActivity, err := MealActivityService.GetMealActivityById(date, mealType, employeeId)
 	if err != nil {
 		return e.JSON(http.StatusInternalServerError, map[string]string{"res": "Internal server error"})
 	}
@@ -174,7 +174,7 @@ func UpdateMealActivity(e echo.Context) error {
 	}
 
 	updatedActivity := &models.MealActivity{
-		EmployeeId:   uint(employeeId),
+		EmployeeId:   employeeId,
 		Date:         date,
 		MealType:     mealType,
 		EmployeeName: existingActivity.EmployeeName,
@@ -297,7 +297,7 @@ func UpdateGroupMealActivity(e echo.Context) error {
 		mealType := val.MealType
 		employeeId := val.EmployeeId
 
-		existingActivity, err := MealActivityService.GetMealActivityById(string(date), int(mealType), uint(employeeId))
+		existingActivity, err := MealActivityService.GetMealActivityById(date, mealType, employeeId)
 		if err != nil {
 			return e.JSON(http.StatusInternalServerError, map[string]string{"res": "Internal server error"})
 		}
@@ -325,7 +325,7 @@ func UpdateGroupMealActivity(e echo.Context) error {
 		}
 
 		updatedActivity := &models.MealActivity{
-			EmployeeId:   uint(employeeId),
+			EmployeeId:   employeeId,
 			Date:         date,
 			MealType:     mealType,
 			EmployeeName: existingActivity.EmployeeName,
@@ -333,7 +333,7 @@ func UpdateGroupMealActivity(e echo.Context) error {
 			GuestCount:   val.GuestCount,
 			Penalty:      val.Penalty,
 			IsOffDay:     &val.IsOffDay,
-			PenaltyScore: &val.PenaltyScore,
+			PenaltyScore: val.PenaltyScore,
 		}
 
 		if err := MealActivityService.UpdateMealActivity(updatedActivity); err != nil {
