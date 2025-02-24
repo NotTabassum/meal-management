@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"encoding/json"
 	"fmt"
 	"github.com/labstack/echo/v4"
 	"io"
@@ -15,6 +16,7 @@ import (
 	"net/http"
 	"os"
 	"strconv"
+	"strings"
 )
 
 var EmployeeService domain.IEmployeeService
@@ -303,6 +305,26 @@ func UpdateEmployee(e echo.Context) error {
 		default_status = defaultStatus == "true"
 	}
 
+	//preference
+	preferenceFood := e.FormValue("preference_food")
+	var foodIDs []int
+	preferenceFoodJSON := employee.PreferenceFood
+	if preferenceFood != "" {
+		foodIDsStr := strings.Split(preferenceFood, ",")
+		for _, idStr := range foodIDsStr {
+			id, err := strconv.Atoi(idStr)
+			if err != nil {
+				fmt.Printf("Invalid food_id: %v\n", err)
+				continue
+			}
+			foodIDs = append(foodIDs, id)
+		}
+		preferenceFoodJSON, err = json.Marshal(foodIDs)
+		if err != nil {
+			return e.JSON(http.StatusInternalServerError, map[string]string{"error": "Failed to encode food preferences"})
+		}
+	}
+
 	authorizationHeader := e.Request().Header.Get("Authorization")
 	if authorizationHeader == "" {
 		return e.JSON(http.StatusUnauthorized, map[string]string{"res": "Authorization header is empty"})
@@ -367,16 +389,18 @@ func UpdateEmployee(e echo.Context) error {
 	}
 
 	updatedEmployee := &models.Employee{
-		EmployeeId:    EmployeeID,
-		Name:          Name,
-		Email:         Email,
-		PhoneNumber:   ifNot11(PhoneNumber, existingEmployee.PhoneNumber),
-		Password:      Password,
-		DeptID:        DeptID,
-		Remarks:       remarks,
-		DefaultStatus: default_status,
-		IsAdmin:       Admin,
-		Photo:         dstPath,
+		EmployeeId:     EmployeeID,
+		Name:           Name,
+		Email:          Email,
+		PhoneNumber:    ifNot11(PhoneNumber, existingEmployee.PhoneNumber),
+		Password:       Password,
+		DeptID:         DeptID,
+		Remarks:        remarks,
+		DefaultStatus:  default_status,
+		IsAdmin:        Admin,
+		Photo:          dstPath,
+		StatusUpdated:  true,
+		PreferenceFood: preferenceFoodJSON,
 	}
 
 	if err := EmployeeService.UpdateEmployee(updatedEmployee); err != nil {
