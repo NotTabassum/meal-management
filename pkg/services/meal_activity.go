@@ -760,3 +760,55 @@ func (service *MealActivityService) MealSummaryForGraph(monthCount int) ([]types
 	}
 	return response, nil
 }
+
+func (service *MealActivityService) MonthData(monthCount int, id uint) ([]types.MonthData, error) {
+	response := make([]types.MonthData, monthCount)
+
+	startDate := time.Now().AddDate(0, -monthCount, 0).Format(consts.DateFormat)
+	endDate := time.Now().Format(consts.DateFormat)
+
+	for i := 0; i < monthCount; i++ {
+		date := time.Now().AddDate(0, -i, 0)
+		response[i] = types.MonthData{
+			Month:        date.Month().String(),
+			Year:         strconv.Itoa(date.Year()),
+			TotalLunch:   0,
+			TotalSnack:   0,
+			LunchPenalty: 0,
+			SnackPenalty: 0,
+		}
+	}
+
+	mealActivity, err := service.repo.MealSummaryForMonthData(startDate, endDate, id)
+	if err != nil {
+		return []types.MonthData{}, nil
+	}
+
+	for _, meal := range mealActivity {
+		date, err := time.Parse(consts.DateFormat, meal.Date)
+		if err != nil {
+			log.Printf("Failed to parse date %s: %v", meal.Date, err)
+			continue
+		}
+
+		monthIndex := time.Now().Month() - date.Month()
+		if monthIndex < 0 {
+			monthIndex += 12
+		}
+
+		count := 0
+		if *meal.Status {
+			count = 1
+		}
+		count += *meal.GuestCount
+
+		if meal.MealType == 1 {
+			response[monthIndex].TotalLunch += count
+			response[monthIndex].LunchPenalty += *meal.PenaltyScore
+		} else {
+			response[monthIndex].TotalSnack += count
+			response[monthIndex].SnackPenalty += *meal.PenaltyScore
+		}
+	}
+	return response, nil
+}

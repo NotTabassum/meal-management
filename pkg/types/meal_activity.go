@@ -79,3 +79,12 @@ type MealSummaryForGraph struct {
 	Lunch int    `json:"lunch"`
 	Snack int    `json:"snack"`
 }
+
+type MonthData struct {
+	Month        string `json:"month"`
+	Year         string `json:"year"`
+	TotalLunch   int    `json:"total_lunch"`
+	TotalSnack   int    `json:"total_snack"`
+	LunchPenalty int    `json:"lunch_penalty"`
+	SnackPenalty int    `json:"snack_penalty"`
+}

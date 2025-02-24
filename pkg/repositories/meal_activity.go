@@ -254,6 +254,15 @@ func (repo *MealActivityRepo) MealSummaryForGraph(startDate, endDate string) ([]
 	return results, nil
 }
 
+func (repo *MealActivityRepo) MealSummaryForMonthData(startDate string, endDate string, id uint) ([]models.MealActivity, error) {
+	var results []models.MealActivity
+	err := repo.db.Where("employee_id = ? AND date BETWEEN ? AND ?", id, startDate, endDate).Find(&results).Error
+	if err != nil {
+		return []models.MealActivity{}, err
+	}
+	return results, nil
+}
+
 func (repo *MealActivityRepo) ExtraMealSummaryForGraph(startDate, endDate string) ([]models.ExtraMeal, error) {
 	var results []models.ExtraMeal
 	err := repo.db.Where("date BETWEEN ? AND ?", startDate, endDate).Find(&results).Error

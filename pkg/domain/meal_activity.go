@@ -25,6 +25,7 @@ type IMealActivityRepo interface {
 	SnackToday(date string) ([]types.Employee, error)
 	MealSummaryForGraph(startDate, endDate string) ([]models.MealActivity, error)
 	ExtraMealSummaryForGraph(startDate, endDate string) ([]models.ExtraMeal, error)
+	MealSummaryForMonthData(startDate string, endDate string, id uint) ([]models.MealActivity, error)
 }
 
 type IMealActivityService interface {
@@ -42,6 +43,7 @@ type IMealActivityService interface {
 	LunchSummaryForEmail() error
 	SnackSummaryForEmail() error
 	MealSummaryForGraph(month int) ([]types.MealSummaryForGraph, error)
+	MonthData(monthCount int, id uint) ([]types.MonthData, error)
 	LunchToday() (string, error)
 	SnackToday() (string, error)
 }

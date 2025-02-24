@@ -456,6 +456,32 @@ func MealSummaryForGraph(e echo.Context) error {
 	return e.JSON(http.StatusCreated, mealSummary)
 }
 
+func MonthData(e echo.Context) error {
+	authorizationHeader := e.Request().Header.Get("Authorization")
+	if authorizationHeader == "" {
+		return e.JSON(http.StatusUnauthorized, map[string]string{"res": "Authorization header is empty"})
+	}
+	ID, _, err := middleware.ParseJWT(authorizationHeader)
+	if err != nil {
+		if err.Error() == "token expired" {
+			return e.JSON(http.StatusUnauthorized, map[string]string{"error": "Token expired"})
+		}
+		return e.JSON(http.StatusUnauthorized, map[string]string{"error": err.Error()})
+	}
+	id, err := strconv.ParseUint(ID, 10, 32)
+	if err != nil {
+		return e.JSON(http.StatusBadRequest, err.Error())
+	}
+	monthStr := e.QueryParam("month")
+	month, err := strconv.Atoi(monthStr)
+	mealSummaryIndividual, err := MealActivityService.MonthData(month, uint(id))
+	if err != nil {
+		return e.JSON(http.StatusInternalServerError, map[string]string{"res": "Internal server error"})
+	}
+	return e.JSON(http.StatusCreated, mealSummaryIndividual)
+
+}
+
 func TodayLunch(e echo.Context) error {
 	authorizationHeader := e.Request().Header.Get("Authorization")
 	if authorizationHeader == "" {
