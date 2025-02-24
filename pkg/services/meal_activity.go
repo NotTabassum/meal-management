@@ -69,6 +69,13 @@ func (service *MealActivityService) GenerateMealActivities() error {
 						break
 					}
 				}
+				holiday, err := service.repo.CheckHoliday(date)
+				if err != nil {
+					return err
+				}
+				if holiday == true {
+					isHoliday = true
+				}
 				prevStatus := defaultStatus
 				if isHoliday == true {
 					defaultStatus = false
@@ -811,4 +818,15 @@ func (service *MealActivityService) MonthData(monthCount int, id uint) ([]types.
 		}
 	}
 	return response, nil
+}
+
+func (service *MealActivityService) UpdateMealStatusForHolidays(holidayDates []string) error {
+	for _, holidayDate := range holidayDates {
+		err := service.repo.UpdateMealStatusOff(holidayDate)
+		if err != nil {
+			fmt.Println("Error updating meal status for", holidayDate, ":", err)
+			return err
+		}
+	}
+	return nil
 }

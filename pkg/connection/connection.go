@@ -48,6 +48,10 @@ func migrate() {
 	if err != nil {
 		return
 	}
+	err = db.Migrator().AutoMigrate(&models.Holiday{})
+	if err != nil {
+		return
+	}
 }
 
 func GetDB() *gorm.DB {

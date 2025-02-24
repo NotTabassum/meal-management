@@ -26,6 +26,8 @@ type IMealActivityRepo interface {
 	MealSummaryForGraph(startDate, endDate string) ([]models.MealActivity, error)
 	ExtraMealSummaryForGraph(startDate, endDate string) ([]models.ExtraMeal, error)
 	MealSummaryForMonthData(startDate string, endDate string, id uint) ([]models.MealActivity, error)
+	UpdateMealStatusOff(date string) error
+	CheckHoliday(date string) (bool, error)
 }
 
 type IMealActivityService interface {
@@ -46,4 +48,5 @@ type IMealActivityService interface {
 	MonthData(monthCount int, id uint) ([]types.MonthData, error)
 	LunchToday() (string, error)
 	SnackToday() (string, error)
+	UpdateMealStatusForHolidays(holidayDates []string) error
 }

@@ -24,6 +24,7 @@ func InitServe() {
 	DeptRepo := repositories.DeptDBInstance(db)
 	ExtraMealRepo := repositories.ExtraMealDBInstance(db)
 	PreferenceRepo := repositories.PreferenceDBInstance(db)
+	HolidayRepo := repositories.HolidayDBInstance(db)
 
 	EmployeeService := services.EmployeeServiceInstance(EmployeeRepo)
 	MealPlanService := services.MealPlanServiceInstance(MealPlanRepo)
@@ -32,6 +33,7 @@ func InitServe() {
 	DeptService := services.DeptServiceInstance(DeptRepo)
 	ExtraMealService := services.ExtraMealServiceInstance(ExtraMealRepo)
 	PreferenceService := services.PreferenceServiceInstance(PreferenceRepo)
+	HolidayService := services.HolidayServiceInstance(HolidayRepo)
 
 	controllers.SetEmployeeService(EmployeeService)
 	controllers.SetMealPlanService(MealPlanService)
@@ -40,6 +42,7 @@ func InitServe() {
 	controllers.SetDeptService(DeptService)
 	controllers.SetExtraMealService(ExtraMealService)
 	controllers.SetPreferenceService(PreferenceService)
+	controllers.SetHolidayService(HolidayService)
 }
 
 func Serve(e *echo.Echo) {
@@ -50,6 +53,7 @@ func Serve(e *echo.Echo) {
 	routes.DeptRoutes(e)
 	routes.ExtraMealRoutes(e)
 	routes.Preference(e)
+	routes.HolidayRoutes(e)
 
 	log.Fatal(e.Start(fmt.Sprintf(":%s", config.LocalConfig.ServerPort)))
 }
