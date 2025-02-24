@@ -36,9 +36,15 @@ func CreateHoliday(e echo.Context) error {
 		return e.JSON(http.StatusBadRequest, "Invalid Data")
 	}
 
-	holidates, err := HolidayService.CreateHoliday(reqHoliday)
+	failed, holidates, err := HolidayService.CreateHoliday(reqHoliday)
 	if err != nil {
 		return e.JSON(http.StatusInternalServerError, err.Error())
+	}
+	if len(failed) > 0 {
+		return e.JSON(http.StatusBadRequest, map[string]interface{}{
+			"message":      "Some holidays were not created due to duplicate entries",
+			"failed_dates": failed,
+		})
 	}
 	if len(holidates) > 0 {
 		go func() {
@@ -48,5 +54,17 @@ func CreateHoliday(e echo.Context) error {
 			}
 		}()
 	}
-	return e.JSON(http.StatusCreated, "New Holiday is created successfully")
+	return e.JSON(http.StatusCreated, "New Holidays are created successfully.")
+}
+
+func GetHoliday(e echo.Context) error {
+	authorizationHeader := e.Request().Header.Get("Authorization")
+	if authorizationHeader == "" {
+		return e.JSON(http.StatusUnauthorized, map[string]string{"res": "Authorization header is empty"})
+	}
+	holidays, err := HolidayService.GetHoliday()
+	if err != nil {
+		return err
+	}
+	return e.JSON(http.StatusOK, holidays)
 }

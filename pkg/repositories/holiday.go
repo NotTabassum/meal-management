@@ -17,8 +17,16 @@ func HolidayDBInstance(d *gorm.DB) domain.IHolidayRepo {
 }
 
 func (repo *HolidayRepo) CreateHoliday(holiday *models.Holiday) error {
-	if err := repo.db.Create(holiday).Error; err != nil {
+	if err := repo.db.Save(holiday).Error; err != nil {
 		return err
 	}
 	return nil
+}
+
+func (repo *HolidayRepo) GetHoliday() ([]models.Holiday, error) {
+	var holiday []models.Holiday
+	if err := repo.db.Find(&holiday).Error; err != nil {
+		return nil, err
+	}
+	return holiday, nil
 }

@@ -8,4 +8,5 @@ import (
 func HolidayRoutes(e *echo.Echo) {
 	holiday := e.Group("/holiday")
 	holiday.POST("", controllers.CreateHoliday)
+	holiday.GET("", controllers.GetHoliday)
 }
