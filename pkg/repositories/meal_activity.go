@@ -271,3 +271,29 @@ func (repo *MealActivityRepo) ExtraMealSummaryForGraph(startDate, endDate string
 	}
 	return results, nil
 }
+
+func (repo *MealActivityRepo) UpdateMealStatusOff(date string) error {
+	err := repo.db.Model(&models.MealActivity{}).
+		Where("date = ?", date).
+		Updates(map[string]interface{}{
+			"status":     false,
+			"is_off_day": true,
+		}).Error
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (repo *MealActivityRepo) CheckHoliday(date string) (bool, error) {
+	var holiday models.Holiday
+
+	err := repo.db.Where("date = ?", date).First(&holiday).Error
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return false, nil
+	}
+	if err != nil {
+		return false, err
+	}
+	return true, nil
+}
