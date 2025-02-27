@@ -25,8 +25,9 @@ type TotalMealGroupRequest struct {
 }
 
 type TotalMealGroupResponse struct {
-	Date  string `json:"date"`
-	Count int    `json:"count"`
+	Date         string `json:"date"`
+	RegularCount int    `json:"count"`
+	SpecialCount int    `json:"special_count"`
 }
 
 type MealActivityResponse struct {
