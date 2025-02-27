@@ -30,6 +30,7 @@ func (repo *MealPlanRepo) CreateOrUpdateMealPlan(mealPlan *models.MealPlan) erro
 
 	if result.RowsAffected > 0 {
 		existingMealPlan.Food = mealPlan.Food
+		existingMealPlan.PreferenceFood = mealPlan.PreferenceFood
 		if err := repo.db.Save(&existingMealPlan).Error; err != nil {
 			return err
 		}

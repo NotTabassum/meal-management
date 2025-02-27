@@ -2,7 +2,6 @@ package services
 
 import (
 	"errors"
-	"fmt"
 	"meal-management/pkg/consts"
 	"meal-management/pkg/domain"
 	"meal-management/pkg/models"
@@ -22,8 +21,7 @@ func MealPlanServiceInstance(MealPlanRepo domain.IMealPlanRepo) domain.IMealPlan
 
 func (service *MealPlanService) CreateMealPlan(MealPlan *models.MealPlan) error {
 	if err := service.repo.CreateOrUpdateMealPlan(MealPlan); err != nil {
-		fmt.Println(err)
-		return errors.New("MealPlan was not created")
+		return err
 	}
 	return nil
 }
