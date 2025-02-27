@@ -35,9 +35,10 @@ func (service *MealPlanService) GetMealPlanByPrimaryKey(Date string, MealType st
 	}
 
 	response := models.MealPlan{
-		Date:     mealPlan.Date,
-		MealType: mealPlan.MealType,
-		Food:     mealPlan.Food,
+		Date:           mealPlan.Date,
+		MealType:       mealPlan.MealType,
+		Food:           mealPlan.Food,
+		PreferenceFood: mealPlan.PreferenceFood,
 	}
 
 	return response, nil
@@ -60,8 +61,9 @@ func (service *MealPlanService) GetMealPlan(startDate string, days int) ([]types
 
 	for _, meal := range meal {
 		menu := types.Menu{
-			MealType: meal.MealType,
-			Food:     meal.Food,
+			MealType:       meal.MealType,
+			Food:           meal.Food,
+			PreferenceFood: meal.PreferenceFood,
 		}
 		groupedMeals[meal.Date] = append(groupedMeals[meal.Date], menu)
 	}

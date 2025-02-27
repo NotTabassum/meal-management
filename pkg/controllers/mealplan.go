@@ -35,16 +35,16 @@ func CreateMealPlan(e echo.Context) error {
 
 	var reqMeals []types.CreateMealPlanRequest
 	if err := e.Bind(&reqMeals); err != nil {
-		//fmt.Println(err)
 		return e.JSON(http.StatusBadRequest, "Invalid Data")
 	}
 
 	var createdMealPlans []models.MealPlan
 	for _, reqMeal := range reqMeals {
 		meal := &models.MealPlan{
-			Date:     reqMeal.Date,
-			MealType: reqMeal.MealType,
-			Food:     reqMeal.Food,
+			Date:           reqMeal.Date,
+			MealType:       reqMeal.MealType,
+			Food:           reqMeal.Food,
+			PreferenceFood: reqMeal.PreferenceFood,
 		}
 
 		if err := MealPlanService.CreateMealPlan(meal); err != nil {
@@ -77,7 +77,6 @@ func GetMealPlan(e echo.Context) error {
 	tempDays := e.QueryParam("days")
 
 	days, err := strconv.Atoi(tempDays)
-	//fmt.Println(days)
 
 	if err != nil || days < 1 {
 		return e.JSON(http.StatusBadRequest, "Enter a valid number of days (must be 1 or more)")
@@ -111,9 +110,6 @@ func UpdateMealPlan(e echo.Context) error {
 		return e.JSON(http.StatusBadRequest, "Invalid Input")
 	}
 
-	//if err := reqEmployee.Validate(); err != nil {
-	//	return e.JSON(http.StatusBadRequest, err.Error())
-	//}
 	if reqMealPlan.Date == "" || reqMealPlan.MealType == "" || reqMealPlan.Food == "" {
 		return e.JSON(http.StatusBadRequest, "All the fields are required")
 	}
@@ -126,9 +122,10 @@ func UpdateMealPlan(e echo.Context) error {
 	}
 
 	updatedMeal := &models.MealPlan{
-		Date:     ifNotEmpty(reqMealPlan.Date, meal.Date),
-		MealType: ifNotEmpty(reqMealPlan.MealType, meal.MealType),
-		Food:     ifNotEmpty(reqMealPlan.Food, meal.Food),
+		Date:           ifNotEmpty(reqMealPlan.Date, meal.Date),
+		MealType:       ifNotEmpty(reqMealPlan.MealType, meal.MealType),
+		Food:           ifNotEmpty(reqMealPlan.Food, meal.Food),
+		PreferenceFood: reqMealPlan.PreferenceFood,
 	}
 
 	if err := MealPlanService.UpdateMealPlan(updatedMeal); err != nil {
