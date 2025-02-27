@@ -17,11 +17,13 @@ import (
 
 type MealActivityService struct {
 	repo domain.IMealActivityRepo
+	menu domain.IMealPlanService
 }
 
-func MealActivityServiceInstance(mealActivityRepo domain.IMealActivityRepo) domain.IMealActivityService {
+func MealActivityServiceInstance(mealActivityRepo domain.IMealActivityRepo, menuPlanService domain.IMealPlanService) domain.IMealActivityService {
 	return &MealActivityService{
 		repo: mealActivityRepo,
+		menu: menuPlanService,
 	}
 }
 
@@ -410,12 +412,17 @@ func (service *MealActivityService) TotalMealADayGroup(date string, mealType int
 func (service *MealActivityService) LunchSummaryForEmail() error {
 	today := time.Now().Format(consts.DateFormat)
 	lunchToday, err := service.repo.LunchToday(today)
-
 	if err != nil {
 		return err
 	}
+
+	conflicted, err := service.Regular(today, "snacks", lunchToday)
+	if err != nil {
+		return err
+	}
+
 	subject := "Lunch Summary"
-	body := GenerateLunchSummaryEmailBody(today, lunchToday)
+	body := GenerateLunchSummaryEmailBody(today, lunchToday, conflicted)
 
 	email := &envoyer.EmailReq{
 		EventName: "general_email",
@@ -445,16 +452,123 @@ func (service *MealActivityService) LunchSummaryForEmail() error {
 func (service *MealActivityService) LunchToday() (string, error) {
 	today := time.Now().Format(consts.DateFormat)
 	lunchToday, err := service.repo.LunchToday(today)
-
 	if err != nil {
 		return "", err
 	}
-	body := GenerateLunchSummaryEmailBody(today, lunchToday)
+
+	conflicted, err := service.Regular(today, "snacks", lunchToday)
+	if err != nil {
+		return "", err
+	}
+
+	body := GenerateLunchSummaryEmailBody(today, lunchToday, conflicted)
 	return body, nil
 }
 
-func GenerateLunchSummaryEmailBody(date string, employee []types.Employee) string {
-	total := len(employee)
+//func GenerateLunchSummaryEmailBody(date string, employee []types.Employee) string {
+//	total := len(employee)
+//	template := `<!DOCTYPE html>
+//<html>
+//<head>
+//    <meta charset="UTF-8">
+//    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+//    <title>Daily Lunch Summary</title>
+//    <style>
+//        body {
+//            font-family: Arial, sans-serif;
+//            background-color: #f4f4f4;
+//            margin: 0;
+//            padding: 0;
+//        }
+//        .container {
+//            max-width: 600px;
+//            margin: 20px auto;
+//            background: #ffffff;
+//            padding: 20px;
+//            border-radius: 10px;
+//            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+//        }
+//        h2 {
+//            text-align: center;
+//            color: #333;
+//        }
+//        .meal-table {
+//            width: 100%;
+//            border-collapse: collapse;
+//            margin: 20px 0;
+//        }
+//        .meal-table th, .meal-table td {
+//            padding: 10px;
+//            text-align: left;
+//            border-bottom: 1px solid #ddd;
+//        }
+//        .meal-table th {
+//            background: #007bff;
+//            color: #ffffff;
+//        }
+//        .meal-table tr:nth-child(even) {
+//            background: #f9f9f9;
+//        }
+//        .total {
+//            text-align: center;
+//            font-size: 18px;
+//            font-weight: bold;
+//            color: #007bff;
+//            margin-top: 20px;
+//        }
+//        .footer {
+//            text-align: center;
+//            font-size: 12px;
+//            color: #888;
+//            margin-top: 20px;
+//        }
+//    </style>
+//</head>
+//<body>
+//
+//    <div class="container">
+//        <h2>🍽️ Daily Lunch Summary</h2>
+//        <p>Hello,</p>
+//        <p>Here is the lunch summary for <strong>{{DATE}}</strong>:</p>
+//
+//        <table class="meal-table">
+//            <thead>
+//                <tr>
+//                    <th>#</th>
+//                    <th>Employee Name</th>
+//                </tr>
+//            </thead>
+//            <tbody>
+//                {{MEAL_ROWS}}
+//            </tbody>
+//        </table>
+//
+//        <p class="total">Total Meals: <strong>{{TOTAL_MEALS}}</strong></p>
+//
+//    </div>
+//
+//</body>
+//</html>`
+//
+//	// Generate meal rows dynamically
+//	var mealRows strings.Builder
+//	for i, val := range employee {
+//		mealRows.WriteString(fmt.Sprintf("<tr><td>%d</td><td>%s</td></tr>", i+1, val.Name))
+//		//fmt.Println(val.Name)
+//	}
+//
+//	// Replace placeholders
+//	emailBody := strings.Replace(template, "{{DATE}}", date, -1)
+//	emailBody = strings.Replace(emailBody, "{{MEAL_ROWS}}", mealRows.String(), -1)
+//	emailBody = strings.Replace(emailBody, "{{TOTAL_MEALS}}", fmt.Sprintf("%d", total), -1)
+//
+//	return emailBody
+//}
+
+func GenerateLunchSummaryEmailBody(date string, employees []types.Employee, pickyCount int) string {
+	total := len(employees)
+	regularCount := total - pickyCount
+
 	template := `<!DOCTYPE html>
 <html>
 <head>
@@ -532,38 +646,42 @@ func GenerateLunchSummaryEmailBody(date string, employee []types.Employee) strin
         </table>
 
         <p class="total">Total Meals: <strong>{{TOTAL_MEALS}}</strong></p>
-
-        <div class="footer">
-            <p>This is an automated email. Please do not reply.</p>
-        </div>
+        <p class="total">Regular Meals: <strong>{{REGULAR_MEALS}}</strong></p>
+        <p class="total">Preferenced Meals: <strong>{{PREFERENCED_MEALS}}</strong></p>
     </div>
 
 </body>
 </html>`
 
-	// Generate meal rows dynamically
 	var mealRows strings.Builder
-	for i, val := range employee {
+	for i, val := range employees {
 		mealRows.WriteString(fmt.Sprintf("<tr><td>%d</td><td>%s</td></tr>", i+1, val.Name))
-		//fmt.Println(val.Name)
 	}
 
-	// Replace placeholders
 	emailBody := strings.Replace(template, "{{DATE}}", date, -1)
 	emailBody = strings.Replace(emailBody, "{{MEAL_ROWS}}", mealRows.String(), -1)
 	emailBody = strings.Replace(emailBody, "{{TOTAL_MEALS}}", fmt.Sprintf("%d", total), -1)
+	emailBody = strings.Replace(emailBody, "{{REGULAR_MEALS}}", fmt.Sprintf("%d", regularCount), -1)
+	emailBody = strings.Replace(emailBody, "{{PREFERENCED_MEALS}}", fmt.Sprintf("%d", pickyCount), -1)
 
 	return emailBody
 }
 
 func (service *MealActivityService) SnackSummaryForEmail() error {
 	today := time.Now().Format(consts.DateFormat)
+
 	snackToday, err := service.repo.SnackToday(today)
 	if err != nil {
 		return err
 	}
+
+	conflicted, err := service.Regular(today, "snacks", snackToday)
+	if err != nil {
+		return err
+	}
+
 	subject := "Snacks Summary"
-	body := GenerateSnackSummaryEmailBody(today, snackToday)
+	body := GenerateSnackSummaryEmailBody(today, snackToday, conflicted)
 
 	email := &envoyer.EmailReq{
 		EventName: "general_email",
@@ -596,12 +714,18 @@ func (service *MealActivityService) SnackToday() (string, error) {
 	if err != nil {
 		return "", err
 	}
-	body := GenerateSnackSummaryEmailBody(today, snackToday)
+	conflicted, err := service.Regular(today, "snacks", snackToday)
+	if err != nil {
+		return "", err
+	}
+	body := GenerateSnackSummaryEmailBody(today, snackToday, conflicted)
 	return body, nil
 }
 
-func GenerateSnackSummaryEmailBody(date string, employee []types.Employee) string {
-	total := len(employee)
+func GenerateSnackSummaryEmailBody(date string, employees []types.Employee, pickyCount int) string {
+	total := len(employees)
+	regularCount := total - pickyCount
+
 	template := `<!DOCTYPE html>
 <html>
 <head>
@@ -679,23 +803,23 @@ func GenerateSnackSummaryEmailBody(date string, employee []types.Employee) strin
         </table>
 
         <p class="total">Total Meals: <strong>{{TOTAL_MEALS}}</strong></p>
-
-        <div class="footer">
-            <p>This is an automated email. Please do not reply.</p>
-        </div>
+        <p class="total">Regular Meals: <strong>{{REGULAR_MEALS}}</strong></p>
+        <p class="total">Preferenced Meals: <strong>{{PREFERENCED_MEALS}}</strong></p>
     </div>
 
 </body>
 </html>`
 
 	var mealRows strings.Builder
-	for i, val := range employee {
+	for i, val := range employees {
 		mealRows.WriteString(fmt.Sprintf("<tr><td>%d</td><td>%s</td></tr>", i+1, val.Name))
 	}
 
 	emailBody := strings.Replace(template, "{{DATE}}", date, -1)
 	emailBody = strings.Replace(emailBody, "{{MEAL_ROWS}}", mealRows.String(), -1)
 	emailBody = strings.Replace(emailBody, "{{TOTAL_MEALS}}", fmt.Sprintf("%d", total), -1)
+	emailBody = strings.Replace(emailBody, "{{REGULAR_MEALS}}", fmt.Sprintf("%d", regularCount), -1)
+	emailBody = strings.Replace(emailBody, "{{PREFERENCED_MEALS}}", fmt.Sprintf("%d", pickyCount), -1)
 
 	return emailBody
 }
@@ -771,7 +895,10 @@ func (service *MealActivityService) MealSummaryForGraph(monthCount int) ([]types
 func (service *MealActivityService) MonthData(monthCount int, id uint) ([]types.MonthData, error) {
 	response := make([]types.MonthData, monthCount)
 
-	startDate := time.Now().AddDate(0, -monthCount, 0).Format(consts.DateFormat)
+	firstDay := time.Now().AddDate(0, -monthCount+1, 0) // Move back (monthCount - 1) months
+	startDate := time.Date(firstDay.Year(), firstDay.Month(), 1, 0, 0, 0, 0, time.Local).Format(consts.DateFormat)
+
+	//startDate := time.Now().AddDate(0, -monthCount, 0).Format(consts.DateFormat)
 	endDate := time.Now().Format(consts.DateFormat)
 
 	for i := 0; i < monthCount; i++ {
@@ -785,7 +912,7 @@ func (service *MealActivityService) MonthData(monthCount int, id uint) ([]types.
 			SnackPenalty: 0,
 		}
 	}
-
+	fmt.Println(startDate, endDate)
 	mealActivity, err := service.repo.MealSummaryForMonthData(startDate, endDate, id)
 	if err != nil {
 		return []types.MonthData{}, nil
@@ -798,9 +925,14 @@ func (service *MealActivityService) MonthData(monthCount int, id uint) ([]types.
 			continue
 		}
 
-		monthIndex := time.Now().Month() - date.Month()
-		if monthIndex < 0 {
-			monthIndex += 12
+		targetYear, targetMonth, _ := date.Date()
+		nowYear, nowMonth, _ := time.Now().Date()
+
+		monthIndex := (nowYear-targetYear)*12 + int(nowMonth-targetMonth)
+
+		if monthIndex < 0 || monthIndex >= monthCount {
+			log.Printf("Skipping out-of-range data: %v", meal.Date)
+			continue
 		}
 
 		count := 0
@@ -831,4 +963,36 @@ func (service *MealActivityService) UpdateMealStatusForHolidays(holidayDates []s
 		}
 	}
 	return nil
+}
+
+func (service *MealActivityService) Regular(date, mealType string, employee []types.Employee) (int, error) {
+	menu, err := service.menu.GetMealPlanByPrimaryKey(date, mealType)
+	if err != nil {
+		return 0, err
+	}
+	var menuPref []int
+	if err := json.Unmarshal(menu.PreferenceFood, &menuPref); err != nil {
+		return 0, err
+	}
+	conflicted := 0
+	for _, emp := range employee {
+		var foodIDs []int
+		if err := json.Unmarshal(emp.PreferenceFood, &foodIDs); err != nil {
+			return 0, err
+		}
+		for _, foodID := range foodIDs {
+			count := 0
+			for _, menuFoodID := range menuPref {
+				if foodID == menuFoodID {
+					count = 1
+					break
+				}
+			}
+			if count > 0 {
+				conflicted++
+				break
+			}
+		}
+	}
+	return conflicted, nil
 }
