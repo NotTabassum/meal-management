@@ -403,41 +403,43 @@ func (service *MealActivityService) TotalMealADayGroup(date string, mealType int
 	endDate := tmpEndDate.Format(consts.DateFormat)
 
 	//from
-	//totalMealGroup, err := service.repo.TotalMealADayGroup(date, endDate, mealType)
-	//if err != nil {
-	//	return []types.TotalMealGroupResponse{}, err
-	//}
-	//to
 
-	var result []types.TotalMealGroupResponse
-	endDate2, err := time.Parse(consts.DateFormat, endDate)
+	totalMealGroup, err := service.repo.TotalMealADayGroup(date, endDate, mealType)
 	if err != nil {
-		fmt.Println("Error parsing endDate:", err)
 		return []types.TotalMealGroupResponse{}, err
 	}
-	for d := startDate; !d.After(endDate2); d = d.AddDate(0, 0, 1) {
-		var val types.TotalMealGroupResponse
-		val.Date = d.Format(consts.DateFormat)
-		Today, err := service.repo.Today(d.Format(consts.DateFormat), mealType)
-		if err != nil {
-			return []types.TotalMealGroupResponse{}, err
-		}
-		meal := ""
-		if mealType == 1 {
-			meal = "lunch"
-		} else {
-			meal = "snacks"
-		}
-		conflicted, err := service.Regular(d.Format(consts.DateFormat), meal, Today)
-		if err != nil {
-			return []types.TotalMealGroupResponse{}, err
-		}
-		val.RegularCount = len(Today)
-		val.SpecialCount = conflicted
-		result = append(result, val)
-	}
+	//to
 
-	return result, nil
+	//var result []types.TotalMealGroupResponse
+	//endDate2, err := time.Parse(consts.DateFormat, endDate)
+	//if err != nil {
+	//	fmt.Println("Error parsing endDate:", err)
+	//	return []types.TotalMealGroupResponse{}, err
+	//}
+	//for d := startDate; !d.After(endDate2); d = d.AddDate(0, 0, 1) {
+	//	var val types.TotalMealGroupResponse
+	//	val.Date = d.Format(consts.DateFormat)
+	//	Today, err := service.repo.Today(d.Format(consts.DateFormat), mealType)
+	//	if err != nil {
+	//		return []types.TotalMealGroupResponse{}, err
+	//	}
+	//	meal := ""
+	//	if mealType == 1 {
+	//		meal = "lunch"
+	//	} else {
+	//		meal = "snacks"
+	//	}
+	//	conflicted, err := service.Regular(d.Format(consts.DateFormat), meal, Today)
+	//	if err != nil {
+	//		return []types.TotalMealGroupResponse{}, err
+	//	}
+	//	val.RegularCount = len(Today)
+	//	val.SpecialCount = conflicted
+	//	result = append(result, val)
+	//}
+	//
+	//return result, nil
+	return totalMealGroup, nil
 }
 
 func (service *MealActivityService) LunchSummaryForEmail() error {
