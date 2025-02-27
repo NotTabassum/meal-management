@@ -1,5 +1,7 @@
 package types
 
+import "gorm.io/datatypes"
+
 type MealActivityRequest struct {
 	Date         string   `json:"date" validate:"required"`
 	EmployeeId   uint     `json:"employee_id" validate:"required"`
@@ -64,8 +66,9 @@ type MealSummaryResponse struct {
 }
 
 type Employee struct {
-	EmployeeId uint   `json:"employee_id"`
-	Name       string `json:"employee_name" gorm:"column:employee_name"`
+	EmployeeId     uint           `json:"employee_id"`
+	Name           string         `json:"employee_name" gorm:"column:employee_name"`
+	PreferenceFood datatypes.JSON `json:"preference_food" gorm:"column:preference_food"`
 }
 
 type TotalMealCounts struct {

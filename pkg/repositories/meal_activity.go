@@ -233,11 +233,14 @@ func (repo *MealActivityRepo) LunchToday(date string) ([]types.Employee, error) 
 }
 
 func (repo *MealActivityRepo) SnackToday(date string) ([]types.Employee, error) {
+
 	var results []types.Employee
 	err := repo.db.
-		Table("meal_activities").
-		Select("employee_id, employee_name").
-		Where("date = ? AND meal_type = 2", date).Find(&results).Error
+		Table("meal_activities"). // Explicitly set the base table
+		Select("meal_activities.employee_id, meal_activities.employee_name, employees.preference_food").
+		Joins("JOIN employees ON meal_activities.employee_id = employees.employee_id").
+		Where("meal_activities.date = ? AND meal_activities.meal_type = 2", date).
+		Find(&results).Error
 
 	if err != nil {
 		return []types.Employee{}, err

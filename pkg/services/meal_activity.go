@@ -416,7 +416,7 @@ func (service *MealActivityService) LunchSummaryForEmail() error {
 		return err
 	}
 
-	conflicted, err := service.Regular(today, "snacks", lunchToday)
+	conflicted, err := service.Regular(today, "lunch", lunchToday)
 	if err != nil {
 		return err
 	}

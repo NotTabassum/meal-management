@@ -49,4 +49,5 @@ type IMealActivityService interface {
 	LunchToday() (string, error)
 	SnackToday() (string, error)
 	UpdateMealStatusForHolidays(holidayDates []string) error
+	//RegularCount(date string) (int, int, error)
 }
