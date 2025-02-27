@@ -214,7 +214,7 @@ func (repo *MealActivityRepo) TotalMealADayGroup(startDate, endDate string, meal
 		if err != nil {
 			return nil, err
 		}
-		results[i].RegularCount += int(totalCount)
+		results[i].Count += int(totalCount)
 	}
 	return results, nil
 }
