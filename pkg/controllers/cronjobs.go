@@ -44,7 +44,7 @@ func CronJob() {
 		log.Fatalf(" Failed to schedule LunchSummaryForEmail: %v", err)
 	}
 
-	_, err = c.AddFunc("* * * * *", func() {
+	_, err = c.AddFunc("05 14 * * *", func() {
 		log.Println("Sending Snacks Summary at:", time.Now())
 		if err := MealActivityService.SnackSummaryForEmail(); err != nil {
 			log.Printf(" Error generating snacks summary: %v", err)
