@@ -29,7 +29,7 @@ type IMealActivityRepo interface {
 	UpdateMealStatusOff(date string) error
 	CheckHoliday(date string) (bool, error)
 	GetTodayOfficePenalty(date string) (float64, error)
-	GetMealByDate(date string) ([]models.MealActivity, error)
+	GetMealByDate(date string, mealType int) ([]models.MealActivity, error)
 	GetExtraMealByDate(date string, mealType int) (int, error)
 }
 

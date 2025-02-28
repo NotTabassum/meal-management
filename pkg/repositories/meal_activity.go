@@ -298,10 +298,10 @@ func (repo *MealActivityRepo) GetTodayOfficePenalty(date string) (float64, error
 	return totalPenalty, nil
 }
 
-func (repo *MealActivityRepo) GetMealByDate(date string) ([]models.MealActivity, error) {
+func (repo *MealActivityRepo) GetMealByDate(date string, mealType int) ([]models.MealActivity, error) {
 	var results []models.MealActivity
 	err := repo.db.Table("meal_activities").
-		Where("date = ?", date).
+		Where("date = ? AND meal_type = ?", date, mealType).
 		Find(&results).Error
 	if err != nil {
 		return []models.MealActivity{}, err
@@ -310,7 +310,7 @@ func (repo *MealActivityRepo) GetMealByDate(date string) ([]models.MealActivity,
 }
 
 func (repo *MealActivityRepo) GetExtraMealByDate(date string, mealType int) (int, error) {
-	var result int = 0
+	var result = 0
 	var err error
 	if mealType == 1 {
 		err = repo.db.Table("extra_meals").
@@ -329,6 +329,5 @@ func (repo *MealActivityRepo) GetExtraMealByDate(date string, mealType int) (int
 			return 0, err
 		}
 	}
-
 	return result, nil
 }
