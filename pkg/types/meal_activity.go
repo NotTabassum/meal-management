@@ -94,3 +94,8 @@ type MonthData struct {
 	LunchPenalty    float64 `json:"lunch_penalty"`
 	SnackPenalty    float64 `json:"snack_penalty"`
 }
+
+type Penalty struct {
+	Date  string  `json:"date"`
+	Count float64 `json:"count"`
+}

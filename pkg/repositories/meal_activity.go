@@ -285,3 +285,16 @@ func (repo *MealActivityRepo) CheckHoliday(date string) (bool, error) {
 	}
 	return true, nil
 }
+
+func (repo *MealActivityRepo) GetTodayOfficePenalty(date string) (float64, error) {
+	var totalPenalty float64
+	err := repo.db.Table("meal_activities").
+		Select("COALESCE(SUM(penalty_score), 0.0)").
+		Where("date = ?", date).
+		Scan(&totalPenalty).Error
+
+	if err != nil {
+		return 0.0, err
+	}
+	return totalPenalty, nil
+}

@@ -28,6 +28,7 @@ type IMealActivityRepo interface {
 	MealSummaryForMonthData(startDate string, endDate string, id uint) ([]models.MealActivity, error)
 	UpdateMealStatusOff(date string) error
 	CheckHoliday(date string) (bool, error)
+	GetTodayOfficePenalty(date string) (float64, error)
 }
 
 type IMealActivityService interface {
@@ -49,5 +50,5 @@ type IMealActivityService interface {
 	LunchToday() (string, error)
 	SnackToday() (string, error)
 	UpdateMealStatusForHolidays(holidayDates []string) error
-	//RegularCount(date string) (int, int, error)
+	GetTodayOfficePenalty(days int) ([]types.Penalty, error)
 }

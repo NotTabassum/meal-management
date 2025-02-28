@@ -929,3 +929,21 @@ func (service *MealActivityService) Regular(date, mealType string, employee []ty
 	}
 	return conflicted, nil
 }
+
+func (service *MealActivityService) GetTodayOfficePenalty(days int) ([]types.Penalty, error) {
+	currentDate := time.Now()
+	var penalties []types.Penalty
+	for i := 0; i < days; i++ {
+		date := currentDate.AddDate(0, 0, -i)
+		cnt, err := service.repo.GetTodayOfficePenalty(date.Format(consts.DateFormat))
+		if err != nil {
+			return nil, err
+		}
+		penalty := &types.Penalty{
+			Date:  date.Format(consts.DateFormat),
+			Count: cnt,
+		}
+		penalties = append(penalties, *penalty)
+	}
+	return penalties, nil
+}
