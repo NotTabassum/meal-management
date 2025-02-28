@@ -25,7 +25,7 @@ func GenerateJWT(employee *models.Employee) (string, error) {
 		"email":       employee.Email,
 		"is_admin":    employee.IsAdmin,
 		//"exp":         time.Now().Add(time.Hour * 24).Unix(),
-		"exp": time.Now().Add(time.Minute * 1).Unix(),
+		"exp": time.Now().Add(time.Second * 30).Unix(),
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 
