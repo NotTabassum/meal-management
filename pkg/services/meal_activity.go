@@ -16,14 +16,16 @@ import (
 )
 
 type MealActivityService struct {
-	repo domain.IMealActivityRepo
-	menu domain.IMealPlanService
+	repo     domain.IMealActivityRepo
+	menu     domain.IMealPlanService
+	employee domain.IEmployeeService
 }
 
-func MealActivityServiceInstance(mealActivityRepo domain.IMealActivityRepo, menuPlanService domain.IMealPlanService) domain.IMealActivityService {
+func MealActivityServiceInstance(mealActivityRepo domain.IMealActivityRepo, menuPlanService domain.IMealPlanService, employeeService domain.IEmployeeService) domain.IMealActivityService {
 	return &MealActivityService{
-		repo: mealActivityRepo,
-		menu: menuPlanService,
+		repo:     mealActivityRepo,
+		menu:     menuPlanService,
+		employee: employeeService,
 	}
 }
 
@@ -215,7 +217,7 @@ func (service *MealActivityService) GetOwnMealActivity(ID uint, startDate string
 
 	tmpEndDate := tempStDate.AddDate(0, 0, days-1)
 	endDate := tmpEndDate.Format(consts.DateFormat)
-	mealActivity, err := service.repo.GetOwnMealActivity(ID, startDate, endDate)
+	mealActivity, err := service.repo.GetOwnMealActivity(startDate, endDate, ID)
 	if err != nil {
 		return nil, err
 	}
@@ -322,7 +324,7 @@ func (service *MealActivityService) TotalPenaltyAMonth(date string, employeeID u
 
 	tmpEndDate := startDate.AddDate(0, 0, days-1)
 	endDate := tmpEndDate.Format(consts.DateFormat)
-	mealActivity, err := service.repo.FindPenaltyAMonth(date, endDate, employeeID)
+	mealActivity, err := service.repo.GetOwnMealActivity(date, endDate, employeeID)
 	if err != nil {
 		return 0, err
 	}
@@ -359,7 +361,7 @@ func (service *MealActivityService) TotalMealPerPerson(date string, days int, em
 	tmpEndDate := startDate.AddDate(0, 0, days-1)
 	endDate := tmpEndDate.Format(consts.DateFormat)
 
-	mealActivity, err := service.repo.FindPenaltyAMonth(date, endDate, employeeID)
+	mealActivity, err := service.repo.GetOwnMealActivity(date, endDate, employeeID)
 	if err != nil {
 		return 0, err
 	}
@@ -403,43 +405,67 @@ func (service *MealActivityService) TotalMealADayGroup(date string, mealType int
 	endDate := tmpEndDate.Format(consts.DateFormat)
 
 	//from
-
 	totalMealGroup, err := service.repo.TotalMealADayGroup(date, endDate, mealType)
 	if err != nil {
 		return []types.TotalMealGroupResponse{}, err
 	}
 	//to
 
-	//var result []types.TotalMealGroupResponse
-	//endDate2, err := time.Parse(consts.DateFormat, endDate)
-	//if err != nil {
-	//	fmt.Println("Error parsing endDate:", err)
-	//	return []types.TotalMealGroupResponse{}, err
-	//}
-	//for d := startDate; !d.After(endDate2); d = d.AddDate(0, 0, 1) {
-	//	var val types.TotalMealGroupResponse
-	//	val.Date = d.Format(consts.DateFormat)
-	//	Today, err := service.repo.Today(d.Format(consts.DateFormat), mealType)
-	//	if err != nil {
-	//		return []types.TotalMealGroupResponse{}, err
-	//	}
-	//	meal := ""
-	//	if mealType == 1 {
-	//		meal = "lunch"
-	//	} else {
-	//		meal = "snacks"
-	//	}
-	//	conflicted, err := service.Regular(d.Format(consts.DateFormat), meal, Today)
-	//	if err != nil {
-	//		return []types.TotalMealGroupResponse{}, err
-	//	}
-	//	val.RegularCount = len(Today)
-	//	val.SpecialCount = conflicted
-	//	result = append(result, val)
-	//}
-	//
-	//return result, nil
 	return totalMealGroup, nil
+}
+
+func (service *MealActivityService) TotalMealADayGroup_(date string, mealType int, days int) ([]types.TotalMealGroupResponse, error) {
+	startDate, err := time.Parse(consts.DateFormat, date)
+	if err != nil {
+		return []types.TotalMealGroupResponse{}, err
+	}
+	endDate := startDate.AddDate(0, 0, days-1)
+
+	var result []types.TotalMealGroupResponse
+	var mealTypeStr string
+	if mealType == 1 {
+		mealTypeStr = "lunch"
+	} else {
+		mealTypeStr = "snacks"
+	}
+
+	for d := startDate; !d.After(endDate); d = d.AddDate(0, 0, 1) {
+		dateStr := d.Format(consts.DateFormat)
+		meals, err := service.repo.GetMealByDate(dateStr)
+		if err != nil {
+			return []types.TotalMealGroupResponse{}, err
+		}
+		var regularCount = 0
+		var employees []uint
+		for _, meal := range meals {
+			employees = append(employees, meal.EmployeeId)
+			if *meal.Status == true {
+				regularCount++
+			}
+			regularCount += *meal.GuestCount
+		}
+		val, err := service.repo.GetExtraMealByDate(dateStr)
+		if err != nil {
+			return []types.TotalMealGroupResponse{}, err
+		}
+		regularCount += val
+		TodayMeal, err := service.repo.Today(dateStr, mealType)
+		if err != nil {
+			return []types.TotalMealGroupResponse{}, err
+		}
+
+		conflicted, err := service.Regular(dateStr, mealTypeStr, TodayMeal)
+		if err != nil {
+			return []types.TotalMealGroupResponse{}, err
+		}
+		meal := types.TotalMealGroupResponse{
+			Date:         dateStr,
+			Count:        regularCount,
+			SpecialCount: conflicted,
+		}
+		result = append(result, meal)
+	}
+	return result, nil
 }
 
 func (service *MealActivityService) LunchSummaryForEmail() error {

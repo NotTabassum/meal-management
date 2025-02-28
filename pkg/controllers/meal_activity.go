@@ -258,7 +258,7 @@ func TotalMealADayGroup(e echo.Context) error {
 	date := reqMealActivity.Date
 	mealType := reqMealActivity.MealType
 	days := reqMealActivity.Days
-	groupedMealCount, err := MealActivityService.TotalMealADayGroup(date, mealType, days)
+	groupedMealCount, err := MealActivityService.TotalMealADayGroup_(date, mealType, days)
 	if err != nil {
 		return e.JSON(http.StatusInternalServerError, map[string]string{"res": "Internal server error"})
 	}

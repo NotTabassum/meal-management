@@ -95,18 +95,7 @@ func (repo *MealActivityRepo) GetMealActivity(startDate, endDate string) ([]mode
 	return mealActivities, nil
 }
 
-func (repo *MealActivityRepo) GetOwnMealActivity(ID uint, startDate, endDate string) ([]models.MealActivity, error) {
-	var mealActivities []models.MealActivity
-	var err error
-	err = repo.db.Where("date >= ? AND date <= ? AND employee_id = ?", startDate, endDate, ID).Find(&mealActivities).Error
-
-	if err != nil {
-		return []models.MealActivity{}, err
-	}
-	return mealActivities, nil
-}
-
-func (repo *MealActivityRepo) FindPenaltyAMonth(startDate string, endDate string, employeeID uint) ([]models.MealActivity, error) {
+func (repo *MealActivityRepo) GetOwnMealActivity(startDate string, endDate string, employeeID uint) ([]models.MealActivity, error) {
 	var mealActivities []models.MealActivity
 	err := repo.db.Where("date >= ? AND date <= ? AND employee_id = ?", startDate, endDate, employeeID).Find(&mealActivities).Error
 	if err != nil {
@@ -297,4 +286,27 @@ func (repo *MealActivityRepo) GetTodayOfficePenalty(date string) (float64, error
 		return 0.0, err
 	}
 	return totalPenalty, nil
+}
+
+func (repo *MealActivityRepo) GetMealByDate(date string) ([]models.MealActivity, error) {
+	var results []models.MealActivity
+	err := repo.db.Table("meal_activities").
+		Where("date = ?", date).
+		Find(&results).Error
+	if err != nil {
+		return []models.MealActivity{}, err
+	}
+	return results, nil
+}
+
+func (repo *MealActivityRepo) GetExtraMealByDate(date string) (int, error) {
+	var result int = 0
+	err := repo.db.Table("extra_meals").
+		Select("count").
+		Where("date = ?", date).
+		Find(&result).Error
+	if err != nil {
+		return 0, err
+	}
+	return result, nil
 }

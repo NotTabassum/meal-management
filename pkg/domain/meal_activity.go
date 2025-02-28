@@ -13,9 +13,8 @@ type IMealActivityRepo interface {
 	GetMealActivity(startDate, endDate string) ([]models.MealActivity, error)
 	CreateMealActivity(activity *models.MealActivity) error
 	UpdateMealActivity(mealActivity *models.MealActivity) error
-	GetOwnMealActivity(ID uint, startDate, endDate string) ([]models.MealActivity, error)
+	GetOwnMealActivity(startDate string, endDate string, employeeID uint) ([]models.MealActivity, error)
 	//FindMealADay(date string, mealType int) ([]models.MealActivity, error)
-	FindPenaltyAMonth(startDate string, endDate string, employeeID uint) ([]models.MealActivity, error)
 	TotalEmployees() ([]types.Employee, error)
 	GetEmployeeMealCounts(startDate, endDate string) ([]types.MealSummaryResponse, error)
 	GetTotalMealCounts(startDate, endDate string) (types.TotalMealCounts, error)
@@ -29,6 +28,8 @@ type IMealActivityRepo interface {
 	UpdateMealStatusOff(date string) error
 	CheckHoliday(date string) (bool, error)
 	GetTodayOfficePenalty(date string) (float64, error)
+	GetMealByDate(date string) ([]models.MealActivity, error)
+	GetExtraMealByDate(date string) (int, error)
 }
 
 type IMealActivityService interface {
@@ -52,4 +53,5 @@ type IMealActivityService interface {
 	UpdateMealStatusForHolidays(holidayDates []string) error
 	GetTodayOfficePenalty(days int) ([]types.Penalty, error)
 	GetMonthOfficePenalty(n int) ([]types.PenaltyMonth, error)
+	TotalMealADayGroup_(date string, mealType int, days int) ([]types.TotalMealGroupResponse, error)
 }

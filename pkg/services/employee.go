@@ -35,14 +35,15 @@ func (service *EmployeeService) GetSpecificEmployee(EmployeeID uint) (types.Empl
 	}
 	deptName := dept.DeptName
 	allEmployees = types.EmployeeRequest{
-		EmployeeId:    employee.EmployeeId,
-		Name:          employee.Name,
-		Email:         employee.Email,
-		PhoneNumber:   employee.PhoneNumber,
-		DeptName:      deptName,
-		Remarks:       employee.Remarks,
-		DefaultStatus: employee.DefaultStatus,
-		IsAdmin:       employee.IsAdmin,
+		EmployeeId:     employee.EmployeeId,
+		Name:           employee.Name,
+		Email:          employee.Email,
+		PhoneNumber:    employee.PhoneNumber,
+		DeptName:       deptName,
+		Remarks:        employee.Remarks,
+		DefaultStatus:  employee.DefaultStatus,
+		IsAdmin:        employee.IsAdmin,
+		PreferenceFood: employee.PreferenceFood,
 	}
 	return allEmployees, nil
 }
