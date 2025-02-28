@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/labstack/echo/v4"
+	"gorm.io/datatypes"
 	"io"
 	"meal-management/envoyer"
 	"meal-management/pkg/consts"
@@ -117,6 +118,8 @@ func CreateEmployee(e echo.Context) error {
 
 	//ei obdhi
 
+	var emptyJSONArray = datatypes.JSON([]byte("[]"))
+
 	deptID, err := strconv.Atoi(e.FormValue("dept_id"))
 	if err != nil {
 		return e.JSON(http.StatusBadRequest, "Invalid department ID")
@@ -127,15 +130,16 @@ func CreateEmployee(e echo.Context) error {
 		return e.JSON(http.StatusInternalServerError, err.Error())
 	}
 	reqEmployee := &models.Employee{
-		Name:          e.FormValue("name"),
-		Email:         e.FormValue("email"),
-		PhoneNumber:   e.FormValue("phone_number"),
-		DeptID:        deptID,
-		Password:      Password,
-		Remarks:       e.FormValue("remarks"),
-		DefaultStatus: e.FormValue("default_status") == "true",
-		IsAdmin:       e.FormValue("is_admin") == "true",
-		Photo:         dstPath,
+		Name:           e.FormValue("name"),
+		Email:          e.FormValue("email"),
+		PhoneNumber:    e.FormValue("phone_number"),
+		DeptID:         deptID,
+		Password:       Password,
+		Remarks:        e.FormValue("remarks"),
+		DefaultStatus:  e.FormValue("default_status") == "true",
+		IsAdmin:        e.FormValue("is_admin") == "true",
+		Photo:          dstPath,
+		PreferenceFood: emptyJSONArray,
 	}
 
 	//For Email Sending
@@ -599,16 +603,17 @@ func PasswordChange(e echo.Context) error {
 	employees, err := EmployeeService.GetEmployeeWithEmployeeID(uint(EmployeeID))
 	employee := employees
 	updatedEmployee := &models.Employee{
-		EmployeeId:    uint(EmployeeID),
-		Name:          employee.Name,
-		Email:         employee.Email,
-		PhoneNumber:   employee.PhoneNumber,
-		Password:      password,
-		DeptID:        employee.DeptID,
-		Remarks:       employee.Remarks,
-		DefaultStatus: employee.DefaultStatus,
-		IsAdmin:       employee.IsAdmin,
-		Photo:         employee.Photo,
+		EmployeeId:     uint(EmployeeID),
+		Name:           employee.Name,
+		Email:          employee.Email,
+		PhoneNumber:    employee.PhoneNumber,
+		Password:       password,
+		DeptID:         employee.DeptID,
+		Remarks:        employee.Remarks,
+		DefaultStatus:  employee.DefaultStatus,
+		IsAdmin:        employee.IsAdmin,
+		Photo:          employee.Photo,
+		PreferenceFood: employee.PreferenceFood,
 	}
 
 	if err := EmployeeService.UpdateEmployee(updatedEmployee); err != nil {
