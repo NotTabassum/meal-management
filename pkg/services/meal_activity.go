@@ -387,12 +387,16 @@ func (service *MealActivityService) TotalMealCount(date string, days int) (types
 	if err != nil {
 		return types.TotalMealCounts{}, err
 	}
-	totalExtraMeal, err := service.repo.GetTotalExtraMealCounts(date, endDate)
-	totalMeal.TotalLunch += int(totalExtraMeal)
-	totalMeal.TotalSnacks += int(totalExtraMeal)
+	totalExtraMealLunch, err := service.repo.GetTotalExtraMealCountsLunch(date, endDate)
 	if err != nil {
 		return types.TotalMealCounts{}, err
 	}
+	totalMeal.TotalLunch += int(totalExtraMealLunch)
+	totalExtraMealSnack, err := service.repo.GetTotalExtraMealCountsSnack(date, endDate)
+	if err != nil {
+		return types.TotalMealCounts{}, err
+	}
+	totalMeal.TotalSnacks += int(totalExtraMealSnack)
 	return totalMeal, nil
 }
 
@@ -444,7 +448,7 @@ func (service *MealActivityService) TotalMealADayGroup_(date string, mealType in
 			}
 			regularCount += *meal.GuestCount
 		}
-		val, err := service.repo.GetExtraMealByDate(dateStr)
+		val, err := service.repo.GetExtraMealByDate(dateStr, mealType)
 		if err != nil {
 			return []types.TotalMealGroupResponse{}, err
 		}
@@ -845,8 +849,8 @@ func (service *MealActivityService) MealSummaryForGraph(monthCount int) ([]types
 		if monthIndex < 0 {
 			monthIndex += 12
 		}
-		response[monthIndex].Lunch += meal.Count
-		response[monthIndex].Snack += meal.Count
+		response[monthIndex].Lunch += meal.LunchCount
+		response[monthIndex].Snack += meal.SnackCount
 	}
 	return response, nil
 }

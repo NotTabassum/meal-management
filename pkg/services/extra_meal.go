@@ -37,8 +37,8 @@ func (service *ExtraMealService) GenerateExtraMeal() error {
 	return nil
 }
 
-func (service *ExtraMealService) UpdateExtraMeal(date string, count int) error {
-	if err := service.repo.UpdateExtraMeal(date, count); err != nil {
+func (service *ExtraMealService) UpdateExtraMeal(date string, LunchCount int, SnackCount int) error {
+	if err := service.repo.UpdateExtraMeal(date, LunchCount, SnackCount); err != nil {
 		return errors.New("failed to update extra meal activity")
 	}
 	return nil

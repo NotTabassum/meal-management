@@ -65,7 +65,8 @@ func UpdateExtraMeal(e echo.Context) error {
 		return e.JSON(http.StatusBadRequest, map[string]string{"res": "Employee ID, Date and Meal Type are required"})
 	}
 	date := reqExtraMeal.Date
-	count := reqExtraMeal.Count
+	LunchCount := reqExtraMeal.LunchCount
+	SnackCount := reqExtraMeal.SnackCount
 
 	requestedDate, err := time.Parse(consts.DateFormat, date)
 	if err != nil {
@@ -77,7 +78,7 @@ func UpdateExtraMeal(e echo.Context) error {
 		return e.JSON(http.StatusForbidden, map[string]string{"error": "You cant change previous meal activity"})
 	}
 
-	if err := ExtraMealService.UpdateExtraMeal(date, count); err != nil {
+	if err := ExtraMealService.UpdateExtraMeal(date, LunchCount, SnackCount); err != nil {
 		return e.JSON(http.StatusInternalServerError, map[string]string{"res": "Internal server error"})
 	}
 	return e.JSON(http.StatusCreated, map[string]string{"res": "Updated Extra Meal Activity."})

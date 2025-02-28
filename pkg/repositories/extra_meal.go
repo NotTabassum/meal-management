@@ -27,8 +27,9 @@ func (repo *ExtraMealRepo) GenerateExtraMeal(date string) error {
 	}
 	if cnt == 0 {
 		repo.db.Create(&models.ExtraMeal{
-			Date:  date,
-			Count: 0,
+			Date:       date,
+			LunchCount: 0,
+			SnackCount: 0,
 		})
 		log.Println("Extra Meals generated for date:", date)
 	}
@@ -49,12 +50,13 @@ func (repo *ExtraMealRepo) GenerateExtraMeal(date string) error {
 //	return nil
 //}
 
-func (repo *ExtraMealRepo) UpdateExtraMeal(date string, count int) error {
+func (repo *ExtraMealRepo) UpdateExtraMeal(date string, LunchCount int, SnackCount int) error {
 	if err := repo.db.Model(&models.ExtraMeal{}).
 		Where("date = ?", date).
 		Updates(map[string]interface{}{
-			"date":  date,
-			"count": count, // This ensures 0 is updated properly
+			"date":        date,
+			"lunch_count": LunchCount,
+			"snack_count": SnackCount,
 		}).Error; err != nil {
 		fmt.Println(err)
 		return err

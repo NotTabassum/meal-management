@@ -2,7 +2,6 @@ package repositories
 
 import (
 	"errors"
-	"fmt"
 	"gorm.io/gorm"
 	"meal-management/pkg/domain"
 	"meal-management/pkg/models"
@@ -155,20 +154,31 @@ func (repo *MealActivityRepo) GetTotalMealCounts(startDate, endDate string) (typ
 	return result, nil
 }
 
-func (repo *MealActivityRepo) GetTotalExtraMealCounts(startDate, endDate string) (int64, error) {
+func (repo *MealActivityRepo) GetTotalExtraMealCountsLunch(startDate, endDate string) (int64, error) {
 	var totalCount int64
 	err := repo.db.Table("extra_meals").
-		Select("COALESCE(SUM(count), 0)").
+		Select("COALESCE(SUM(lunch_count), 0)").
 		Where("date BETWEEN ? AND ?", startDate, endDate).
 		Scan(&totalCount).Error
 
 	if err != nil {
 		return 0, err
 	}
-	fmt.Println(totalCount)
 	return totalCount, nil
 }
 
+func (repo *MealActivityRepo) GetTotalExtraMealCountsSnack(startDate, endDate string) (int64, error) {
+	var totalCount int64
+	err := repo.db.Table("extra_meals").
+		Select("COALESCE(SUM(snack_count), 0)").
+		Where("date BETWEEN ? AND ?", startDate, endDate).
+		Scan(&totalCount).Error
+
+	if err != nil {
+		return 0, err
+	}
+	return totalCount, nil
+}
 func (repo *MealActivityRepo) TotalEmployees() ([]types.Employee, error) {
 	var employees []types.Employee
 	err := repo.db.Select("employee_id", "name").Find(&employees).Error
@@ -299,14 +309,26 @@ func (repo *MealActivityRepo) GetMealByDate(date string) ([]models.MealActivity,
 	return results, nil
 }
 
-func (repo *MealActivityRepo) GetExtraMealByDate(date string) (int, error) {
+func (repo *MealActivityRepo) GetExtraMealByDate(date string, mealType int) (int, error) {
 	var result int = 0
-	err := repo.db.Table("extra_meals").
-		Select("count").
-		Where("date = ?", date).
-		Find(&result).Error
-	if err != nil {
-		return 0, err
+	var err error
+	if mealType == 1 {
+		err = repo.db.Table("extra_meals").
+			Select("lunch_count").
+			Where("date = ?", date).
+			Find(&result).Error
+		if err != nil {
+			return 0, err
+		}
+	} else if mealType == 2 {
+		err = repo.db.Table("extra_meals").
+			Select("snack_count").
+			Where("date = ?", date).
+			Find(&result).Error
+		if err != nil {
+			return 0, err
+		}
 	}
+
 	return result, nil
 }

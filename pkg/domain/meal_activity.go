@@ -18,7 +18,8 @@ type IMealActivityRepo interface {
 	TotalEmployees() ([]types.Employee, error)
 	GetEmployeeMealCounts(startDate, endDate string) ([]types.MealSummaryResponse, error)
 	GetTotalMealCounts(startDate, endDate string) (types.TotalMealCounts, error)
-	GetTotalExtraMealCounts(startDate, endDate string) (int64, error)
+	GetTotalExtraMealCountsLunch(startDate, endDate string) (int64, error)
+	GetTotalExtraMealCountsSnack(startDate, endDate string) (int64, error)
 	TotalMealADayGroup(startDate, endDate string, mealType int) ([]types.TotalMealGroupResponse, error)
 	Today(date string, mealType int) ([]types.Employee, error)
 	//SnackToday(date string) ([]types.Employee, error)
@@ -29,7 +30,7 @@ type IMealActivityRepo interface {
 	CheckHoliday(date string) (bool, error)
 	GetTodayOfficePenalty(date string) (float64, error)
 	GetMealByDate(date string) ([]models.MealActivity, error)
-	GetExtraMealByDate(date string) (int, error)
+	GetExtraMealByDate(date string, mealType int) (int, error)
 }
 
 type IMealActivityService interface {
