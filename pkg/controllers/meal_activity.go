@@ -527,3 +527,30 @@ func TodaySnack(e echo.Context) error {
 	}
 	return e.JSON(http.StatusOK, TodaySnackSummary)
 }
+
+func GetTodayOfficePenalty(e echo.Context) error {
+	authorizationHeader := e.Request().Header.Get("Authorization")
+	if authorizationHeader == "" {
+		return e.JSON(http.StatusUnauthorized, map[string]string{"res": "Authorization header is empty"})
+	}
+	_, isAdmin, err := middleware.ParseJWT(authorizationHeader)
+	if err != nil {
+		if err.Error() == "token expired" {
+			return e.JSON(http.StatusUnauthorized, map[string]string{"error": "Token expired"})
+		}
+		return e.JSON(http.StatusUnauthorized, map[string]string{"error": err.Error()})
+	}
+	if !isAdmin {
+		return e.JSON(http.StatusUnauthorized, map[string]string{"res": "Not Authorized"})
+	}
+	dayStr := e.QueryParam("days")
+	day, err := strconv.Atoi(dayStr)
+	if err != nil || day <= 0 {
+		return e.JSON(400, map[string]string{"error": "Invalid number of days"})
+	}
+	penaltySummary, err := MealActivityService.GetTodayOfficePenalty(day)
+	if err != nil {
+		return e.JSON(http.StatusInternalServerError, err.Error())
+	}
+	return e.JSON(http.StatusOK, penaltySummary)
+}
