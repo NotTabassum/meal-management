@@ -495,18 +495,36 @@ func (service *MealActivityService) LunchSummaryForEmail() error {
 }
 
 func (service *MealActivityService) LunchToday() (string, error) {
-	today := time.Now().Format(consts.DateFormat)
-	lunchToday, err := service.repo.Today(today, 1)
+	dateStr := time.Now().Format(consts.DateFormat)
+	meals, err := service.repo.GetMealByDate(dateStr)
+	if err != nil {
+		return "", err
+	}
+	var regularCount = 0
+	var employees []uint
+	for _, meal := range meals {
+		employees = append(employees, meal.EmployeeId)
+		if *meal.Status == true {
+			regularCount++
+		}
+		regularCount += *meal.GuestCount
+	}
+	val, err := service.repo.GetExtraMealByDate(dateStr, 1)
+	if err != nil {
+		return "", err
+	}
+	regularCount += val
+	TodayMeal, err := service.repo.Today(dateStr, 1)
 	if err != nil {
 		return "", err
 	}
 
-	conflicted, err := service.Regular(today, "snacks", lunchToday)
+	conflicted, err := service.Regular(dateStr, "lunch", TodayMeal)
 	if err != nil {
 		return "", err
 	}
 
-	body := GenerateLunchSummaryEmailBody(today, lunchToday, conflicted)
+	body := GenerateLunchSummaryEmailBody(dateStr, TodayMeal, conflicted)
 	return body, nil
 }
 
@@ -654,16 +672,36 @@ func (service *MealActivityService) SnackSummaryForEmail() error {
 }
 
 func (service *MealActivityService) SnackToday() (string, error) {
-	today := time.Now().Format(consts.DateFormat)
-	snackToday, err := service.repo.Today(today, 2)
+	dateStr := time.Now().Format(consts.DateFormat)
+	meals, err := service.repo.GetMealByDate(dateStr)
 	if err != nil {
 		return "", err
 	}
-	conflicted, err := service.Regular(today, "snacks", snackToday)
+	var regularCount = 0
+	var employees []uint
+	for _, meal := range meals {
+		employees = append(employees, meal.EmployeeId)
+		if *meal.Status == true {
+			regularCount++
+		}
+		regularCount += *meal.GuestCount
+	}
+	val, err := service.repo.GetExtraMealByDate(dateStr, 2)
 	if err != nil {
 		return "", err
 	}
-	body := GenerateSnackSummaryEmailBody(today, snackToday, conflicted)
+	regularCount += val
+	TodayMeal, err := service.repo.Today(dateStr, 2)
+	if err != nil {
+		return "", err
+	}
+
+	conflicted, err := service.Regular(dateStr, "snack", TodayMeal)
+	if err != nil {
+		return "", err
+	}
+
+	body := GenerateSnackSummaryEmailBody(dateStr, TodayMeal, conflicted)
 	return body, nil
 }
 
