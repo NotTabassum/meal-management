@@ -51,4 +51,5 @@ type IMealActivityService interface {
 	SnackToday() (string, error)
 	UpdateMealStatusForHolidays(holidayDates []string) error
 	GetTodayOfficePenalty(days int) ([]types.Penalty, error)
+	GetMonthOfficePenalty(n int) ([]types.PenaltyMonth, error)
 }

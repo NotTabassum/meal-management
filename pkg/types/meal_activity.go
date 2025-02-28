@@ -99,3 +99,9 @@ type Penalty struct {
 	Date  string  `json:"date"`
 	Count float64 `json:"count"`
 }
+
+type PenaltyMonth struct {
+	Month string  `json:"month"`
+	Year  string  `json:"year"`
+	Count float64 `json:"count"`
+}

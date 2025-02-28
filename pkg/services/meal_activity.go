@@ -831,7 +831,6 @@ func (service *MealActivityService) MonthData(monthCount int, id uint) ([]types.
 	firstDay := time.Now().AddDate(0, -monthCount+1, 0) // Move back (monthCount - 1) months
 	startDate := time.Date(firstDay.Year(), firstDay.Month(), 1, 0, 0, 0, 0, time.Local).Format(consts.DateFormat)
 
-	//startDate := time.Now().AddDate(0, -monthCount, 0).Format(consts.DateFormat)
 	endDate := time.Now().Format(consts.DateFormat)
 
 	for i := 0; i < monthCount; i++ {
@@ -845,7 +844,6 @@ func (service *MealActivityService) MonthData(monthCount int, id uint) ([]types.
 			SnackPenalty: 0,
 		}
 	}
-	fmt.Println(startDate, endDate)
 	mealActivity, err := service.repo.MealSummaryForMonthData(startDate, endDate, id)
 	if err != nil {
 		return []types.MonthData{}, nil
@@ -883,6 +881,47 @@ func (service *MealActivityService) MonthData(monthCount int, id uint) ([]types.
 			response[monthIndex].TotalGuestSnack += *meal.GuestCount
 
 		}
+	}
+	return response, nil
+}
+
+func (service *MealActivityService) GetMonthOfficePenalty(month int) ([]types.PenaltyMonth, error) {
+	response := make([]types.PenaltyMonth, month)
+
+	firstDay := time.Now().AddDate(0, -month+1, 0) // Move back (monthCount - 1) months
+	startDate := time.Date(firstDay.Year(), firstDay.Month(), 1, 0, 0, 0, 0, time.Local).Format(consts.DateFormat)
+	endDate := time.Now().Format(consts.DateFormat)
+
+	for i := 0; i < month; i++ {
+		date := time.Now().AddDate(0, -i, 0)
+		response[i] = types.PenaltyMonth{
+			Month: date.Month().String(),
+			Year:  strconv.Itoa(date.Year()),
+			Count: 0,
+		}
+	}
+	mealActivity, err := service.repo.MealSummaryForGraph(startDate, endDate)
+	if err != nil {
+		return []types.PenaltyMonth{}, nil
+	}
+	for _, meal := range mealActivity {
+		date, err := time.Parse(consts.DateFormat, meal.Date)
+		if err != nil {
+			log.Printf("Failed to parse date %s: %v", meal.Date, err)
+			continue
+		}
+
+		targetYear, targetMonth, _ := date.Date()
+		nowYear, nowMonth, _ := time.Now().Date()
+
+		monthIndex := (nowYear-targetYear)*12 + int(nowMonth-targetMonth)
+
+		if monthIndex < 0 || monthIndex >= month {
+			log.Printf("Skipping out-of-range data: %v", meal.Date)
+			continue
+		}
+
+		response[monthIndex].Count += *meal.PenaltyScore
 	}
 	return response, nil
 }
