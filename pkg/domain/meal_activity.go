@@ -44,7 +44,6 @@ type IMealActivityService interface {
 	TotalMealAMonth(date string, days int) ([]types.MealSummaryResponse, error)
 	TotalMealPerPerson(date string, days int, employeeID uint) (int, error)
 	TotalMealCount(date string, days int) (types.TotalMealCounts, error)
-	TotalMealADayGroup(date string, mealType int, days int) ([]types.TotalMealGroupResponse, error)
 	LunchSummaryForEmail() error
 	SnackSummaryForEmail() error
 	MealSummaryForGraph(month int) ([]types.MealSummaryForGraph, error)
@@ -54,5 +53,5 @@ type IMealActivityService interface {
 	UpdateMealStatusForHolidays(holidayDates []string) error
 	GetTodayOfficePenalty(days int) ([]types.Penalty, error)
 	GetMonthOfficePenalty(n int) ([]types.PenaltyMonth, error)
-	TotalMealADayGroup_(date string, mealType int, days int) ([]types.TotalMealGroupResponse, error)
+	TotalMealADayGroup(date string, mealType int, days int) ([]types.TotalMealGroupResponse, error)
 }

@@ -405,24 +405,6 @@ func (service *MealActivityService) TotalMealADayGroup(date string, mealType int
 	if err != nil {
 		return []types.TotalMealGroupResponse{}, err
 	}
-	tmpEndDate := startDate.AddDate(0, 0, days-1)
-	endDate := tmpEndDate.Format(consts.DateFormat)
-
-	//from
-	totalMealGroup, err := service.repo.TotalMealADayGroup(date, endDate, mealType)
-	if err != nil {
-		return []types.TotalMealGroupResponse{}, err
-	}
-	//to
-
-	return totalMealGroup, nil
-}
-
-func (service *MealActivityService) TotalMealADayGroup_(date string, mealType int, days int) ([]types.TotalMealGroupResponse, error) {
-	startDate, err := time.Parse(consts.DateFormat, date)
-	if err != nil {
-		return []types.TotalMealGroupResponse{}, err
-	}
 	endDate := startDate.AddDate(0, 0, days-1)
 
 	var result []types.TotalMealGroupResponse
