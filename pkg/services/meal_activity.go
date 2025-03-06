@@ -489,8 +489,8 @@ func (service *MealActivityService) LunchSummaryForEmail() error {
 
 	email := &envoyer.EmailReq{
 		EventName: "general_email",
-		//Receivers: []string{"ashikur.rahman@vivasoftltd.com"},
-		Receivers: []string{"tabassumoyshee@gmail.com"},
+		Receivers: []string{"ashikur.rahman@vivasoftltd.com"},
+		//Receivers: []string{"tabassumoyshee@gmail.com"},
 		Variables: []envoyer.TemplateVariable{
 			{
 				Name:  "{{.subject}}",
@@ -682,8 +682,8 @@ func (service *MealActivityService) SnackSummaryForEmail() error {
 
 	email := &envoyer.EmailReq{
 		EventName: "general_email",
-		//Receivers: []string{"ashikur.rahman@vivasoftltd.com"},
-		Receivers: []string{"tabassumoyshee@gmail.com"},
+		Receivers: []string{"ashikur.rahman@vivasoftltd.com"},
+		//Receivers: []string{"tabassumoyshee@gmail.com"},
 		Variables: []envoyer.TemplateVariable{
 			{
 				Name:  "{{.subject}}",
