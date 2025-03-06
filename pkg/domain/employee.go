@@ -28,7 +28,7 @@ type IEmployeeService interface {
 	GetEmployee() ([]types.EmployeeRequest, error)
 	UpdateEmployee(employee *models.Employee) error
 	DeleteEmployee(EmployeeId uint) error
-	UpdateDefaultStatus(EmployeeId uint, date string) error
+	UpdateDefaultStatus(EmployeeId uint, date string, status bool) error
 	ForgottenPassword(email string, link string) error
 	GetPhoto(employeeId uint) (string, error)
 	MakeHash() error

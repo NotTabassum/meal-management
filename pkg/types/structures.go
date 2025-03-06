@@ -22,3 +22,8 @@ type ForgetPasswordRequest struct {
 type PasswordRequest struct {
 	Password string `json:"password"`
 }
+
+type DefaultStatus struct {
+	Date   string `json:"date"`
+	Status bool   `json:"status"`
+}
