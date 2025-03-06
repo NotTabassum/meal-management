@@ -485,12 +485,12 @@ func (service *MealActivityService) LunchSummaryForEmail() error {
 	}
 
 	subject := "Lunch Summary"
-	body := GenerateLunchSummaryEmailBody(dateStr, regularCount, TodayMeal, conflicted)
+	body := GenerateLunchSummaryEmailBody(dateStr, regularCount, TodayMeal, conflicted, val)
 
 	email := &envoyer.EmailReq{
 		EventName: "general_email",
-		Receivers: []string{"ashikur.rahman@vivasoftltd.com"},
-		//Receivers: []string{"tabassumoyshee@gmail.com"},
+		//Receivers: []string{"ashikur.rahman@vivasoftltd.com"},
+		Receivers: []string{"tabassumoyshee@gmail.com"},
 		Variables: []envoyer.TemplateVariable{
 			{
 				Name:  "{{.subject}}",
@@ -542,11 +542,113 @@ func (service *MealActivityService) LunchToday() (string, error) {
 		return "", err
 	}
 
-	body := GenerateLunchSummaryEmailBody(dateStr, regularCount, TodayMeal, conflicted)
+	body := GenerateLunchSummaryEmailBody(dateStr, regularCount, TodayMeal, conflicted, val)
 	return body, nil
 }
 
-func GenerateLunchSummaryEmailBody(date string, regularCount int, employees []types.Employee, pickyCount int) string {
+//func GenerateLunchSummaryEmailBody(date string, regularCount int, employees []types.Employee, pickyCount int) string {
+//	total := regularCount
+//	regularCount = total - pickyCount
+//
+//	template := `<!DOCTYPE html>
+//<html>
+//<head>
+//    <meta charset="UTF-8">
+//    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+//    <title>Daily Lunch Summary</title>
+//    <style>
+//        body {
+//            font-family: Arial, sans-serif;
+//            background-color: #f4f4f4;
+//            margin: 0;
+//            padding: 0;
+//        }
+//        .container {
+//            max-width: 600px;
+//            margin: 20px auto;
+//            background: #ffffff;
+//            padding: 20px;
+//            border-radius: 10px;
+//            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+//        }
+//        h2 {
+//            text-align: center;
+//            color: #333;
+//        }
+//        .meal-table {
+//            width: 100%;
+//            border-collapse: collapse;
+//            margin: 20px 0;
+//        }
+//        .meal-table th, .meal-table td {
+//            padding: 10px;
+//            text-align: left;
+//            border-bottom: 1px solid #ddd;
+//        }
+//        .meal-table th {
+//            background: #007bff;
+//            color: #ffffff;
+//        }
+//        .meal-table tr:nth-child(even) {
+//            background: #f9f9f9;
+//        }
+//        .total {
+//            text-align: center;
+//            font-size: 18px;
+//            font-weight: bold;
+//            color: #007bff;
+//            margin-top: 20px;
+//        }
+//        .footer {
+//            text-align: center;
+//            font-size: 12px;
+//            color: #888;
+//            margin-top: 20px;
+//        }
+//    </style>
+//</head>
+//<body>
+//
+//    <div class="container">
+//        <h2>🍽️ Daily Lunch Summary</h2>
+//        <p>Hello,</p>
+//        <p>Here is the lunch summary for <strong>{{DATE}}</strong>:</p>
+//
+//        <table class="meal-table">
+//            <thead>
+//                <tr>
+//                    <th>#</th>
+//                    <th>Employee Name</th>
+//                </tr>
+//            </thead>
+//            <tbody>
+//                {{MEAL_ROWS}}
+//            </tbody>
+//        </table>
+//
+//        <p class="total">Total Meals: <strong>{{TOTAL_MEALS}}</strong></p>
+//        <p class="total">Regular Meals: <strong>{{REGULAR_MEALS}}</strong></p>
+//        <p class="total">Special Meals: <strong>{{SPECIAL_MEALS}}</strong></p>
+//    </div>
+//
+//</body>
+//</html>`
+//
+//	var mealRows strings.Builder
+//	for i, val := range employees {
+//		mealRows.WriteString(fmt.Sprintf("<tr><td>%d</td><td>%s</td></tr>", i+1, val.Name))
+//	}
+//
+//	emailBody := strings.Replace(template, "{{DATE}}", date, -1)
+//	emailBody = strings.Replace(emailBody, "{{MEAL_ROWS}}", mealRows.String(), -1)
+//	emailBody = strings.Replace(emailBody, "{{TOTAL_MEALS}}", fmt.Sprintf("%d", total), -1)
+//	emailBody = strings.Replace(emailBody, "{{REGULAR_MEALS}}", fmt.Sprintf("%d", regularCount), -1)
+//	emailBody = strings.Replace(emailBody, "{{SPECIAL_MEALS}}", fmt.Sprintf("%d", pickyCount), -1)
+//
+//	return emailBody
+//}
+
+func GenerateLunchSummaryEmailBody(date string, regularCount int, employees []types.Employee, pickyCount int, instantGuest int) string {
 	total := regularCount
 	regularCount = total - pickyCount
 
@@ -629,6 +731,7 @@ func GenerateLunchSummaryEmailBody(date string, regularCount int, employees []ty
         <p class="total">Total Meals: <strong>{{TOTAL_MEALS}}</strong></p>
         <p class="total">Regular Meals: <strong>{{REGULAR_MEALS}}</strong></p>
         <p class="total">Special Meals: <strong>{{SPECIAL_MEALS}}</strong></p>
+        <p class="total">Instant Guest: <strong>{{INSTANT_GUEST}}</strong></p>
     </div>
 
 </body>
@@ -644,6 +747,7 @@ func GenerateLunchSummaryEmailBody(date string, regularCount int, employees []ty
 	emailBody = strings.Replace(emailBody, "{{TOTAL_MEALS}}", fmt.Sprintf("%d", total), -1)
 	emailBody = strings.Replace(emailBody, "{{REGULAR_MEALS}}", fmt.Sprintf("%d", regularCount), -1)
 	emailBody = strings.Replace(emailBody, "{{SPECIAL_MEALS}}", fmt.Sprintf("%d", pickyCount), -1)
+	emailBody = strings.Replace(emailBody, "{{INSTANT_GUEST}}", fmt.Sprintf("%d", instantGuest), -1)
 
 	return emailBody
 }
@@ -678,7 +782,7 @@ func (service *MealActivityService) SnackSummaryForEmail() error {
 		return err
 	}
 	subject := "Snacks Summary"
-	body := GenerateSnackSummaryEmailBody(dateStr, regularCount, TodayMeal, conflicted)
+	body := GenerateSnackSummaryEmailBody(dateStr, regularCount, TodayMeal, conflicted, val)
 
 	email := &envoyer.EmailReq{
 		EventName: "general_email",
@@ -735,11 +839,113 @@ func (service *MealActivityService) SnackToday() (string, error) {
 		return "", err
 	}
 
-	body := GenerateSnackSummaryEmailBody(dateStr, regularCount, TodayMeal, conflicted)
+	body := GenerateSnackSummaryEmailBody(dateStr, regularCount, TodayMeal, conflicted, val)
 	return body, nil
 }
 
-func GenerateSnackSummaryEmailBody(date string, regularCount int, employees []types.Employee, pickyCount int) string {
+//func GenerateSnackSummaryEmailBody(date string, regularCount int, employees []types.Employee, pickyCount int) string {
+//	total := regularCount
+//	regularCount = total - pickyCount
+//
+//	template := `<!DOCTYPE html>
+//<html>
+//<head>
+//    <meta charset="UTF-8">
+//    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+//    <title>Daily Snacks Summary</title>
+//    <style>
+//        body {
+//            font-family: Arial, sans-serif;
+//            background-color: #f4f4f4;
+//            margin: 0;
+//            padding: 0;
+//        }
+//        .container {
+//            max-width: 600px;
+//            margin: 20px auto;
+//            background: #ffffff;
+//            padding: 20px;
+//            border-radius: 10px;
+//            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+//        }
+//        h2 {
+//            text-align: center;
+//            color: #333;
+//        }
+//        .meal-table {
+//            width: 100%;
+//            border-collapse: collapse;
+//            margin: 20px 0;
+//        }
+//        .meal-table th, .meal-table td {
+//            padding: 10px;
+//            text-align: left;
+//            border-bottom: 1px solid #ddd;
+//        }
+//        .meal-table th {
+//            background: #007bff;
+//            color: #ffffff;
+//        }
+//        .meal-table tr:nth-child(even) {
+//            background: #f9f9f9;
+//        }
+//        .total {
+//            text-align: center;
+//            font-size: 18px;
+//            font-weight: bold;
+//            color: #007bff;
+//            margin-top: 20px;
+//        }
+//        .footer {
+//            text-align: center;
+//            font-size: 12px;
+//            color: #888;
+//            margin-top: 20px;
+//        }
+//    </style>
+//</head>
+//<body>
+//
+//    <div class="container">
+//        <h2>🍽️ Daily Snacks Summary</h2>
+//        <p>Hello,</p>
+//        <p>Here is the snack summary for <strong>{{DATE}}</strong>:</p>
+//
+//        <table class="meal-table">
+//            <thead>
+//                <tr>
+//                    <th>#</th>
+//                    <th>Employee Name</th>
+//                </tr>
+//            </thead>
+//            <tbody>
+//                {{MEAL_ROWS}}
+//            </tbody>
+//        </table>
+//
+//        <p class="total">Total Meals: <strong>{{TOTAL_MEALS}}</strong></p>
+//        <p class="total">Regular Meals: <strong>{{REGULAR_MEALS}}</strong></p>
+//        <p class="total">Special Meals: <strong>{{SPECIAL_MEALS}}</strong></p>
+//    </div>
+//
+//</body>
+//</html>`
+//
+//	var mealRows strings.Builder
+//	for i, val := range employees {
+//		mealRows.WriteString(fmt.Sprintf("<tr><td>%d</td><td>%s</td></tr>", i+1, val.Name))
+//	}
+//
+//	emailBody := strings.Replace(template, "{{DATE}}", date, -1)
+//	emailBody = strings.Replace(emailBody, "{{MEAL_ROWS}}", mealRows.String(), -1)
+//	emailBody = strings.Replace(emailBody, "{{TOTAL_MEALS}}", fmt.Sprintf("%d", total), -1)
+//	emailBody = strings.Replace(emailBody, "{{REGULAR_MEALS}}", fmt.Sprintf("%d", regularCount), -1)
+//	emailBody = strings.Replace(emailBody, "{{SPECIAL_MEALS}}", fmt.Sprintf("%d", pickyCount), -1)
+//
+//	return emailBody
+//}
+
+func GenerateSnackSummaryEmailBody(date string, regularCount int, employees []types.Employee, pickyCount int, instantGuestCount int) string {
 	total := regularCount
 	regularCount = total - pickyCount
 
@@ -822,6 +1028,7 @@ func GenerateSnackSummaryEmailBody(date string, regularCount int, employees []ty
         <p class="total">Total Meals: <strong>{{TOTAL_MEALS}}</strong></p>
         <p class="total">Regular Meals: <strong>{{REGULAR_MEALS}}</strong></p>
         <p class="total">Special Meals: <strong>{{SPECIAL_MEALS}}</strong></p>
+        <p class="total">Instant Guest: <strong>{{INSTANT_GUEST}}</strong></p>
     </div>
 
 </body>
@@ -837,6 +1044,7 @@ func GenerateSnackSummaryEmailBody(date string, regularCount int, employees []ty
 	emailBody = strings.Replace(emailBody, "{{TOTAL_MEALS}}", fmt.Sprintf("%d", total), -1)
 	emailBody = strings.Replace(emailBody, "{{REGULAR_MEALS}}", fmt.Sprintf("%d", regularCount), -1)
 	emailBody = strings.Replace(emailBody, "{{SPECIAL_MEALS}}", fmt.Sprintf("%d", pickyCount), -1)
+	emailBody = strings.Replace(emailBody, "{{INSTANT_GUEST}}", fmt.Sprintf("%d", instantGuestCount), -1)
 
 	return emailBody
 }
