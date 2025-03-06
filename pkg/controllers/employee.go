@@ -129,6 +129,13 @@ func CreateEmployee(e echo.Context) error {
 	if err != nil {
 		return e.JSON(http.StatusInternalServerError, err.Error())
 	}
+	Permanent := e.FormValue("permanent") == "true"
+	var Active bool
+	if Permanent == true {
+		Active = true
+	} else {
+		Active = e.FormValue("active") == "true"
+	}
 	reqEmployee := &models.Employee{
 		Name:           e.FormValue("name"),
 		Email:          e.FormValue("email"),
@@ -140,6 +147,10 @@ func CreateEmployee(e echo.Context) error {
 		IsAdmin:        e.FormValue("is_admin") == "true",
 		Photo:          dstPath,
 		PreferenceFood: emptyJSONArray,
+		IsPermanent:    e.FormValue("is_permanent") == "true",
+		IsActive:       Active,
+		Roll:           e.FormValue("roll"),
+		Designation:    e.FormValue("designation"),
 	}
 
 	//For Email Sending
@@ -524,7 +535,6 @@ func UpdateDefaultStatus(e echo.Context) error {
 		return e.JSON(http.StatusBadRequest, "Invalid Data")
 	}
 
-	//date := e.QueryParam("date")
 	defStatus := &types.DefaultStatus{}
 	date := defStatus.Date
 	status := defStatus.Status

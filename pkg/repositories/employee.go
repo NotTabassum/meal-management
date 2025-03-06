@@ -64,10 +64,10 @@ func (repo *EmployeeRepo) FindMeal(employeeID uint, date string) ([]models.MealA
 	return activity, err
 }
 
-func (repo *EmployeeRepo) UpdateMealStatus(employeeID uint, date string) error {
+func (repo *EmployeeRepo) UpdateMealStatus(employeeID uint, date string, newStatus bool) error {
 	if err := repo.db.Model(&models.MealActivity{}).
 		Where("employee_id = ? AND date >= ? AND is_off_day = false", employeeID, date).
-		Update("status", gorm.Expr("CASE WHEN status = true THEN false ELSE true END")).Error; err != nil {
+		Update("status", newStatus).Error; err != nil {
 		return err
 	}
 	return nil

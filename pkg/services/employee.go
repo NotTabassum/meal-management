@@ -139,18 +139,18 @@ func (service *EmployeeService) UpdateDefaultStatus(EmployeeId uint, date string
 
 	go func() {
 		log.Println("Goroutine started for meal status update...")
-		service.UpdateMealStatusAsync(EmployeeId, date)
+		service.UpdateMealStatusAsync(EmployeeId, date, status)
 	}()
 
 	return nil
 }
 
-func (service *EmployeeService) UpdateMealStatusAsync(EmployeeId uint, date string) {
+func (service *EmployeeService) UpdateMealStatusAsync(EmployeeId uint, date string, status bool) {
 	log.Printf("Updating meal status for Employee %d, Date: %s\n", EmployeeId, date)
 
 	var err error
 	for attempt := 1; attempt <= consts.MaxRetries; attempt++ {
-		err = service.repo.UpdateMealStatus(EmployeeId, date)
+		err = service.repo.UpdateMealStatus(EmployeeId, date, status)
 		if err == nil {
 			log.Println("Meal status update successful!")
 
