@@ -1026,12 +1026,18 @@ func (service *MealActivityService) Regular(date, mealType string, employee []ty
 	if err != nil {
 		return 0, err
 	}
+	if menu.PreferenceFood == nil {
+		return 0, nil
+	}
 	var menuPref []int
 	if err := json.Unmarshal(menu.PreferenceFood, &menuPref); err != nil {
 		return 0, err
 	}
 	conflicted := 0
 	for _, emp := range employee {
+		if emp.PreferenceFood == nil {
+			continue
+		}
 		var foodIDs []int
 		if err := json.Unmarshal(emp.PreferenceFood, &foodIDs); err != nil {
 			return 0, err
