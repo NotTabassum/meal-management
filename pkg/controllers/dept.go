@@ -33,7 +33,6 @@ func CreateDepartment(e echo.Context) error {
 	}
 	reqDept := &models.Department{}
 	if err := e.Bind(reqDept); err != nil {
-		fmt.Println(err)
 		return e.JSON(http.StatusBadRequest, "Invalid Data")
 	}
 	dept := &models.Department{

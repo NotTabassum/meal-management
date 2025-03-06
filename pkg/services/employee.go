@@ -132,14 +132,14 @@ func (service *EmployeeService) GetEmployeeWithEmployeeID(EmployeeID uint) (mode
 }
 
 func (service *EmployeeService) UpdateDefaultStatus(EmployeeId uint, date string, status bool) error {
+	fmt.Println(EmployeeId)
 	employee, err := service.repo.GetSpecificEmployee(EmployeeId)
 	if err != nil {
 		return err
 	}
-	updatedEmployee := *employee
-	updatedEmployee.DefaultStatus = status
-	updatedEmployee.StatusUpdated = false
-	err = service.repo.UpdateEmployee(&updatedEmployee)
+	employee.DefaultStatus = status
+	employee.StatusUpdated = false
+	err = service.repo.UpdateEmployee(employee)
 	if err != nil {
 		return err
 	}
