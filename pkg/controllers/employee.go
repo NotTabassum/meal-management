@@ -129,13 +129,15 @@ func CreateEmployee(e echo.Context) error {
 	if err != nil {
 		return e.JSON(http.StatusInternalServerError, err.Error())
 	}
-	Permanent := e.FormValue("permanent") == "true"
+	Permanent := e.FormValue("is_permanent") == "true"
 	var Active bool
 	if Permanent == true {
 		Active = true
 	} else {
-		Active = e.FormValue("active") == "true"
+		Active = e.FormValue("is_active") == "true"
 	}
+	fmt.Println(Permanent, Active)
+	defStatus := e.FormValue("default_status") == "true"
 	reqEmployee := &models.Employee{
 		Name:           e.FormValue("name"),
 		Email:          e.FormValue("email"),
@@ -143,12 +145,12 @@ func CreateEmployee(e echo.Context) error {
 		DeptID:         deptID,
 		Password:       Password,
 		Remarks:        e.FormValue("remarks"),
-		DefaultStatus:  e.FormValue("default_status") == "true",
+		DefaultStatus:  &defStatus,
 		IsAdmin:        e.FormValue("is_admin") == "true",
 		Photo:          dstPath,
 		PreferenceFood: emptyJSONArray,
-		IsPermanent:    e.FormValue("is_permanent") == "true",
-		IsActive:       Active,
+		IsPermanent:    &Permanent,
+		IsActive:       &Active,
 		Roll:           e.FormValue("roll"),
 		Designation:    e.FormValue("designation"),
 	}
@@ -315,7 +317,7 @@ func UpdateEmployee(e echo.Context) error {
 		Admin = tmpAdmin == "true"
 	}
 	defaultStatus := e.FormValue("default_status")
-	default_status := employee.DefaultStatus
+	default_status := *employee.DefaultStatus
 	if defaultStatus != "" {
 		default_status = defaultStatus == "true"
 	}
@@ -411,7 +413,7 @@ func UpdateEmployee(e echo.Context) error {
 		Password:       Password,
 		DeptID:         DeptID,
 		Remarks:        remarks,
-		DefaultStatus:  default_status,
+		DefaultStatus:  &default_status,
 		IsAdmin:        Admin,
 		Photo:          dstPath,
 		StatusUpdated:  true,

@@ -45,7 +45,7 @@ func (service *MealActivityService) GenerateMealActivities() error {
 		defaultGuestCount := 0
 		defaultPenalty := false
 
-		if emp.DefaultStatus == true {
+		if *(emp.DefaultStatus) == true {
 			defaultStatus = true
 		}
 		department := emp.DeptID

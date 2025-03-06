@@ -41,7 +41,7 @@ func (service *EmployeeService) GetSpecificEmployee(EmployeeID uint) (types.Empl
 		PhoneNumber:    employee.PhoneNumber,
 		DeptName:       deptName,
 		Remarks:        employee.Remarks,
-		DefaultStatus:  employee.DefaultStatus,
+		DefaultStatus:  *employee.DefaultStatus,
 		IsAdmin:        employee.IsAdmin,
 		PreferenceFood: employee.PreferenceFood,
 	}
@@ -64,11 +64,11 @@ func (service *EmployeeService) GetEmployee() ([]types.EmployeeRequest, error) {
 			PhoneNumber:    val.PhoneNumber,
 			DeptName:       deptName,
 			Remarks:        val.Remarks,
-			DefaultStatus:  val.DefaultStatus,
+			DefaultStatus:  *val.DefaultStatus,
 			IsAdmin:        val.IsAdmin,
 			PreferenceFood: val.PreferenceFood,
-			IsActive:       val.IsActive,
-			IsPermanent:    val.IsPermanent,
+			IsActive:       *val.IsActive,
+			IsPermanent:    *val.IsPermanent,
 			Roll:           val.Roll,
 			Designation:    val.Designation,
 		})
@@ -137,7 +137,7 @@ func (service *EmployeeService) UpdateDefaultStatus(EmployeeId uint, date string
 	if err != nil {
 		return err
 	}
-	employee.DefaultStatus = status
+	employee.DefaultStatus = &status
 	employee.StatusUpdated = false
 	err = service.repo.UpdateEmployee(employee)
 	if err != nil {

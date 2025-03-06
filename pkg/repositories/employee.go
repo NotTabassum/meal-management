@@ -27,7 +27,7 @@ func (repo *EmployeeRepo) GetSpecificEmployee(EmployeeID uint) (*models.Employee
 
 func (repo *EmployeeRepo) GetEmployee() []models.Employee {
 	var Employee []models.Employee
-	if err := repo.db.Find(&Employee).Error; err != nil {
+	if err := repo.db.Where("is_active = ?", true).Find(&Employee).Error; err != nil {
 		return []models.Employee{}
 	}
 	return Employee
