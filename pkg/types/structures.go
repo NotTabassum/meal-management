@@ -12,6 +12,10 @@ type EmployeeRequest struct {
 	DefaultStatus  bool           `json:"default_status"`
 	IsAdmin        bool           `json:"is_admin"`
 	PreferenceFood datatypes.JSON `json:"preference_food"`
+	IsPermanent    bool           `json:"is_permanent"`
+	IsActive       bool           `json:"is_active"`
+	Designation    string         `json:"designation"`
+	Roll           string         `json:"roll"`
 }
 
 type ForgetPasswordRequest struct {

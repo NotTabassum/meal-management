@@ -58,14 +58,19 @@ func (service *EmployeeService) GetEmployee() ([]types.EmployeeRequest, error) {
 		}
 		deptName := dept.DeptName
 		allEmployees = append(allEmployees, types.EmployeeRequest{
-			EmployeeId:    val.EmployeeId,
-			Name:          val.Name,
-			Email:         val.Email,
-			PhoneNumber:   val.PhoneNumber,
-			DeptName:      deptName,
-			Remarks:       val.Remarks,
-			DefaultStatus: val.DefaultStatus,
-			IsAdmin:       val.IsAdmin,
+			EmployeeId:     val.EmployeeId,
+			Name:           val.Name,
+			Email:          val.Email,
+			PhoneNumber:    val.PhoneNumber,
+			DeptName:       deptName,
+			Remarks:        val.Remarks,
+			DefaultStatus:  val.DefaultStatus,
+			IsAdmin:        val.IsAdmin,
+			PreferenceFood: val.PreferenceFood,
+			IsActive:       val.IsActive,
+			IsPermanent:    val.IsPermanent,
+			Roll:           val.Roll,
+			Designation:    val.Designation,
 		})
 	}
 	return allEmployees, nil
@@ -118,6 +123,10 @@ func (service *EmployeeService) GetEmployeeWithEmployeeID(EmployeeID uint) (mode
 		DefaultStatus: employee.DefaultStatus,
 		IsAdmin:       employee.IsAdmin,
 		Photo:         employee.Photo,
+		IsPermanent:   employee.IsPermanent,
+		IsActive:      employee.IsActive,
+		Designation:   employee.Designation,
+		Roll:          employee.Roll,
 	}
 	return allEmployees, nil
 }
