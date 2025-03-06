@@ -52,6 +52,9 @@ func (service *EmployeeService) GetEmployee() ([]types.EmployeeRequest, error) {
 	allEmployees := []types.EmployeeRequest{}
 	employee := service.repo.GetEmployee()
 	for _, val := range employee {
+		if *val.IsPermanent == false {
+			continue
+		}
 		dept, err := service.repo.GetDepartmentById(val.DeptID)
 		if err != nil {
 			return nil, err

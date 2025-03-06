@@ -153,6 +153,7 @@ func CreateEmployee(e echo.Context) error {
 		IsActive:       &Active,
 		Roll:           e.FormValue("roll"),
 		Designation:    e.FormValue("designation"),
+		StatusUpdated:  true,
 	}
 
 	//For Email Sending
@@ -264,10 +265,6 @@ func GetEmployee(e echo.Context) error {
 }
 
 func UpdateEmployee(e echo.Context) error {
-
-	//if err := reqEmployee.Validate(); err != nil {
-	//	return e.JSON(http.StatusBadRequest, err.Error())
-	//}
 
 	tempEmployeeID, err := strconv.ParseUint(e.FormValue("employee_id"), 10, 32)
 	EmployeeID := uint(tempEmployeeID)
@@ -405,6 +402,13 @@ func UpdateEmployee(e echo.Context) error {
 		}
 	}
 
+	//guest
+	Permanent := e.FormValue("is_permanent") == "true"
+	var Active bool
+	if Permanent {
+		Active = *employee.IsActive
+	}
+	Active = e.FormValue("is_active") == "true"
 	updatedEmployee := &models.Employee{
 		EmployeeId:     EmployeeID,
 		Name:           Name,
@@ -418,6 +422,8 @@ func UpdateEmployee(e echo.Context) error {
 		Photo:          dstPath,
 		StatusUpdated:  true,
 		PreferenceFood: preferenceFoodJSON,
+		IsPermanent:    &Permanent,
+		IsActive:       &Active,
 	}
 
 	if err := EmployeeService.UpdateEmployee(updatedEmployee); err != nil {

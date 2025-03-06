@@ -20,7 +20,7 @@ func MealActivityDBInstance(DB *gorm.DB) domain.IMealActivityRepo {
 
 func (repo *MealActivityRepo) FindAllEmployees() ([]models.Employee, error) {
 	var employees []models.Employee
-	err := repo.db.Find(&employees).Error
+	err := repo.db.Where("is_active = ?", true).Find(&employees).Error
 	return employees, err
 }
 
