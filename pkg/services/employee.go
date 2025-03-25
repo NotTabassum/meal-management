@@ -116,20 +116,21 @@ func (service *EmployeeService) GetEmployeeWithEmployeeID(EmployeeID uint) (mode
 	}
 
 	allEmployees = models.Employee{
-		EmployeeId:    employee.EmployeeId,
-		Name:          employee.Name,
-		Email:         employee.Email,
-		PhoneNumber:   employee.PhoneNumber,
-		DeptID:        employee.DeptID,
-		Password:      employee.Password,
-		Remarks:       employee.Remarks,
-		DefaultStatus: employee.DefaultStatus,
-		IsAdmin:       employee.IsAdmin,
-		Photo:         employee.Photo,
-		IsPermanent:   employee.IsPermanent,
-		IsActive:      employee.IsActive,
-		Designation:   employee.Designation,
-		Roll:          employee.Roll,
+		EmployeeId:     employee.EmployeeId,
+		Name:           employee.Name,
+		Email:          employee.Email,
+		PhoneNumber:    employee.PhoneNumber,
+		DeptID:         employee.DeptID,
+		Password:       employee.Password,
+		Remarks:        employee.Remarks,
+		DefaultStatus:  employee.DefaultStatus,
+		IsAdmin:        employee.IsAdmin,
+		Photo:          employee.Photo,
+		IsPermanent:    employee.IsPermanent,
+		IsActive:       employee.IsActive,
+		Designation:    employee.Designation,
+		Roll:           employee.Roll,
+		PreferenceFood: employee.PreferenceFood,
 	}
 	return allEmployees, nil
 }

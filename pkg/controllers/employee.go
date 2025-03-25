@@ -324,9 +324,11 @@ func UpdateEmployee(e echo.Context) error {
 
 	//preference
 	preferenceFood := e.FormValue("preference_food")
-	var foodIDs []int
-	preferenceFoodJSON := employee.PreferenceFood
-	if preferenceFood != "" {
+	var preferenceFoodJSON datatypes.JSON
+	if preferenceFood == "" {
+		preferenceFoodJSON = employee.PreferenceFood
+	} else {
+		var foodIDs []int
 		foodIDsStr := strings.Split(preferenceFood, ",")
 		for _, idStr := range foodIDsStr {
 			id, err := strconv.Atoi(idStr)
@@ -338,7 +340,9 @@ func UpdateEmployee(e echo.Context) error {
 		}
 		preferenceFoodJSON, err = json.Marshal(foodIDs)
 		if err != nil {
-			return e.JSON(http.StatusInternalServerError, map[string]string{"error": "Failed to encode food preferences"})
+			return e.JSON(http.StatusInternalServerError, map[string]string{
+				"error": "Failed to encode food preferences",
+			})
 		}
 	}
 
@@ -411,8 +415,10 @@ func UpdateEmployee(e echo.Context) error {
 	if PermGiven == "" {
 		Permanent = employee.IsPermanent
 	} else {
-		*Permanent = PermGiven == "true"
+		val := PermGiven == "true"
+		Permanent = &val
 	}
+
 	var Active *bool
 	ActiveGiven := e.FormValue("is_active")
 	if ActiveGiven == "" {
