@@ -37,8 +37,8 @@ func (repo *DeptRepo) UpdateDepartment(dept *models.Department) error {
 	return nil
 }
 
-func (repo *DeptRepo) DeleteDepartment(deptId int) error {
-	if err := repo.db.Delete(&models.Department{}, deptId).Error; err != nil {
+func (repo *DeptRepo) DeleteDepartment(deptId int) error{
+	if err := repo.db.Delete(&models.Department{}, deptId).Error; err != nil{
 		return err
 	}
 	return nil

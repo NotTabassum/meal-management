@@ -129,6 +129,9 @@ func CreateEmployee(e echo.Context) error {
 	if err != nil {
 		return e.JSON(http.StatusInternalServerError, err.Error())
 	}
+	defStatus := e.FormValue("default_status") == "true"
+
+	//guest handling
 	Permanent := e.FormValue("is_permanent") == "true"
 	var Active bool
 	if Permanent == true {
@@ -136,8 +139,8 @@ func CreateEmployee(e echo.Context) error {
 	} else {
 		Active = e.FormValue("is_active") == "true"
 	}
-	fmt.Println(Permanent, Active)
-	defStatus := e.FormValue("default_status") == "true"
+	//fmt.Println(Permanent, Active)
+
 	reqEmployee := &models.Employee{
 		Name:           e.FormValue("name"),
 		Email:          e.FormValue("email"),
@@ -403,12 +406,27 @@ func UpdateEmployee(e echo.Context) error {
 	}
 
 	//guest
-	Permanent := e.FormValue("is_permanent") == "true"
-	var Active bool
-	if Permanent {
-		Active = *employee.IsActive
+	PermGiven := e.FormValue("is_permanent")
+	var Permanent *bool
+	if PermGiven == "" {
+		Permanent = employee.IsPermanent
+	} else {
+		*Permanent = PermGiven == "true"
 	}
-	Active = e.FormValue("is_active") == "true"
+	var Active *bool
+	ActiveGiven := e.FormValue("is_active")
+	if ActiveGiven == "" {
+		Active = employee.IsActive
+	} else {
+		*Active = ActiveGiven == "true"
+	}
+	if Permanent != nil && *Permanent == true {
+		*Active = true
+	}
+	DesignationGiven := e.FormValue("designation_given")
+	if DesignationGiven == "" {
+		DesignationGiven = employee.Designation
+	}
 	updatedEmployee := &models.Employee{
 		EmployeeId:     EmployeeID,
 		Name:           Name,
@@ -422,8 +440,9 @@ func UpdateEmployee(e echo.Context) error {
 		Photo:          dstPath,
 		StatusUpdated:  true,
 		PreferenceFood: preferenceFoodJSON,
-		IsPermanent:    &Permanent,
-		IsActive:       &Active,
+		IsPermanent:    Permanent,
+		IsActive:       Active,
+		Designation:    DesignationGiven,
 	}
 
 	if err := EmployeeService.UpdateEmployee(updatedEmployee); err != nil {

@@ -24,14 +24,6 @@ type Config struct {
 
 var LocalConfig *Config
 
-//func Get() *Secret {
-//	if secret == nil {
-//		loadSecret()
-//		validateSecret()
-//	}
-//	return secret
-//}
-
 func SetConfig() {
 	LocalConfig = &Config{}
 	err := godotenv.Load()
