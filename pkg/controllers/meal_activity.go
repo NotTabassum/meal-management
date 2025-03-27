@@ -162,6 +162,9 @@ func UpdateMealActivity(e echo.Context) error {
 		return e.JSON(http.StatusInternalServerError, map[string]string{"res": "Internal server error"})
 	}
 
+	if *existingActivity.IsActive == false {
+		return e.JSON(http.StatusBadRequest, map[string]string{"res": "You are not an active guest now."})
+	}
 	if !isAdmin {
 		reqMealActivity.Penalty = existingActivity.Penalty
 	}

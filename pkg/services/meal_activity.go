@@ -44,9 +44,13 @@ func (service *MealActivityService) GenerateMealActivities() error {
 		defaultStatus := false
 		defaultGuestCount := 0
 		defaultPenalty := false
+		activeStatus := true
 
 		if *(emp.DefaultStatus) == true {
 			defaultStatus = true
+		}
+		if *(emp.IsPermanent) == false && *(emp.IsActive) == false {
+			activeStatus = false
 		}
 		department := emp.DeptID
 		var weekends []string
@@ -100,6 +104,7 @@ func (service *MealActivityService) GenerateMealActivities() error {
 						Penalty:      &defaultPenalty,
 						IsOffDay:     &isHoliday,
 						PenaltyScore: &value,
+						IsActive:     &activeStatus,
 					}
 					if err := service.repo.CreateMealActivity(activity); err != nil {
 						log.Printf("Failed to insert activity for EmployeeID %d, MealType %d: %v", emp.EmployeeId, mealType, err)

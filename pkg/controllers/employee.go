@@ -418,7 +418,6 @@ func UpdateEmployee(e echo.Context) error {
 		val := PermGiven == "true"
 		Permanent = &val
 	}
-
 	var Active *bool
 	ActiveGiven := e.FormValue("is_active")
 	if ActiveGiven == "" {
@@ -433,6 +432,11 @@ func UpdateEmployee(e echo.Context) error {
 	if DesignationGiven == "" {
 		DesignationGiven = employee.Designation
 	}
+	RollGiven := e.FormValue("roll")
+	if RollGiven == "" {
+		RollGiven = employee.Roll
+	}
+
 	updatedEmployee := &models.Employee{
 		EmployeeId:     EmployeeID,
 		Name:           Name,
@@ -449,6 +453,7 @@ func UpdateEmployee(e echo.Context) error {
 		IsPermanent:    Permanent,
 		IsActive:       Active,
 		Designation:    DesignationGiven,
+		Roll:           RollGiven,
 	}
 
 	if err := EmployeeService.UpdateEmployee(updatedEmployee); err != nil {

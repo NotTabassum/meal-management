@@ -10,4 +10,5 @@ type MealActivity struct {
 	Penalty      *bool
 	PenaltyScore *float64 `gorm:"type:decimal(10,2);"`
 	IsOffDay     *bool
+	IsActive     *bool `gorm:"default:true"`
 }
