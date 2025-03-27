@@ -18,6 +18,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"time"
 )
 
 var EmployeeService domain.IEmployeeService
@@ -418,15 +419,24 @@ func UpdateEmployee(e echo.Context) error {
 		val := PermGiven == "true"
 		Permanent = &val
 	}
+
 	var Active *bool
 	ActiveGiven := e.FormValue("is_active")
 	if ActiveGiven == "" {
 		Active = employee.IsActive
 	} else {
+		Active = new(bool)
 		*Active = ActiveGiven == "true"
 	}
 	if Permanent != nil && *Permanent == true {
 		*Active = true
+	}
+
+	if Active != nil && Active != employee.IsActive {
+		date := time.Now().Format(consts.DateFormat)
+		go func() {
+			EmployeeService.UpdateGuestActivity(employee.EmployeeId, date, *Active)
+		}()
 	}
 	DesignationGiven := e.FormValue("designation_given")
 	if DesignationGiven == "" {

@@ -129,3 +129,10 @@ func (repo *EmployeeRepo) DeleteMealActivity(date string, EmployeeId uint) error
 	}
 	return nil
 }
+
+func (repo *EmployeeRepo) UpdateGuestActivity(EmployeeId uint, Date string, Active bool) error {
+	if err := repo.db.Model(&models.MealActivity{}).Where("employee_id = ? AND date >= ?", EmployeeId, Date).Update("is_active", &Active).Error; err != nil {
+		return err
+	}
+	return nil
+}

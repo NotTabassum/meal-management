@@ -19,6 +19,7 @@ type IEmployeeRepo interface {
 	DeleteMealActivity(date string, EmployeeId uint) error
 	UpdateMealStatus(employeeID uint, date string, newStatus bool) error
 	MarkMealStatusUpdateComplete(EmployeeId uint) error
+	UpdateGuestActivity(EmployeeId uint, Date string, Active bool) error
 }
 
 type IEmployeeService interface {
@@ -33,4 +34,5 @@ type IEmployeeService interface {
 	GetPhoto(employeeId uint) (string, error)
 	MakeHash() error
 	DeleteMealActivity(date string, EmployeeId uint) error
+	UpdateGuestActivity(EmployeeId uint, date string, Active bool)
 }

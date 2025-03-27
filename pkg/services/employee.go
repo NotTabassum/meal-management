@@ -297,3 +297,9 @@ func (service *EmployeeService) MakeHash() error {
 	}
 	return nil
 }
+
+func (service *EmployeeService) UpdateGuestActivity(EmployeeId uint, date string, Active bool) {
+	if err := service.repo.UpdateGuestActivity(EmployeeId, date, Active); err != nil {
+		log.Println("Error handling guest activity in Meal Activity: %w")
+	}
+}
