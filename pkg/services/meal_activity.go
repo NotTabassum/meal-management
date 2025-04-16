@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"gorm.io/gorm"
 	"log"
 	"meal-management/envoyer"
 	"meal-management/pkg/consts"
@@ -1236,6 +1237,9 @@ func (service *MealActivityService) UpdateMealStatusForHolidays(holidayDates []s
 
 func (service *MealActivityService) Regular(date, mealType string, employee []types.Employee) (int, error) {
 	menu, err := service.menu.GetMealPlanByPrimaryKey(date, mealType)
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return 0, nil
+	}
 	if err != nil {
 		return 0, err
 	}
