@@ -303,3 +303,29 @@ func (service *EmployeeService) UpdateGuestActivity(EmployeeId uint, date string
 		log.Println("Error handling guest activity in Meal Activity: %w")
 	}
 }
+
+func (service *EmployeeService) GetGuestList() ([]types.EmployeeRequest, error) {
+	guestList, err := service.repo.GetGuestList()
+	if err != nil {
+		return nil, err
+	}
+	var guestRequests []types.EmployeeRequest
+	for _, guest := range guestList {
+		var temp types.EmployeeRequest
+		temp.EmployeeId = guest.EmployeeId
+		temp.Name = guest.Name
+		temp.Email = guest.Email
+		temp.PhoneNumber = guest.PhoneNumber
+		temp.DeptName = guest.PhoneNumber
+		temp.Remarks = guest.Remarks
+		temp.DefaultStatus = *guest.DefaultStatus
+		temp.IsAdmin = guest.IsAdmin
+		temp.IsPermanent = *guest.IsPermanent
+		temp.IsActive = *guest.IsActive
+		temp.Roll = guest.Roll
+		temp.Designation = guest.Designation
+		temp.PreferenceFood = guest.PreferenceFood
+		guestRequests = append(guestRequests, temp)
+	}
+	return guestRequests, nil
+}

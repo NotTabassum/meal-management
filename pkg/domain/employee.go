@@ -20,6 +20,7 @@ type IEmployeeRepo interface {
 	UpdateMealStatus(employeeID uint, date string, newStatus bool) error
 	MarkMealStatusUpdateComplete(EmployeeId uint) error
 	UpdateGuestActivity(EmployeeId uint, Date string, Active bool) error
+	GetGuestList() ([]models.Employee, error)
 }
 
 type IEmployeeService interface {
@@ -35,4 +36,5 @@ type IEmployeeService interface {
 	MakeHash() error
 	DeleteMealActivity(date string, EmployeeId uint) error
 	UpdateGuestActivity(EmployeeId uint, date string, Active bool)
+	GetGuestList() ([]types.EmployeeRequest, error)
 }
