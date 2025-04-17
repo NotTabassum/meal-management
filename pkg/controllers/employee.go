@@ -358,11 +358,6 @@ func UpdateEmployee(e echo.Context) error {
 		}
 		return e.JSON(http.StatusUnauthorized, map[string]string{"error": err.Error()})
 	}
-	if !isAdmin {
-		Email = existingEmployee.Email
-		DeptID = existingEmployee.DeptID
-		Admin = existingEmployee.IsAdmin
-	}
 	NewID, err := strconv.ParseUint(ID, 10, 32)
 	if err != nil {
 		return e.JSON(http.StatusBadRequest, err.Error())
@@ -447,6 +442,13 @@ func UpdateEmployee(e echo.Context) error {
 		RollGiven = employee.Roll
 	}
 
+	if !isAdmin {
+		Email = existingEmployee.Email
+		DeptID = existingEmployee.DeptID
+		Admin = existingEmployee.IsAdmin
+		Permanent = existingEmployee.IsPermanent
+		Active = existingEmployee.IsActive
+	}
 	updatedEmployee := &models.Employee{
 		EmployeeId:     EmployeeID,
 		Name:           Name,

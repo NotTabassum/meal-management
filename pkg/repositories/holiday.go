@@ -30,3 +30,10 @@ func (repo *HolidayRepo) GetHoliday() ([]models.Holiday, error) {
 	}
 	return holiday, nil
 }
+
+func (repo *HolidayRepo) DeleteHoliday(date string) error {
+	if err := repo.db.Delete(&models.Holiday{}, "date = ?", date).Error; err != nil {
+		return err
+	}
+	return nil
+}

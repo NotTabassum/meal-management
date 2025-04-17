@@ -33,7 +33,7 @@ func InitServe() {
 	DeptService := services.DeptServiceInstance(DeptRepo)
 	ExtraMealService := services.ExtraMealServiceInstance(ExtraMealRepo)
 	PreferenceService := services.PreferenceServiceInstance(PreferenceRepo)
-	HolidayService := services.HolidayServiceInstance(HolidayRepo)
+	HolidayService := services.HolidayServiceInstance(HolidayRepo, EmployeeRepo)
 
 	controllers.SetEmployeeService(EmployeeService)
 	controllers.SetMealPlanService(MealPlanService)

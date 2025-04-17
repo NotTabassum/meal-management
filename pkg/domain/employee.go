@@ -21,6 +21,7 @@ type IEmployeeRepo interface {
 	MarkMealStatusUpdateComplete(EmployeeId uint) error
 	UpdateGuestActivity(EmployeeId uint, Date string, Active bool) error
 	GetGuestList() ([]models.Employee, error)
+	GetEmployeeEmails() ([]string, error)
 }
 
 type IEmployeeService interface {

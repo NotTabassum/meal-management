@@ -144,3 +144,11 @@ func (repo *EmployeeRepo) GetGuestList() ([]models.Employee, error) {
 	}
 	return guestList, nil
 }
+
+func (repo *EmployeeRepo) GetEmployeeEmails() ([]string, error) {
+	var emails []string
+	if err := repo.db.Model(&models.Employee{}).Where("is_active = ?", true).Pluck("email", &emails).Error; err != nil {
+		return nil, err
+	}
+	return emails, nil
+}
