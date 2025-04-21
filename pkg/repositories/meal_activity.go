@@ -73,6 +73,7 @@ func (repo *MealActivityRepo) UpdateMealActivity(mealActivity *models.MealActivi
 			mealActivity.MealType,
 		).
 		Updates(models.MealActivity{
+			IsOffDay:     mealActivity.IsOffDay,
 			Status:       mealActivity.Status,
 			GuestCount:   mealActivity.GuestCount,
 			Penalty:      mealActivity.Penalty,

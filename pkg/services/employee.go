@@ -437,9 +437,19 @@ func (service *EmployeeService) DepartmentChange(EmployeeID uint, DeptID int) er
 				isHoliday = true
 			}
 		}
-
-		meal.IsOffDay = &isHoliday
-		err = service.repo2.UpdateMealActivity(&meal)
+		var mealNew models.MealActivity
+		valueFalse := false
+		valueTrue := true
+		mealNew = meal
+		mealNew.IsOffDay = &isHoliday
+		if isHoliday {
+			mealNew.Status = &valueFalse
+		} else {
+			if *employee.DefaultStatus == true {
+				mealNew.Status = &valueTrue
+			}
+		}
+		err = service.repo2.UpdateMealActivity(&mealNew)
 		if err != nil {
 			return err
 		}
