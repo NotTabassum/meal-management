@@ -18,6 +18,7 @@ type IEmployeeRepo interface {
 	GetEmployeeByEmail(email string) (models.Employee, error)
 	DeleteMealActivity(date string, EmployeeId uint) error
 	UpdateMealStatus(employeeID uint, date string, newStatus bool) error
+	UpdateMealStatusNew(employeeID uint, date string, newStatus bool, mealType int) error
 	MarkMealStatusUpdateComplete(EmployeeId uint) error
 	UpdateGuestActivity(EmployeeId uint, Date string, Active bool) error
 	GetGuestList() ([]models.Employee, error)
@@ -32,6 +33,7 @@ type IEmployeeService interface {
 	UpdateEmployee(employee *models.Employee) error
 	DeleteEmployee(EmployeeId uint) error
 	UpdateDefaultStatus(EmployeeId uint, date string, status bool) error
+	//UpdateDefaultStatusNew(EmployeeId uint, date string, status bool, mealType int) error
 	ForgottenPassword(email string, link string) error
 	GetPhoto(employeeId uint) (string, error)
 	MakeHash() error

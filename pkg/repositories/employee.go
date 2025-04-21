@@ -73,6 +73,15 @@ func (repo *EmployeeRepo) UpdateMealStatus(employeeID uint, date string, newStat
 	return nil
 }
 
+func (repo *EmployeeRepo) UpdateMealStatusNew(employeeID uint, date string, newStatus bool, mealType int) error {
+	if err := repo.db.Model(&models.MealActivity{}).
+		Where("employee_id = ? AND date >= ? AND is_off_day = false AND meal_type = ?", employeeID, date, mealType).
+		Update("status", newStatus).Error; err != nil {
+		return err
+	}
+	return nil
+}
+
 func (repo *EmployeeRepo) MarkMealStatusUpdateComplete(EmployeeId uint) error {
 	return repo.db.Model(&models.Employee{}).
 		Where("employee_id = ?", EmployeeId).

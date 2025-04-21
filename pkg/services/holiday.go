@@ -7,6 +7,7 @@ import (
 	"meal-management/envoyer"
 	"meal-management/pkg/consts"
 	"meal-management/pkg/domain"
+	"meal-management/pkg/middleware"
 	"meal-management/pkg/models"
 	"sort"
 	"strings"
@@ -85,6 +86,13 @@ func (service *HolidayService) DeleteHoliday(date string) error {
 	if err := service.repo.DeleteHoliday(date); err != nil {
 		return err
 	}
+
+	message := "holiday at" + date + "has been deleted. Please update your meal!"
+	err := middleware.SendTelegramMessage(message)
+	if err != nil {
+		fmt.Println(err)
+	}
+
 	go func() {
 		service.EmailForHolidayDelete(date)
 	}()
@@ -94,16 +102,16 @@ func (service *HolidayService) DeleteHoliday(date string) error {
 func (service *HolidayService) EmailForHolidayDelete(date string) {
 	subject := "Holiday Deleted!!"
 	body := GenerateHolidayDeleteEmailBody(date)
-	employees, err := service.employee.GetEmployeeEmails()
-	if err != nil {
-		log.Println("Fetching employee emails failed:", err)
-		return
-	}
-	log.Println(employees)
+	//employees, err := service.employee.GetEmployeeEmails()
+	//if err != nil {
+	//	log.Println("Fetching employee emails failed:", err)
+	//	return
+	//}
+	//log.Println(employees)
 	email := &envoyer.EmailReq{
 		EventName: "general_email",
-		Receivers: employees,
-		//Receivers: []string{"tabassumoyshee@gmail.com"},
+		//Receivers: employees,
+		Receivers: []string{"tabassumoyshee@gmail.com"},
 		Variables: []envoyer.TemplateVariable{
 			{
 				Name:  "{{.subject}}",

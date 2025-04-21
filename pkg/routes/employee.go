@@ -15,6 +15,7 @@ func EmployeeRoutes(e *echo.Echo) {
 	emp.GET("", controllers.GetEmployee)
 	emp.GET("/guest-list", controllers.GetGuestList)
 	emp.PATCH("/default-status", controllers.UpdateDefaultStatus)
+	//emp.PATCH("/default-status-new", controllers.UpdateDefaultStatusNew)
 	emp.PATCH("/forget-password", controllers.ForgottenPassword)
 	emp.PATCH("/password-change", controllers.PasswordChange)
 	emp.PATCH("", controllers.UpdateEmployee)

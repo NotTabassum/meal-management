@@ -84,6 +84,7 @@ func DeleteHoliday(e echo.Context) error {
 	if !isAdmin {
 		return e.JSON(http.StatusForbidden, map[string]string{"res": "Unauthorized"})
 	}
+
 	date := e.QueryParam("date")
 	if err = HolidayService.DeleteHoliday(date); err != nil {
 		return e.JSON(http.StatusInternalServerError, err.Error())
