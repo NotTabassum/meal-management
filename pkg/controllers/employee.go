@@ -430,16 +430,7 @@ func UpdateEmployee(e echo.Context) error {
 		Permanent = existingEmployee.IsPermanent
 		Active = existingEmployee.IsActive
 	}
-	if isAdmin {
-		if existingEmployee.DeptID != DeptID {
-			go func() {
-				err := EmployeeService.DepartmentChange(EmployeeID, DeptID)
-				if err != nil {
-					fmt.Println("Error in updating weekend status for department change:", err)
-				}
-			}()
-		}
-	}
+
 	updatedEmployee := &models.Employee{
 		EmployeeId:    EmployeeID,
 		Name:          Name,
@@ -465,6 +456,14 @@ func UpdateEmployee(e echo.Context) error {
 		return e.JSON(http.StatusInternalServerError, err.Error())
 	}
 
+	if isAdmin {
+		if existingEmployee.DeptID != DeptID {
+			err := EmployeeService.DepartmentChange(EmployeeID, DeptID)
+			if err != nil {
+				fmt.Println("Error in updating weekend status for department change:", err)
+			}
+		}
+	}
 	return e.JSON(http.StatusCreated, "Employee was updated successfully")
 }
 

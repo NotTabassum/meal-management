@@ -402,9 +402,8 @@ func (service *EmployeeService) DepartmentChange(EmployeeID uint, DeptID int) er
 	if err != nil {
 		return err
 	}
-	department := DeptID
 	var weekends []string
-	DepartmentTable, err := service.repo2.GetWeekend(department)
+	DepartmentTable, err := service.repo2.GetWeekend(DeptID)
 	if err != nil {
 		return err
 	}
@@ -444,7 +443,9 @@ func (service *EmployeeService) DepartmentChange(EmployeeID uint, DeptID int) er
 		if err != nil {
 			return err
 		}
-		service.UpdateMealStatusAsync(EmployeeID, meal.Date, *employee.DefaultStatus)
+		if *employee.DefaultStatus == true {
+			service.UpdateMealStatusAsync(EmployeeID, meal.Date, true)
+		}
 	}
 	return nil
 }
