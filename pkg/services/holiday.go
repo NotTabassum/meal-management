@@ -7,7 +7,6 @@ import (
 	"meal-management/envoyer"
 	"meal-management/pkg/consts"
 	"meal-management/pkg/domain"
-	"meal-management/pkg/middleware"
 	"meal-management/pkg/models"
 	"sort"
 	"strings"
@@ -89,11 +88,11 @@ func (service *HolidayService) DeleteHoliday(date string) error {
 		return err
 	}
 
-	message := "holiday at" + date + "has been deleted. Please update your meal!"
-	err := middleware.SendTelegramMessage(message)
-	if err != nil {
-		fmt.Println(err)
-	}
+	//message := "holiday at" + date + "has been deleted. Please update your meal!"
+	//err := middleware.SendTelegramMessage(message)
+	//if err != nil {
+	//	fmt.Println(err)
+	//}
 	go func() {
 		err := service.mealActivity.UpdateHolidayRemove(date)
 		if err != nil {
