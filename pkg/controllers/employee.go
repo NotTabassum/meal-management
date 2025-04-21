@@ -27,40 +27,6 @@ func SetEmployeeService(empService domain.IEmployeeService) {
 	EmployeeService = empService
 }
 
-//func CreateEmployee(e echo.Context) error {
-//	authorizationHeader := e.Request().Header.Get("Authorization")
-//	if authorizationHeader == "" {
-//		return e.JSON(http.StatusUnauthorized, map[string]string{"res": "Authorization header is empty"})
-//	}
-//	_, isAdmin, _ := middleware.ParseJWT(authorizationHeader)
-//	if !isAdmin {
-//		return e.JSON(http.StatusForbidden, map[string]string{"res": "Unauthorized"})
-//	}
-//
-//	reqEmployee := &models.Employee{}
-//	if err := e.Bind(reqEmployee); err != nil {
-//		fmt.Println(err)
-//		return e.JSON(http.StatusBadRequest, "Invalid Data")
-//	}
-//
-//	employee := &models.Employee{
-//		Name:          reqEmployee.Name,
-//		Email:         reqEmployee.Email,
-//		PhoneNumber:   reqEmployee.PhoneNumber,
-//		DeptID:        reqEmployee.DeptID,
-//		Password:      reqEmployee.Password,
-//		Remarks:       reqEmployee.Remarks,
-//		DefaultStatus: reqEmployee.DefaultStatus,
-//		IsAdmin:       reqEmployee.IsAdmin,
-//		Photo:         reqEmployee.Photo,
-//	}
-//	if err := EmployeeService.CreateEmployee(employee); err != nil {
-//		return e.JSON(http.StatusInternalServerError, err.Error())
-//	}
-//
-//	return e.JSON(http.StatusCreated, "Employee created successfully")
-//}
-
 func CreateEmployee(e echo.Context) error {
 	authorizationHeader := e.Request().Header.Get("Authorization")
 	if authorizationHeader == "" {
@@ -131,6 +97,8 @@ func CreateEmployee(e echo.Context) error {
 		return e.JSON(http.StatusInternalServerError, err.Error())
 	}
 	defStatus := e.FormValue("default_status") == "true"
+	//defStatusLunch := e.FormValue("default_status_lunch") == "true"
+	//defStatusSnacks := e.FormValue("default_status_snacks") == "true"
 
 	//guest handling
 	Permanent := e.FormValue("is_permanent") == "true"
@@ -143,13 +111,15 @@ func CreateEmployee(e echo.Context) error {
 	//fmt.Println(Permanent, Active)
 
 	reqEmployee := &models.Employee{
-		Name:           e.FormValue("name"),
-		Email:          e.FormValue("email"),
-		PhoneNumber:    e.FormValue("phone_number"),
-		DeptID:         deptID,
-		Password:       Password,
-		Remarks:        e.FormValue("remarks"),
-		DefaultStatus:  &defStatus,
+		Name:          e.FormValue("name"),
+		Email:         e.FormValue("email"),
+		PhoneNumber:   e.FormValue("phone_number"),
+		DeptID:        deptID,
+		Password:      Password,
+		Remarks:       e.FormValue("remarks"),
+		DefaultStatus: &defStatus,
+		//DefaultStatusLunch:  &defStatusLunch,
+		//DefaultStatusSnacks: &defStatusSnacks,
 		IsAdmin:        e.FormValue("is_admin") == "true",
 		Photo:          dstPath,
 		PreferenceFood: emptyJSONArray,
@@ -323,6 +293,17 @@ func UpdateEmployee(e echo.Context) error {
 		default_status = defaultStatus == "true"
 	}
 
+	//defaultStatusLunch := e.FormValue("default_status_lunch")
+	//default_status_lunch := *employee.DefaultStatusLunch
+	//if defaultStatusLunch != "" {
+	//	default_status_lunch = defaultStatusLunch == "true"
+	//}
+	//defaultStatusSnacks := e.FormValue("default_status_snacks")
+	//default_status_snacks := *employee.DefaultStatusSnacks
+	//if defaultStatusLunch != "" {
+	//	default_status_lunch = defaultStatusSnacks == "true"
+	//}
+
 	//preference
 	preferenceFood := e.FormValue("preference_food")
 	var preferenceFoodJSON datatypes.JSON
@@ -449,15 +430,27 @@ func UpdateEmployee(e echo.Context) error {
 		Permanent = existingEmployee.IsPermanent
 		Active = existingEmployee.IsActive
 	}
+	if isAdmin {
+		if existingEmployee.DeptID != DeptID {
+			go func() {
+				err := EmployeeService.DepartmentChange(EmployeeID, DeptID)
+				if err != nil {
+					fmt.Println("Error in updating weekend status for department change:", err)
+				}
+			}()
+		}
+	}
 	updatedEmployee := &models.Employee{
-		EmployeeId:     EmployeeID,
-		Name:           Name,
-		Email:          Email,
-		PhoneNumber:    ifNot11(PhoneNumber, existingEmployee.PhoneNumber),
-		Password:       Password,
-		DeptID:         DeptID,
-		Remarks:        remarks,
-		DefaultStatus:  &default_status,
+		EmployeeId:    EmployeeID,
+		Name:          Name,
+		Email:         Email,
+		PhoneNumber:   ifNot11(PhoneNumber, existingEmployee.PhoneNumber),
+		Password:      Password,
+		DeptID:        DeptID,
+		Remarks:       remarks,
+		DefaultStatus: &default_status,
+		//DefaultStatusLunch:  &default_status_lunch,
+		//DefaultStatusSnacks: &default_status_snacks,
 		IsAdmin:        Admin,
 		Photo:          dstPath,
 		StatusUpdated:  true,
@@ -598,6 +591,37 @@ func UpdateDefaultStatus(e echo.Context) error {
 	return e.JSON(http.StatusCreated, "default status was updated successfully")
 }
 
+//func UpdateDefaultStatusNew(e echo.Context) error {
+//	authorizationHeader := e.Request().Header.Get("Authorization")
+//	if authorizationHeader == "" {
+//		return e.JSON(http.StatusUnauthorized, map[string]string{"res": "Authorization header is empty"})
+//	}
+//	ID, _, err := middleware.ParseJWT(authorizationHeader)
+//	if err != nil {
+//		if err.Error() == "token expired" {
+//			return e.JSON(http.StatusUnauthorized, map[string]string{"error": "Token expired"})
+//		}
+//		return e.JSON(http.StatusUnauthorized, map[string]string{"error": err.Error()})
+//	}
+//	EmployeeID, err := strconv.ParseUint(ID, 0, 0)
+//	if err != nil {
+//		return e.JSON(http.StatusBadRequest, "Invalid Data")
+//	}
+//
+//	defStatus := &types.DefaultStatusNew{}
+//	if err := e.Bind(&defStatus); err != nil {
+//		return e.JSON(http.StatusBadRequest, "Invalid Data")
+//	}
+//	date := defStatus.Date
+//	status := defStatus.Status
+//	mealType := defStatus.MealType
+//	err = EmployeeService.UpdateDefaultStatusNew(uint(EmployeeID), date, status, mealType)
+//	if err != nil {
+//		return e.JSON(http.StatusInternalServerError, err)
+//	}
+//	return e.JSON(http.StatusCreated, "default status was updated successfully")
+//}
+
 func ForgottenPassword(e echo.Context) error {
 	reqForgetPassword := &types.ForgetPasswordRequest{}
 	if err := e.Bind(&reqForgetPassword); err != nil {
@@ -669,14 +693,16 @@ func PasswordChange(e echo.Context) error {
 	employees, err := EmployeeService.GetEmployeeWithEmployeeID(uint(EmployeeID))
 	employee := employees
 	updatedEmployee := &models.Employee{
-		EmployeeId:     uint(EmployeeID),
-		Name:           employee.Name,
-		Email:          employee.Email,
-		PhoneNumber:    employee.PhoneNumber,
-		Password:       password,
-		DeptID:         employee.DeptID,
-		Remarks:        employee.Remarks,
-		DefaultStatus:  employee.DefaultStatus,
+		EmployeeId:    uint(EmployeeID),
+		Name:          employee.Name,
+		Email:         employee.Email,
+		PhoneNumber:   employee.PhoneNumber,
+		Password:      password,
+		DeptID:        employee.DeptID,
+		Remarks:       employee.Remarks,
+		DefaultStatus: employee.DefaultStatus,
+		//DefaultStatusLunch:  employee.DefaultStatusLunch,
+		//DefaultStatusSnacks: employee.DefaultStatusSnacks,
 		IsAdmin:        employee.IsAdmin,
 		Photo:          employee.Photo,
 		PreferenceFood: employee.PreferenceFood,

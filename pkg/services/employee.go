@@ -1,6 +1,7 @@
 package services
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"log"
@@ -14,12 +15,16 @@ import (
 )
 
 type EmployeeService struct {
-	repo domain.IEmployeeRepo
+	repo  domain.IEmployeeRepo
+	repo2 domain.IMealActivityRepo
+	repo3 domain.IHolidayRepo
 }
 
-func EmployeeServiceInstance(employeeRepo domain.IEmployeeRepo) domain.IEmployeeService {
+func EmployeeServiceInstance(employeeRepo domain.IEmployeeRepo, mealActivityRepo domain.IMealActivityRepo, holidayRepo domain.IHolidayRepo) domain.IEmployeeService {
 	return &EmployeeService{
-		repo: employeeRepo,
+		repo:  employeeRepo,
+		repo2: mealActivityRepo,
+		repo3: holidayRepo,
 	}
 }
 
@@ -35,13 +40,15 @@ func (service *EmployeeService) GetSpecificEmployee(EmployeeID uint) (types.Empl
 	}
 	deptName := dept.DeptName
 	allEmployees = types.EmployeeRequest{
-		EmployeeId:     employee.EmployeeId,
-		Name:           employee.Name,
-		Email:          employee.Email,
-		PhoneNumber:    employee.PhoneNumber,
-		DeptName:       deptName,
-		Remarks:        employee.Remarks,
-		DefaultStatus:  *employee.DefaultStatus,
+		EmployeeId:    employee.EmployeeId,
+		Name:          employee.Name,
+		Email:         employee.Email,
+		PhoneNumber:   employee.PhoneNumber,
+		DeptName:      deptName,
+		Remarks:       employee.Remarks,
+		DefaultStatus: *employee.DefaultStatus,
+		//DefaultStatusLunch:  *employee.DefaultStatusLunch,
+		//DefaultStatusSnacks: *employee.DefaultStatusSnacks,
 		IsAdmin:        employee.IsAdmin,
 		PreferenceFood: employee.PreferenceFood,
 	}
@@ -61,13 +68,15 @@ func (service *EmployeeService) GetEmployee() ([]types.EmployeeRequest, error) {
 		}
 		deptName := dept.DeptName
 		allEmployees = append(allEmployees, types.EmployeeRequest{
-			EmployeeId:     val.EmployeeId,
-			Name:           val.Name,
-			Email:          val.Email,
-			PhoneNumber:    val.PhoneNumber,
-			DeptName:       deptName,
-			Remarks:        val.Remarks,
-			DefaultStatus:  *val.DefaultStatus,
+			EmployeeId:    val.EmployeeId,
+			Name:          val.Name,
+			Email:         val.Email,
+			PhoneNumber:   val.PhoneNumber,
+			DeptName:      deptName,
+			Remarks:       val.Remarks,
+			DefaultStatus: *val.DefaultStatus,
+			//DefaultStatusLunch:  *val.DefaultStatusLunch,
+			//DefaultStatusSnacks: *val.DefaultStatusSnacks,
 			IsAdmin:        val.IsAdmin,
 			PreferenceFood: val.PreferenceFood,
 			IsActive:       *val.IsActive,
@@ -116,14 +125,16 @@ func (service *EmployeeService) GetEmployeeWithEmployeeID(EmployeeID uint) (mode
 	}
 
 	allEmployees = models.Employee{
-		EmployeeId:     employee.EmployeeId,
-		Name:           employee.Name,
-		Email:          employee.Email,
-		PhoneNumber:    employee.PhoneNumber,
-		DeptID:         employee.DeptID,
-		Password:       employee.Password,
-		Remarks:        employee.Remarks,
-		DefaultStatus:  employee.DefaultStatus,
+		EmployeeId:    employee.EmployeeId,
+		Name:          employee.Name,
+		Email:         employee.Email,
+		PhoneNumber:   employee.PhoneNumber,
+		DeptID:        employee.DeptID,
+		Password:      employee.Password,
+		Remarks:       employee.Remarks,
+		DefaultStatus: employee.DefaultStatus,
+		//DefaultStatusLunch:  employee.DefaultStatusLunch,
+		//DefaultStatusSnacks: employee.DefaultStatusSnacks,
 		IsAdmin:        employee.IsAdmin,
 		Photo:          employee.Photo,
 		IsPermanent:    employee.IsPermanent,
@@ -157,12 +168,67 @@ func (service *EmployeeService) UpdateDefaultStatus(EmployeeId uint, date string
 	return nil
 }
 
+//func (service *EmployeeService) UpdateDefaultStatusNew(EmployeeId uint, date string, status bool, mealType int) error {
+//	employee, err := service.repo.GetSpecificEmployee(EmployeeId)
+//	if err != nil {
+//		return err
+//	}
+//	employee.DefaultStatus = &status
+//	//if mealType == 1 {
+//	//	employee.DefaultStatusLunch = &status
+//	//} else if mealType == 2 {
+//	//	employee.DefaultStatusSnacks = &status
+//	//}
+//	employee.StatusUpdated = false
+//	err = service.repo.UpdateEmployee(employee)
+//	if err != nil {
+//		return err
+//	}
+//
+//	log.Println("Default status updated, starting async meal status update...")
+//
+//	go func() {
+//		log.Println("Goroutine started for meal status update...")
+//		service.UpdateMealStatusAsyncNew(EmployeeId, date, status, mealType)
+//	}()
+//
+//	return nil
+//}
+
 func (service *EmployeeService) UpdateMealStatusAsync(EmployeeId uint, date string, status bool) {
 	log.Printf("Updating meal status for Employee %d, Date: %s\n", EmployeeId, date)
 
 	var err error
 	for attempt := 1; attempt <= consts.MaxRetries; attempt++ {
 		err = service.repo.UpdateMealStatus(EmployeeId, date, status)
+		if err == nil {
+			log.Println("Meal status update successful!")
+
+			err = service.repo.MarkMealStatusUpdateComplete(EmployeeId)
+			if err == nil {
+				log.Println("Marked status_updated = true")
+				return
+			}
+		}
+
+		log.Printf("Attempt %d: Meal status update failed for Employee %d, Error: %v", attempt, EmployeeId, err)
+
+		sleepDuration := time.Duration(math.Pow(2, float64(attempt))) * time.Second
+		if sleepDuration > 10*time.Second {
+			sleepDuration = 10 * time.Second
+		}
+		time.Sleep(sleepDuration)
+	}
+
+	log.Printf("Update failed after %d attempts for Employee %d", consts.MaxRetries, EmployeeId)
+}
+
+func (service *EmployeeService) UpdateMealStatusAsyncNew(EmployeeId uint, date string, status bool, mealType int) {
+	log.Printf("Updating meal status for Employee %d, Date: %s\n", EmployeeId, date)
+
+	var err error
+	for attempt := 1; attempt <= consts.MaxRetries; attempt++ {
+		err = service.repo.UpdateMealStatusNew(EmployeeId, date, status, mealType)
 		if err == nil {
 			log.Println("Meal status update successful!")
 
@@ -318,6 +384,8 @@ func (service *EmployeeService) GetGuestList() ([]types.EmployeeRequest, error) 
 		temp.DeptName = guest.PhoneNumber
 		temp.Remarks = guest.Remarks
 		temp.DefaultStatus = *guest.DefaultStatus
+		//temp.DefaultStatusLunch = *guest.DefaultStatusLunch
+		//temp.DefaultStatusSnacks = *guest.DefaultStatusSnacks
 		temp.IsAdmin = guest.IsAdmin
 		temp.IsPermanent = *guest.IsPermanent
 		temp.IsActive = *guest.IsActive
@@ -327,4 +395,56 @@ func (service *EmployeeService) GetGuestList() ([]types.EmployeeRequest, error) 
 		guestRequests = append(guestRequests, temp)
 	}
 	return guestRequests, nil
+}
+
+func (service *EmployeeService) DepartmentChange(EmployeeID uint, DeptID int) error {
+	employee, err := service.repo.GetSpecificEmployee(EmployeeID)
+	if err != nil {
+		return err
+	}
+	department := DeptID
+	var weekends []string
+	DepartmentTable, err := service.repo2.GetWeekend(department)
+	if err != nil {
+		return err
+	}
+	weekend := DepartmentTable.Weekend
+	if err := json.Unmarshal(weekend, &weekends); err != nil {
+		return err
+	}
+	today := time.Now().Format(consts.DateFormat)
+	mealActivities, err := service.repo2.MealsAfterToday(today, EmployeeID)
+	if err != nil {
+		return err
+	}
+	holidays, err := service.repo3.GetHoliday()
+	if err != nil {
+		return err
+	}
+	for _, meal := range mealActivities {
+		date, err := time.Parse(consts.DateFormat, meal.Date)
+		if err != nil {
+			return err
+		}
+		isHoliday := false
+		for _, weekend := range weekends {
+			if weekend == date.Weekday().String() {
+				isHoliday = true
+				break
+			}
+		}
+		for _, holiday := range holidays {
+			if meal.Date == holiday.Date {
+				isHoliday = true
+			}
+		}
+
+		meal.IsOffDay = &isHoliday
+		err = service.repo2.UpdateMealActivity(&meal)
+		if err != nil {
+			return err
+		}
+		service.UpdateMealStatusAsync(EmployeeID, meal.Date, *employee.DefaultStatus)
+	}
+	return nil
 }

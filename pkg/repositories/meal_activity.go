@@ -103,6 +103,15 @@ func (repo *MealActivityRepo) GetOwnMealActivity(startDate string, endDate strin
 	return mealActivities, nil
 }
 
+func (repo *MealActivityRepo) MealsAfterToday(startDate string, employeeID uint) ([]models.MealActivity, error) {
+	var mealActivities []models.MealActivity
+	err := repo.db.Where("date >= ? AND employee_id = ?", startDate, employeeID).Find(&mealActivities).Error
+	if err != nil {
+		return []models.MealActivity{}, err
+	}
+	return mealActivities, nil
+}
+
 func (repo *MealActivityRepo) GetEmployeeMealCounts(startDate, endDate string) ([]types.MealSummaryResponse, error) {
 	var results []types.MealSummaryResponse
 
@@ -265,6 +274,18 @@ func (repo *MealActivityRepo) UpdateMealStatusOff(date string) error {
 		Updates(map[string]interface{}{
 			"status":     false,
 			"is_off_day": true,
+		}).Error
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (repo *MealActivityRepo) UpdateHolidayRemove(date string) error {
+	err := repo.db.Model(&models.MealActivity{}).
+		Where("date = ?", date).
+		Updates(map[string]interface{}{
+			"is_off_day": false,
 		}).Error
 	if err != nil {
 		return err

@@ -14,14 +14,16 @@ import (
 )
 
 type HolidayService struct {
-	repo     domain.IHolidayRepo
-	employee domain.IEmployeeRepo
+	repo         domain.IHolidayRepo
+	employee     domain.IEmployeeRepo
+	mealActivity domain.IMealActivityRepo
 }
 
-func HolidayServiceInstance(holidayRepo domain.IHolidayRepo, employeeRepo domain.IEmployeeRepo) domain.IHolidayService {
+func HolidayServiceInstance(holidayRepo domain.IHolidayRepo, employeeRepo domain.IEmployeeRepo, mealActivityRepo domain.IMealActivityRepo) domain.IHolidayService {
 	return &HolidayService{
-		repo:     holidayRepo,
-		employee: employeeRepo,
+		repo:         holidayRepo,
+		employee:     employeeRepo,
+		mealActivity: mealActivityRepo,
 	}
 }
 
@@ -85,25 +87,38 @@ func (service *HolidayService) DeleteHoliday(date string) error {
 	if err := service.repo.DeleteHoliday(date); err != nil {
 		return err
 	}
+
+	//message := "holiday at" + date + "has been deleted. Please update your meal!"
+	//err := middleware.SendTelegramMessage(message)
+	//if err != nil {
+	//	fmt.Println(err)
+	//}
 	go func() {
-		service.EmailForHolidayDelete(date)
+		err := service.mealActivity.UpdateHolidayRemove(date)
+		if err != nil {
+			fmt.Println("Error in updating meal status:", err)
+		}
 	}()
+
+	//go func() {
+	//	service.EmailForHolidayDelete(date)
+	//}()
 	return nil
 }
 
 func (service *HolidayService) EmailForHolidayDelete(date string) {
 	subject := "Holiday Deleted!!"
 	body := GenerateHolidayDeleteEmailBody(date)
-	employees, err := service.employee.GetEmployeeEmails()
-	if err != nil {
-		log.Println("Fetching employee emails failed:", err)
-		return
-	}
-	log.Println(employees)
+	//employees, err := service.employee.GetEmployeeEmails()
+	//if err != nil {
+	//	log.Println("Fetching employee emails failed:", err)
+	//	return
+	//}
+	//log.Println(employees)
 	email := &envoyer.EmailReq{
 		EventName: "general_email",
-		Receivers: employees,
-		//Receivers: []string{"tabassumoyshee@gmail.com"},
+		//Receivers: employees,
+		Receivers: []string{"tabassumoyshee@gmail.com"},
 		Variables: []envoyer.TemplateVariable{
 			{
 				Name:  "{{.subject}}",

@@ -253,37 +253,10 @@ func (service *MealActivityService) GetOwnMealActivity(ID uint, startDate string
 			}
 		}
 
-		employee, err := service.repo.GetEmployeeByEmployeeID(activity.EmployeeId)
-		if err != nil {
-			return nil, err
-		}
-		department := employee.DeptID
-		var weekends []string
-		DepartmentTable, err := service.repo.GetWeekend(department)
-		if err != nil {
-			return nil, err
-		}
-		weekend := DepartmentTable.Weekend
-		if err := json.Unmarshal(weekend, &weekends); err != nil {
-			return nil, err
-		}
-
-		activityDate, err := time.Parse(consts.DateFormat, activity.Date)
-		if err != nil {
-			return nil, err
-		}
-		isHoliday := false
-		for _, weekend := range weekends {
-			if weekend == activityDate.Weekday().String() {
-				isHoliday = true
-				break
-			}
-		}
-
 		if dateEntry == nil {
 			employeeEntry.EmployeeDetails = append(employeeEntry.EmployeeDetails, types.EmployeeDetails{
 				Date:    activity.Date,
-				Holiday: isHoliday,
+				Holiday: *activity.IsOffDay,
 				Meal:    []types.MealDetails{},
 			})
 			dateEntry = &employeeEntry.EmployeeDetails[len(employeeEntry.EmployeeDetails)-1]
@@ -305,21 +278,6 @@ func (service *MealActivityService) GetOwnMealActivity(ID uint, startDate string
 
 	return mealActivities, nil
 }
-
-//func (service *MealActivityService) TotalMealADay(date string, mealType int) (int, error) {
-//	mealActivity, err := service.repo.FindMealADay(date, mealType)
-//	if err != nil {
-//		return 0, err
-//	}
-//	var count = 0
-//	for _, activity := range mealActivity {
-//		if activity.MealType == mealType && *activity.Status == true {
-//			count++
-//		}
-//	}
-//	return count, nil
-//
-//}
 
 func (service *MealActivityService) TotalPenaltyAMonth(date string, employeeID uint, days int) (float64, error) {
 	startDate, err := time.Parse(consts.DateFormat, date)
@@ -495,8 +453,8 @@ func (service *MealActivityService) LunchSummaryForEmail() error {
 
 	email := &envoyer.EmailReq{
 		EventName: "general_email",
-		Receivers: []string{"ashikur.rahman@vivasoftltd.com"},
-		//Receivers: []string{"tabassumoyshee@gmail.com"},
+		//Receivers: []string{"ashikur.rahman@vivasoftltd.com"},
+		Receivers: []string{"tabassumoyshee@gmail.com"},
 		Variables: []envoyer.TemplateVariable{
 			{
 				Name:  "{{.subject}}",
@@ -792,8 +750,8 @@ func (service *MealActivityService) SnackSummaryForEmail() error {
 
 	email := &envoyer.EmailReq{
 		EventName: "general_email",
-		Receivers: []string{"ashikur.rahman@vivasoftltd.com"},
-		//Receivers: []string{"tabassumoyshee@gmail.com"},
+		//Receivers: []string{"ashikur.rahman@vivasoftltd.com"},
+		Receivers: []string{"tabassumoyshee@gmail.com"},
 		Variables: []envoyer.TemplateVariable{
 			{
 				Name:  "{{.subject}}",

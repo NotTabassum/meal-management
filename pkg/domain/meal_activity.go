@@ -6,6 +6,7 @@ import (
 )
 
 type IMealActivityRepo interface {
+	MealsAfterToday(startDate string, employeeID uint) ([]models.MealActivity, error)
 	GetWeekend(deptID int) (models.Department, error)
 	GetEmployeeByEmployeeID(EmployeeID uint) (models.Employee, error)
 	FindAllEmployees() ([]models.Employee, error)
@@ -31,6 +32,7 @@ type IMealActivityRepo interface {
 	GetTodayOfficePenalty(date string) (float64, error)
 	GetMealByDate(date string, mealType int) ([]models.MealActivity, error)
 	GetExtraMealByDate(date string, mealType int) (int, error)
+	UpdateHolidayRemove(date string) error
 }
 
 type IMealActivityService interface {
