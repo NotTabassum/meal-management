@@ -26,14 +26,14 @@ func InitServe() {
 	PreferenceRepo := repositories.PreferenceDBInstance(db)
 	HolidayRepo := repositories.HolidayDBInstance(db)
 
-	EmployeeService := services.EmployeeServiceInstance(EmployeeRepo)
+	EmployeeService := services.EmployeeServiceInstance(EmployeeRepo, MealActivityRepo, HolidayRepo)
 	MealPlanService := services.MealPlanServiceInstance(MealPlanRepo)
 	LoginService := services.LoginServiceInstance(LoginRepo)
 	MealActivityService := services.MealActivityServiceInstance(MealActivityRepo, MealPlanService, EmployeeService)
 	DeptService := services.DeptServiceInstance(DeptRepo)
 	ExtraMealService := services.ExtraMealServiceInstance(ExtraMealRepo)
 	PreferenceService := services.PreferenceServiceInstance(PreferenceRepo)
-	HolidayService := services.HolidayServiceInstance(HolidayRepo, EmployeeRepo)
+	HolidayService := services.HolidayServiceInstance(HolidayRepo, EmployeeRepo, MealActivityRepo)
 
 	controllers.SetEmployeeService(EmployeeService)
 	controllers.SetMealPlanService(MealPlanService)

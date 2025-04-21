@@ -40,4 +40,5 @@ type IEmployeeService interface {
 	DeleteMealActivity(date string, EmployeeId uint) error
 	UpdateGuestActivity(EmployeeId uint, date string, Active bool)
 	GetGuestList() ([]types.EmployeeRequest, error)
+	DepartmentChange(EmployeeID uint, DeptID int) error
 }

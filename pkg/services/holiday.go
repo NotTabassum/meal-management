@@ -15,14 +15,16 @@ import (
 )
 
 type HolidayService struct {
-	repo     domain.IHolidayRepo
-	employee domain.IEmployeeRepo
+	repo         domain.IHolidayRepo
+	employee     domain.IEmployeeRepo
+	mealActivity domain.IMealActivityRepo
 }
 
-func HolidayServiceInstance(holidayRepo domain.IHolidayRepo, employeeRepo domain.IEmployeeRepo) domain.IHolidayService {
+func HolidayServiceInstance(holidayRepo domain.IHolidayRepo, employeeRepo domain.IEmployeeRepo, mealActivityRepo domain.IMealActivityRepo) domain.IHolidayService {
 	return &HolidayService{
-		repo:     holidayRepo,
-		employee: employeeRepo,
+		repo:         holidayRepo,
+		employee:     employeeRepo,
+		mealActivity: mealActivityRepo,
 	}
 }
 
@@ -92,10 +94,16 @@ func (service *HolidayService) DeleteHoliday(date string) error {
 	if err != nil {
 		fmt.Println(err)
 	}
-
 	go func() {
-		service.EmailForHolidayDelete(date)
+		err := service.mealActivity.UpdateHolidayRemove(date)
+		if err != nil {
+			fmt.Println("Error in updating meal status:", err)
+		}
 	}()
+
+	//go func() {
+	//	service.EmailForHolidayDelete(date)
+	//}()
 	return nil
 }
 

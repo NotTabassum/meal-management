@@ -253,33 +253,6 @@ func (service *MealActivityService) GetOwnMealActivity(ID uint, startDate string
 			}
 		}
 
-		//employee, err := service.repo.GetEmployeeByEmployeeID(activity.EmployeeId)
-		//if err != nil {
-		//	return nil, err
-		//}
-		//department := employee.DeptID
-		//var weekends []string
-		//DepartmentTable, err := service.repo.GetWeekend(department)
-		//if err != nil {
-		//	return nil, err
-		//}
-		//weekend := DepartmentTable.Weekend
-		//if err := json.Unmarshal(weekend, &weekends); err != nil {
-		//	return nil, err
-		//}
-
-		//activityDate, err := time.Parse(consts.DateFormat, activity.Date)
-		//if err != nil {
-		//	return nil, err
-		//}
-		//isHoliday := false
-		//for _, weekend := range weekends {
-		//	if weekend == activityDate.Weekday().String() {
-		//		isHoliday = true
-		//		break
-		//	}
-		//}
-
 		if dateEntry == nil {
 			employeeEntry.EmployeeDetails = append(employeeEntry.EmployeeDetails, types.EmployeeDetails{
 				Date:    activity.Date,

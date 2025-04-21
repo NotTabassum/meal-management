@@ -1,6 +1,7 @@
 package services
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"log"
@@ -14,12 +15,16 @@ import (
 )
 
 type EmployeeService struct {
-	repo domain.IEmployeeRepo
+	repo  domain.IEmployeeRepo
+	repo2 domain.IMealActivityRepo
+	repo3 domain.IHolidayRepo
 }
 
-func EmployeeServiceInstance(employeeRepo domain.IEmployeeRepo) domain.IEmployeeService {
+func EmployeeServiceInstance(employeeRepo domain.IEmployeeRepo, mealActivityRepo domain.IMealActivityRepo, holidayRepo domain.IHolidayRepo) domain.IEmployeeService {
 	return &EmployeeService{
-		repo: employeeRepo,
+		repo:  employeeRepo,
+		repo2: mealActivityRepo,
+		repo3: holidayRepo,
 	}
 }
 
@@ -390,4 +395,56 @@ func (service *EmployeeService) GetGuestList() ([]types.EmployeeRequest, error) 
 		guestRequests = append(guestRequests, temp)
 	}
 	return guestRequests, nil
+}
+
+func (service *EmployeeService) DepartmentChange(EmployeeID uint, DeptID int) error {
+	employee, err := service.repo.GetSpecificEmployee(EmployeeID)
+	if err != nil {
+		return err
+	}
+	department := DeptID
+	var weekends []string
+	DepartmentTable, err := service.repo2.GetWeekend(department)
+	if err != nil {
+		return err
+	}
+	weekend := DepartmentTable.Weekend
+	if err := json.Unmarshal(weekend, &weekends); err != nil {
+		return err
+	}
+	today := time.Now().Format(consts.DateFormat)
+	mealActivities, err := service.repo2.MealsAfterToday(today, EmployeeID)
+	if err != nil {
+		return err
+	}
+	holidays, err := service.repo3.GetHoliday()
+	if err != nil {
+		return err
+	}
+	for _, meal := range mealActivities {
+		date, err := time.Parse(consts.DateFormat, meal.Date)
+		if err != nil {
+			return err
+		}
+		isHoliday := false
+		for _, weekend := range weekends {
+			if weekend == date.Weekday().String() {
+				isHoliday = true
+				break
+			}
+		}
+		for _, holiday := range holidays {
+			if meal.Date == holiday.Date {
+				isHoliday = true
+			}
+		}
+
+		meal.IsOffDay = &isHoliday
+		err = service.repo2.UpdateMealActivity(&meal)
+		if err != nil {
+			return err
+		}
+		service.UpdateMealStatusAsync(EmployeeID, meal.Date, *employee.DefaultStatus)
+	}
+	return nil
 }

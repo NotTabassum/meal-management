@@ -432,7 +432,12 @@ func UpdateEmployee(e echo.Context) error {
 	}
 	if isAdmin {
 		if existingEmployee.DeptID != DeptID {
-			
+			go func() {
+				err := EmployeeService.DepartmentChange(EmployeeID, DeptID)
+				if err != nil {
+					fmt.Println("Error in updating weekend status for department change:", err)
+				}
+			}()
 		}
 	}
 	updatedEmployee := &models.Employee{
