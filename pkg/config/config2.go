@@ -20,6 +20,10 @@ type Config struct {
 	DBPort string `env:"DBPort"`
 
 	ServerPort string `env:"ServerPort"`
+
+	TELEGRAM_BOT_TOKEN string `env:"TELEGRAM_BOT_TOKEN"`
+
+	TELEGRAM_CHAT_ID string `env:"TELEGRAM_CHAT_ID"`
 }
 
 var LocalConfig *Config

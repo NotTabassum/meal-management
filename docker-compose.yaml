@@ -23,10 +23,10 @@ services:
     volumes:
       - meal-management-db:/var/lib/mysql
     environment:
-      MYSQL_ROOT_PASSWORD: "12345678"
-      MYSQL_DATABASE: "meal-management"
-      MYSQL_USER: "sumaiya"
-      MYSQL_PASSWORD: "12345678"
+      MYSQL_ROOT_PASSWORD: ${DBPass}
+      MYSQL_DATABASE: ${DBName}
+      MYSQL_USER: ${DBUser}
+      MYSQL_PASSWORD: ${DBPass}
     ports:
       - 3307:3306
     networks:
