@@ -736,3 +736,15 @@ func GetGuestList(e echo.Context) error {
 	}
 	return e.JSON(http.StatusOK, guestList)
 }
+
+func TelegramMessage(e echo.Context) error {
+	//fmt.Println("Telegram API response status code:", resp.StatusCode())
+	//fmt.Println("Telegram API response body:", resp.String())
+
+	msg := "Hello I am a bot and I am from Vivasoft MealManagement"
+	err := middleware.SendTelegramMessage(msg)
+	if err != nil {
+		return err
+	}
+	return e.JSON(http.StatusCreated, msg)
+}
