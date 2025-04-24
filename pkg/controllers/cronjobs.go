@@ -34,6 +34,26 @@ func CronJob() {
 		log.Fatalf(" Failed to schedule ExtraMeal: %v", err)
 	}
 
+	_, err = c.AddFunc("45 09 * * *", func() {
+		log.Println("Sending Lunch Reminder at :", time.Now())
+		if err := MealActivityService.MealUpdateNotification(1); err != nil {
+			log.Printf(" Error sending lunch reminder: %v", err)
+		}
+	})
+	if err != nil {
+		log.Fatalf(" Failed to schedule ExtraMeal: %v", err)
+	}
+
+	_, err = c.AddFunc("45 13 * * *", func() {
+		log.Println("Sending Snacks Reminder at :", time.Now())
+		if err := MealActivityService.MealUpdateNotification(2); err != nil {
+			log.Printf(" Error sending snacks reminder: %v", err)
+		}
+	})
+	if err != nil {
+		log.Fatalf(" Failed to schedule ExtraMeal: %v", err)
+	}
+
 	_, err = c.AddFunc("05 10 * * *", func() {
 		log.Println("Sending Lunch Summary at:", time.Now())
 		if err := MealActivityService.LunchSummaryForEmail(); err != nil {

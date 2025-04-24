@@ -56,4 +56,5 @@ type IMealActivityService interface {
 	GetTodayOfficePenalty(days int) ([]types.Penalty, error)
 	GetMonthOfficePenalty(n int) ([]types.PenaltyMonth, error)
 	TotalMealADayGroup(date string, mealType int, days int) ([]types.TotalMealGroupResponse, error)
+	MealUpdateNotification(n int) error
 }

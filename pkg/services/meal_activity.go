@@ -9,6 +9,7 @@ import (
 	"meal-management/envoyer"
 	"meal-management/pkg/consts"
 	"meal-management/pkg/domain"
+	"meal-management/pkg/middleware"
 	"meal-management/pkg/models"
 	"meal-management/pkg/types"
 	"strconv"
@@ -1250,4 +1251,18 @@ func (service *MealActivityService) GetTodayOfficePenalty(days int) ([]types.Pen
 		penalties = append(penalties, *penalty)
 	}
 	return penalties, nil
+}
+
+func (service *MealActivityService) MealUpdateNotification(n int) error {
+	var msg string
+	if n == 1 {
+		msg = "Hello Everyone!\nOnly 15 minutes left to update your lunch status.\nAfter that, it’ll be locked!"
+	} else if n == 2 {
+		msg = "Hello Everyone!\nOnly 15 minutes left to update your snacks status.\nAfter that, it’ll be locked!"
+	}
+	err := middleware.SendTelegramMessage(msg)
+	if err != nil {
+		return err
+	}
+	return nil
 }
