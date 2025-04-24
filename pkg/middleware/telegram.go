@@ -3,47 +3,46 @@ package middleware
 import (
 	"fmt"
 	"github.com/go-resty/resty/v2"
-	"github.com/joho/godotenv"
-	"log"
-	"os"
-	"strconv"
+	"meal-management/pkg/config"
 )
 
 func SendTelegramMessage(message string) error {
-	err := godotenv.Load()
-	if err != nil {
-		log.Fatal("Error loading .env file")
+
+	botToken := config.LocalConfig.TELEGRAM_BOT_TOKEN
+	chatIDStr := config.LocalConfig.TELEGRAM_CHAT_ID
+
+	//botToken := "8195410355:AAFqtpnVz2CHwhV8aRp-qtFJ8b7HJVxwmyc"
+	//chatIDStr := "-1002555116324"
+
+	if botToken == "" || chatIDStr == "" {
+		return fmt.Errorf("TELEGRAM_BOT_TOKEN or TELEGRAM_CHAT_ID is missing in .env")
 	}
 
-	botToken := os.Getenv("TELEGRAM_BOT_TOKEN")
-	chatIDStr := os.Getenv("TELEGRAM_CHAT_ID")
+	// Debug print
+	fmt.Printf("Sending message to Telegram ChatID: %d\n", chatIDStr)
+	fmt.Printf("Message: %s\n", message)
 
-	fmt.Println(botToken, chatIDStr)
-
-	chatID, err := strconv.ParseInt(chatIDStr, 10, 64)
-	if err != nil {
-		log.Fatal("Invalid TELEGRAM_CHAT_ID")
-	}
-
-	client := resty.New()
+	// Create Telegram API URL
 	url := fmt.Sprintf("https://api.telegram.org/bot%s/sendMessage", botToken)
 
-	fmt.Println(message)
+	fmt.Println(url)
+	client := resty.New()
 	resp, err := client.R().
 		SetHeader("Content-Type", "application/json").
 		SetBody(map[string]interface{}{
-			"chat_id": chatID,
+			"chat_id": chatIDStr,
 			"text":    message,
 		}).
 		Post(url)
 
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to send POST request: %w", err)
 	}
 
 	if resp.StatusCode() != 200 {
-		return fmt.Errorf("Telegram API error: %s", resp.String())
+		return fmt.Errorf("telegram API error: %s", resp.String())
 	}
 
+	fmt.Println("✅ Telegram message sent successfully!")
 	return nil
 }

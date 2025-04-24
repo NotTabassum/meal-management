@@ -20,4 +20,5 @@ func EmployeeRoutes(e *echo.Echo) {
 	emp.PATCH("/password-change", controllers.PasswordChange)
 	emp.PATCH("", controllers.UpdateEmployee)
 	emp.DELETE("", controllers.DeleteEmployee)
+	emp.GET("/telegram", controllers.TelegramMessage)
 }
