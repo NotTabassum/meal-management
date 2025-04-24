@@ -11,9 +11,6 @@ func SendTelegramMessage(message string) error {
 	botToken := config.LocalConfig.TELEGRAM_BOT_TOKEN
 	chatIDStr := config.LocalConfig.TELEGRAM_CHAT_ID
 
-	//botToken := "8195410355:AAFqtpnVz2CHwhV8aRp-qtFJ8b7HJVxwmyc"
-	//chatIDStr := "-1002555116324"
-
 	if botToken == "" || chatIDStr == "" {
 		return fmt.Errorf("TELEGRAM_BOT_TOKEN or TELEGRAM_CHAT_ID is missing in .env")
 	}
