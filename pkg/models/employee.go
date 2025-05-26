@@ -3,13 +3,13 @@ package models
 import "gorm.io/datatypes"
 
 type Employee struct {
-	EmployeeId uint   `gorm:"primaryKey;autoIncrement" json:"employee_id"`
-	Name       string `json:"name"`
-	Email      string `gorm:"unique" json:"email,omitempty"`
-	Password   string
-	DeptID     int
-	Remarks    string
-	//DefaultStatus *bool
+	EmployeeId          uint   `gorm:"primaryKey;autoIncrement" json:"employee_id"`
+	Name                string `json:"name"`
+	Email               string `gorm:"unique" json:"email,omitempty"`
+	Password            string
+	DeptID              int
+	Remarks             string
+	DefaultStatus       *bool
 	DefaultStatusLunch  *bool
 	DefaultStatusSnacks *bool
 	StatusUpdated       bool `json:"status_updated"`
