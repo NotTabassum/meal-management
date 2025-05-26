@@ -24,6 +24,8 @@ type Config struct {
 	TELEGRAM_BOT_TOKEN string `env:"TELEGRAM_BOT_TOKEN"`
 
 	TELEGRAM_CHAT_ID string `env:"TELEGRAM_CHAT_ID"`
+
+	SERVER string `env:"SERVER"`
 }
 
 var LocalConfig *Config

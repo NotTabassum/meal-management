@@ -41,4 +41,5 @@ type IEmployeeService interface {
 	UpdateGuestActivity(EmployeeId uint, date string, Active bool)
 	GetGuestList() ([]types.EmployeeRequest, error)
 	DepartmentChange(EmployeeID uint, DeptID int) error
+	TelegramChannelInvitation() error
 }

@@ -748,3 +748,27 @@ func TelegramMessage(e echo.Context) error {
 	}
 	return e.JSON(http.StatusCreated, msg)
 }
+
+func TelegramChannelInvitation(e echo.Context) error {
+	authorizationHeader := e.Request().Header.Get("Authorization")
+	if authorizationHeader == "" {
+		return e.JSON(http.StatusUnauthorized, map[string]string{"res": "Authorization header is empty"})
+	}
+
+	_, isAdmin, err := middleware.ParseJWT(authorizationHeader)
+	if err != nil {
+		if err.Error() == "token expired" {
+			return e.JSON(http.StatusUnauthorized, map[string]string{"error": "Token expired"})
+		}
+		return e.JSON(http.StatusUnauthorized, map[string]string{"error": err.Error()})
+	}
+	if !isAdmin {
+		return e.JSON(http.StatusForbidden, map[string]string{"res": "Unauthorized"})
+	}
+
+	err = EmployeeService.TelegramChannelInvitation()
+	if err != nil {
+		return e.JSON(http.StatusInternalServerError, err.Error())
+	}
+	return e.JSON(http.StatusCreated, "invitation was sent successfully")
+}

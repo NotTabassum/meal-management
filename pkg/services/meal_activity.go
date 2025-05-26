@@ -1274,7 +1274,21 @@ func (service *MealActivityService) MealUpdateNotification(n int) error {
 	if n == 1 {
 		msg = "Hello Everyone!\nOnly 15 minutes left to update your lunch status.\nAfter that, it’ll be locked!"
 	} else if n == 2 {
-		msg = "Hello Everyone!\nOnly 15 minutes left to update your snacks status.\nAfter that, it’ll be locked!"
+		msg = "Hello Everyone!\nOnly 15 minutes left to update your snack status.\nAfter that, it’ll be locked!"
+	}
+	err := middleware.SendTelegramMessage(msg)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (service *MealActivityService) MealLateNotification(n int) error {
+	var msg string
+	if n == 1 {
+		msg = "Hello Everyone!\nToday's lunch will be served a bit late. We appreciate your patience!"
+	} else if n == 2 {
+		msg = "Hello Everyone!\nToday's snack will be served a bit late. We appreciate your patience!"
 	}
 	err := middleware.SendTelegramMessage(msg)
 	if err != nil {

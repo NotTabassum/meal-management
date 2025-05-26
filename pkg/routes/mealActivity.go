@@ -25,4 +25,5 @@ func MealActivityRoutes(e *echo.Echo) {
 	emp.GET("/admin", controllers.GetMealActivity)
 	emp.GET("/penalty", controllers.GetTodayOfficePenalty)
 	emp.GET("/month-penalty", controllers.GetMonthOfficePenalty)
+	emp.GET("/meal-late", controllers.MealLateNotification)
 }

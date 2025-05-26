@@ -584,3 +584,28 @@ func GetMonthOfficePenalty(e echo.Context) error {
 	}
 	return e.JSON(http.StatusOK, penaltySummary)
 }
+
+func MealLateNotification(e echo.Context) error {
+	authorizationHeader := e.Request().Header.Get("Authorization")
+	if authorizationHeader == "" {
+		return e.JSON(http.StatusUnauthorized, map[string]string{"res": "Authorization header is empty"})
+	}
+	_, isAdmin, err := middleware.ParseJWT(authorizationHeader)
+	if err != nil {
+		if err.Error() == "token expired" {
+			return e.JSON(http.StatusUnauthorized, map[string]string{"error": "Token expired"})
+		}
+		return e.JSON(http.StatusUnauthorized, map[string]string{"error": err.Error()})
+	}
+	if !isAdmin {
+		return e.JSON(http.StatusUnauthorized, map[string]string{"res": "Not Authorized"})
+	}
+
+	mealTypeStr := e.QueryParam("meal_type")
+	mealType, err := strconv.Atoi(mealTypeStr)
+	err = MealActivityService.MealLateNotification(mealType)
+	if err != nil {
+		return e.JSON(http.StatusInternalServerError, err.Error())
+	}
+	return e.JSON(http.StatusOK, nil)
+}

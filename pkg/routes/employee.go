@@ -21,4 +21,5 @@ func EmployeeRoutes(e *echo.Echo) {
 	emp.PATCH("", controllers.UpdateEmployee)
 	emp.DELETE("", controllers.DeleteEmployee)
 	emp.GET("/telegram", controllers.TelegramMessage)
+	emp.GET("/telegram-channel-invitation", controllers.TelegramChannelInvitation)
 }

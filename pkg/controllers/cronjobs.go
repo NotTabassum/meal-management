@@ -3,10 +3,15 @@ package controllers
 import (
 	"github.com/robfig/cron/v3"
 	"log"
+	"meal-management/pkg/config"
 	"time"
 )
 
 func CronJob() {
+	SERVER := config.LocalConfig.SERVER
+	if SERVER == "STAGING" {
+		return
+	}
 	loc, _ := time.LoadLocation("Asia/Dhaka")
 	time.Local = loc
 

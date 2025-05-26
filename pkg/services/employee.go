@@ -558,7 +558,7 @@ func GenerateTelegramChannelInvitationEmailBody() string {
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
         }
         h2 {
-            color: #007bff;
+            color: #000000;
             text-align: center;
         }
         p {
@@ -596,9 +596,9 @@ func GenerateTelegramChannelInvitationEmailBody() string {
         <p>Dear Team,</p>
         <p>We are excited to invite you to our <span class="highlight">Meal Management Telegram Channel</span> where you’ll receive:</p>
         <ul>
-            <li>Emmergency Notices</li>
-            <li>Reminder for Meal Updating</li>
-            <li>Everyday Meal List</li>
+            <li>Emergency Notices</li>
+            <li>A Reminder for Meal Status Updating</li>
+            <li>Daily Menu</li>
         </ul>
         <p>Stay in touch and never miss an update!</p>
         <a href="{{CHANNEL_LINK}}" class="button">Join the Channel</a>
