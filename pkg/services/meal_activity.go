@@ -48,9 +48,10 @@ func (service *MealActivityService) GenerateMealActivities() error {
 		defaultPenalty := false
 		activeStatus := true
 
-		if *(emp.DefaultStatus) == true {
-			defaultStatus = true
-		}
+		//if *(emp.DefaultStatus) == true {
+		//	defaultStatus = true
+		//}
+
 		if *(emp.IsPermanent) == false && *(emp.IsActive) == false {
 			activeStatus = false
 		}
@@ -86,7 +87,13 @@ func (service *MealActivityService) GenerateMealActivities() error {
 				if holiday == true {
 					isHoliday = true
 				}
-				prevStatus := defaultStatus
+				var prevStatus bool
+				if *(emp.DefaultStatusLunch) == true && mealType == 1 {
+					prevStatus = defaultStatus
+				} else if *(emp.DefaultStatusSnacks) == true && mealType == 2 {
+					prevStatus = defaultStatus
+				}
+				//prevStatus = defaultStatus
 				if isHoliday == true {
 					defaultStatus = false
 				}

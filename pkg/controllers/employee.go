@@ -96,9 +96,9 @@ func CreateEmployee(e echo.Context) error {
 	if err != nil {
 		return e.JSON(http.StatusInternalServerError, err.Error())
 	}
-	defStatus := e.FormValue("default_status") == "true"
-	//defStatusLunch := e.FormValue("default_status_lunch") == "true"
-	//defStatusSnacks := e.FormValue("default_status_snacks") == "true"
+	//defStatus := e.FormValue("default_status") == "true"
+	defStatusLunch := e.FormValue("default_status_lunch") == "true"
+	defStatusSnacks := e.FormValue("default_status_snacks") == "true"
 
 	//guest handling
 	Permanent := e.FormValue("is_permanent") == "true"
@@ -111,23 +111,23 @@ func CreateEmployee(e echo.Context) error {
 	//fmt.Println(Permanent, Active)
 
 	reqEmployee := &models.Employee{
-		Name:          e.FormValue("name"),
-		Email:         e.FormValue("email"),
-		PhoneNumber:   e.FormValue("phone_number"),
-		DeptID:        deptID,
-		Password:      Password,
-		Remarks:       e.FormValue("remarks"),
-		DefaultStatus: &defStatus,
-		//DefaultStatusLunch:  &defStatusLunch,
-		//DefaultStatusSnacks: &defStatusSnacks,
-		IsAdmin:        e.FormValue("is_admin") == "true",
-		Photo:          dstPath,
-		PreferenceFood: emptyJSONArray,
-		IsPermanent:    &Permanent,
-		IsActive:       &Active,
-		Roll:           e.FormValue("roll"),
-		Designation:    e.FormValue("designation"),
-		StatusUpdated:  true,
+		Name:        e.FormValue("name"),
+		Email:       e.FormValue("email"),
+		PhoneNumber: e.FormValue("phone_number"),
+		DeptID:      deptID,
+		Password:    Password,
+		Remarks:     e.FormValue("remarks"),
+		//DefaultStatus: &defStatus,
+		DefaultStatusLunch:  &defStatusLunch,
+		DefaultStatusSnacks: &defStatusSnacks,
+		IsAdmin:             e.FormValue("is_admin") == "true",
+		Photo:               dstPath,
+		PreferenceFood:      emptyJSONArray,
+		IsPermanent:         &Permanent,
+		IsActive:            &Active,
+		Roll:                e.FormValue("roll"),
+		Designation:         e.FormValue("designation"),
+		StatusUpdated:       true,
 	}
 
 	//For Email Sending
@@ -287,22 +287,22 @@ func UpdateEmployee(e echo.Context) error {
 	if tmpAdmin != "" {
 		Admin = tmpAdmin == "true"
 	}
-	defaultStatus := e.FormValue("default_status")
-	default_status := *employee.DefaultStatus
-	if defaultStatus != "" {
-		default_status = defaultStatus == "true"
-	}
+	//defaultStatus := e.FormValue("default_status")
+	//default_status := *employee.DefaultStatus
+	//if defaultStatus != "" {
+	//	default_status = defaultStatus == "true"
+	//}
 
-	//defaultStatusLunch := e.FormValue("default_status_lunch")
-	//default_status_lunch := *employee.DefaultStatusLunch
-	//if defaultStatusLunch != "" {
-	//	default_status_lunch = defaultStatusLunch == "true"
-	//}
-	//defaultStatusSnacks := e.FormValue("default_status_snacks")
-	//default_status_snacks := *employee.DefaultStatusSnacks
-	//if defaultStatusLunch != "" {
-	//	default_status_lunch = defaultStatusSnacks == "true"
-	//}
+	defaultStatusLunch := e.FormValue("default_status_lunch")
+	default_status_lunch := *employee.DefaultStatusLunch
+	if defaultStatusLunch != "" {
+		default_status_lunch = defaultStatusLunch == "true"
+	}
+	defaultStatusSnacks := e.FormValue("default_status_snacks")
+	default_status_snacks := *employee.DefaultStatusSnacks
+	if defaultStatusLunch != "" {
+		default_status_lunch = defaultStatusSnacks == "true"
+	}
 
 	//preference
 	preferenceFood := e.FormValue("preference_food")
@@ -432,24 +432,24 @@ func UpdateEmployee(e echo.Context) error {
 	}
 
 	updatedEmployee := &models.Employee{
-		EmployeeId:    EmployeeID,
-		Name:          Name,
-		Email:         Email,
-		PhoneNumber:   ifNot11(PhoneNumber, existingEmployee.PhoneNumber),
-		Password:      Password,
-		DeptID:        DeptID,
-		Remarks:       remarks,
-		DefaultStatus: &default_status,
-		//DefaultStatusLunch:  &default_status_lunch,
-		//DefaultStatusSnacks: &default_status_snacks,
-		IsAdmin:        Admin,
-		Photo:          dstPath,
-		StatusUpdated:  true,
-		PreferenceFood: preferenceFoodJSON,
-		IsPermanent:    Permanent,
-		IsActive:       Active,
-		Designation:    DesignationGiven,
-		Roll:           RollGiven,
+		EmployeeId:  EmployeeID,
+		Name:        Name,
+		Email:       Email,
+		PhoneNumber: ifNot11(PhoneNumber, existingEmployee.PhoneNumber),
+		Password:    Password,
+		DeptID:      DeptID,
+		Remarks:     remarks,
+		//DefaultStatus: &default_status,
+		DefaultStatusLunch:  &default_status_lunch,
+		DefaultStatusSnacks: &default_status_snacks,
+		IsAdmin:             Admin,
+		Photo:               dstPath,
+		StatusUpdated:       true,
+		PreferenceFood:      preferenceFoodJSON,
+		IsPermanent:         Permanent,
+		IsActive:            Active,
+		Designation:         DesignationGiven,
+		Roll:                RollGiven,
 	}
 
 	if err := EmployeeService.UpdateEmployee(updatedEmployee); err != nil {
@@ -560,37 +560,7 @@ func Profile(e echo.Context) error {
 
 }
 
-func UpdateDefaultStatus(e echo.Context) error {
-	authorizationHeader := e.Request().Header.Get("Authorization")
-	if authorizationHeader == "" {
-		return e.JSON(http.StatusUnauthorized, map[string]string{"res": "Authorization header is empty"})
-	}
-	ID, _, err := middleware.ParseJWT(authorizationHeader)
-	if err != nil {
-		if err.Error() == "token expired" {
-			return e.JSON(http.StatusUnauthorized, map[string]string{"error": "Token expired"})
-		}
-		return e.JSON(http.StatusUnauthorized, map[string]string{"error": err.Error()})
-	}
-	EmployeeID, err := strconv.ParseUint(ID, 0, 0)
-	if err != nil {
-		return e.JSON(http.StatusBadRequest, "Invalid Data")
-	}
-
-	defStatus := &types.DefaultStatus{}
-	if err := e.Bind(&defStatus); err != nil {
-		return e.JSON(http.StatusBadRequest, "Invalid Data")
-	}
-	date := defStatus.Date
-	status := defStatus.Status
-	err = EmployeeService.UpdateDefaultStatus(uint(EmployeeID), date, status)
-	if err != nil {
-		return e.JSON(http.StatusInternalServerError, err)
-	}
-	return e.JSON(http.StatusCreated, "default status was updated successfully")
-}
-
-//func UpdateDefaultStatusNew(e echo.Context) error {
+//func UpdateDefaultStatus(e echo.Context) error {
 //	authorizationHeader := e.Request().Header.Get("Authorization")
 //	if authorizationHeader == "" {
 //		return e.JSON(http.StatusUnauthorized, map[string]string{"res": "Authorization header is empty"})
@@ -607,19 +577,49 @@ func UpdateDefaultStatus(e echo.Context) error {
 //		return e.JSON(http.StatusBadRequest, "Invalid Data")
 //	}
 //
-//	defStatus := &types.DefaultStatusNew{}
+//	defStatus := &types.DefaultStatus{}
 //	if err := e.Bind(&defStatus); err != nil {
 //		return e.JSON(http.StatusBadRequest, "Invalid Data")
 //	}
 //	date := defStatus.Date
 //	status := defStatus.Status
-//	mealType := defStatus.MealType
-//	err = EmployeeService.UpdateDefaultStatusNew(uint(EmployeeID), date, status, mealType)
+//	err = EmployeeService.UpdateDefaultStatus(uint(EmployeeID), date, status)
 //	if err != nil {
 //		return e.JSON(http.StatusInternalServerError, err)
 //	}
 //	return e.JSON(http.StatusCreated, "default status was updated successfully")
 //}
+
+func UpdateDefaultStatusNew(e echo.Context) error {
+	authorizationHeader := e.Request().Header.Get("Authorization")
+	if authorizationHeader == "" {
+		return e.JSON(http.StatusUnauthorized, map[string]string{"res": "Authorization header is empty"})
+	}
+	ID, _, err := middleware.ParseJWT(authorizationHeader)
+	if err != nil {
+		if err.Error() == "token expired" {
+			return e.JSON(http.StatusUnauthorized, map[string]string{"error": "Token expired"})
+		}
+		return e.JSON(http.StatusUnauthorized, map[string]string{"error": err.Error()})
+	}
+	EmployeeID, err := strconv.ParseUint(ID, 0, 0)
+	if err != nil {
+		return e.JSON(http.StatusBadRequest, "Invalid Data")
+	}
+
+	defStatus := &types.DefaultStatusNew{}
+	if err := e.Bind(&defStatus); err != nil {
+		return e.JSON(http.StatusBadRequest, "Invalid Data")
+	}
+	date := defStatus.Date
+	status := defStatus.Status
+	mealType := defStatus.MealType
+	err = EmployeeService.UpdateDefaultStatusNew(uint(EmployeeID), date, status, mealType)
+	if err != nil {
+		return e.JSON(http.StatusInternalServerError, err)
+	}
+	return e.JSON(http.StatusCreated, "default status was updated successfully")
+}
 
 func ForgottenPassword(e echo.Context) error {
 	reqForgetPassword := &types.ForgetPasswordRequest{}
@@ -692,19 +692,19 @@ func PasswordChange(e echo.Context) error {
 	employees, err := EmployeeService.GetEmployeeWithEmployeeID(uint(EmployeeID))
 	employee := employees
 	updatedEmployee := &models.Employee{
-		EmployeeId:    uint(EmployeeID),
-		Name:          employee.Name,
-		Email:         employee.Email,
-		PhoneNumber:   employee.PhoneNumber,
-		Password:      password,
-		DeptID:        employee.DeptID,
-		Remarks:       employee.Remarks,
-		DefaultStatus: employee.DefaultStatus,
-		//DefaultStatusLunch:  employee.DefaultStatusLunch,
-		//DefaultStatusSnacks: employee.DefaultStatusSnacks,
-		IsAdmin:        employee.IsAdmin,
-		Photo:          employee.Photo,
-		PreferenceFood: employee.PreferenceFood,
+		EmployeeId:  uint(EmployeeID),
+		Name:        employee.Name,
+		Email:       employee.Email,
+		PhoneNumber: employee.PhoneNumber,
+		Password:    password,
+		DeptID:      employee.DeptID,
+		Remarks:     employee.Remarks,
+		//DefaultStatus: employee.DefaultStatus,
+		DefaultStatusLunch:  employee.DefaultStatusLunch,
+		DefaultStatusSnacks: employee.DefaultStatusSnacks,
+		IsAdmin:             employee.IsAdmin,
+		Photo:               employee.Photo,
+		PreferenceFood:      employee.PreferenceFood,
 	}
 
 	if err := EmployeeService.UpdateEmployee(updatedEmployee); err != nil {
@@ -741,7 +741,7 @@ func TelegramMessage(e echo.Context) error {
 	//fmt.Println("Telegram API response status code:", resp.StatusCode())
 	//fmt.Println("Telegram API response body:", resp.String())
 
-	msg := "Hello I am a bot and I am from Vivasoft MealManagement"
+	msg := "Hello I am a bot and I am from Vivasoft Meal Management"
 	err := middleware.SendTelegramMessage(msg)
 	if err != nil {
 		return err

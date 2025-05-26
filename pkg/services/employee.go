@@ -41,17 +41,17 @@ func (service *EmployeeService) GetSpecificEmployee(EmployeeID uint) (types.Empl
 	}
 	deptName := dept.DeptName
 	allEmployees = types.EmployeeRequest{
-		EmployeeId:    employee.EmployeeId,
-		Name:          employee.Name,
-		Email:         employee.Email,
-		PhoneNumber:   employee.PhoneNumber,
-		DeptName:      deptName,
-		Remarks:       employee.Remarks,
-		DefaultStatus: *employee.DefaultStatus,
-		//DefaultStatusLunch:  *employee.DefaultStatusLunch,
-		//DefaultStatusSnacks: *employee.DefaultStatusSnacks,
-		IsAdmin:        employee.IsAdmin,
-		PreferenceFood: employee.PreferenceFood,
+		EmployeeId:  employee.EmployeeId,
+		Name:        employee.Name,
+		Email:       employee.Email,
+		PhoneNumber: employee.PhoneNumber,
+		DeptName:    deptName,
+		Remarks:     employee.Remarks,
+		//DefaultStatus: *employee.DefaultStatus,
+		DefaultStatusLunch:  *employee.DefaultStatusLunch,
+		DefaultStatusSnacks: *employee.DefaultStatusSnacks,
+		IsAdmin:             employee.IsAdmin,
+		PreferenceFood:      employee.PreferenceFood,
 	}
 	return allEmployees, nil
 }
@@ -69,21 +69,21 @@ func (service *EmployeeService) GetEmployee() ([]types.EmployeeRequest, error) {
 		}
 		deptName := dept.DeptName
 		allEmployees = append(allEmployees, types.EmployeeRequest{
-			EmployeeId:    val.EmployeeId,
-			Name:          val.Name,
-			Email:         val.Email,
-			PhoneNumber:   val.PhoneNumber,
-			DeptName:      deptName,
-			Remarks:       val.Remarks,
-			DefaultStatus: *val.DefaultStatus,
-			//DefaultStatusLunch:  *val.DefaultStatusLunch,
-			//DefaultStatusSnacks: *val.DefaultStatusSnacks,
-			IsAdmin:        val.IsAdmin,
-			PreferenceFood: val.PreferenceFood,
-			IsActive:       *val.IsActive,
-			IsPermanent:    *val.IsPermanent,
-			Roll:           val.Roll,
-			Designation:    val.Designation,
+			EmployeeId:  val.EmployeeId,
+			Name:        val.Name,
+			Email:       val.Email,
+			PhoneNumber: val.PhoneNumber,
+			DeptName:    deptName,
+			Remarks:     val.Remarks,
+			//DefaultStatus: *val.DefaultStatus,
+			DefaultStatusLunch:  *val.DefaultStatusLunch,
+			DefaultStatusSnacks: *val.DefaultStatusSnacks,
+			IsAdmin:             val.IsAdmin,
+			PreferenceFood:      val.PreferenceFood,
+			IsActive:            *val.IsActive,
+			IsPermanent:         *val.IsPermanent,
+			Roll:                val.Roll,
+			Designation:         val.Designation,
 		})
 	}
 	return allEmployees, nil
@@ -126,60 +126,33 @@ func (service *EmployeeService) GetEmployeeWithEmployeeID(EmployeeID uint) (mode
 	}
 
 	allEmployees = models.Employee{
-		EmployeeId:    employee.EmployeeId,
-		Name:          employee.Name,
-		Email:         employee.Email,
-		PhoneNumber:   employee.PhoneNumber,
-		DeptID:        employee.DeptID,
-		Password:      employee.Password,
-		Remarks:       employee.Remarks,
-		DefaultStatus: employee.DefaultStatus,
-		//DefaultStatusLunch:  employee.DefaultStatusLunch,
-		//DefaultStatusSnacks: employee.DefaultStatusSnacks,
-		IsAdmin:        employee.IsAdmin,
-		Photo:          employee.Photo,
-		IsPermanent:    employee.IsPermanent,
-		IsActive:       employee.IsActive,
-		Designation:    employee.Designation,
-		Roll:           employee.Roll,
-		PreferenceFood: employee.PreferenceFood,
+		EmployeeId:  employee.EmployeeId,
+		Name:        employee.Name,
+		Email:       employee.Email,
+		PhoneNumber: employee.PhoneNumber,
+		DeptID:      employee.DeptID,
+		Password:    employee.Password,
+		Remarks:     employee.Remarks,
+		//DefaultStatus: employee.DefaultStatus,
+		DefaultStatusLunch:  employee.DefaultStatusLunch,
+		DefaultStatusSnacks: employee.DefaultStatusSnacks,
+		IsAdmin:             employee.IsAdmin,
+		Photo:               employee.Photo,
+		IsPermanent:         employee.IsPermanent,
+		IsActive:            employee.IsActive,
+		Designation:         employee.Designation,
+		Roll:                employee.Roll,
+		PreferenceFood:      employee.PreferenceFood,
 	}
 	return allEmployees, nil
 }
 
-func (service *EmployeeService) UpdateDefaultStatus(EmployeeId uint, date string, status bool) error {
-	employee, err := service.repo.GetSpecificEmployee(EmployeeId)
-	if err != nil {
-		return err
-	}
-	employee.DefaultStatus = &status
-	employee.StatusUpdated = false
-	err = service.repo.UpdateEmployee(employee)
-	if err != nil {
-		return err
-	}
-
-	log.Println("Default status updated, starting async meal status update...")
-
-	go func() {
-		log.Println("Goroutine started for meal status update...")
-		service.UpdateMealStatusAsync(EmployeeId, date, status)
-	}()
-
-	return nil
-}
-
-//func (service *EmployeeService) UpdateDefaultStatusNew(EmployeeId uint, date string, status bool, mealType int) error {
+//func (service *EmployeeService) UpdateDefaultStatus(EmployeeId uint, date string, status bool) error {
 //	employee, err := service.repo.GetSpecificEmployee(EmployeeId)
 //	if err != nil {
 //		return err
 //	}
 //	employee.DefaultStatus = &status
-//	//if mealType == 1 {
-//	//	employee.DefaultStatusLunch = &status
-//	//} else if mealType == 2 {
-//	//	employee.DefaultStatusSnacks = &status
-//	//}
 //	employee.StatusUpdated = false
 //	err = service.repo.UpdateEmployee(employee)
 //	if err != nil {
@@ -190,11 +163,38 @@ func (service *EmployeeService) UpdateDefaultStatus(EmployeeId uint, date string
 //
 //	go func() {
 //		log.Println("Goroutine started for meal status update...")
-//		service.UpdateMealStatusAsyncNew(EmployeeId, date, status, mealType)
+//		service.UpdateMealStatusAsync(EmployeeId, date, status)
 //	}()
 //
 //	return nil
 //}
+
+func (service *EmployeeService) UpdateDefaultStatusNew(EmployeeId uint, date string, status bool, mealType int) error {
+	employee, err := service.repo.GetSpecificEmployee(EmployeeId)
+	if err != nil {
+		return err
+	}
+	//employee.DefaultStatus = &status
+	if mealType == 1 {
+		employee.DefaultStatusLunch = &status
+	} else if mealType == 2 {
+		employee.DefaultStatusSnacks = &status
+	}
+	employee.StatusUpdated = false
+	err = service.repo.UpdateEmployee(employee)
+	if err != nil {
+		return err
+	}
+
+	log.Println("Default status updated, starting async meal status update...")
+
+	go func() {
+		log.Println("Goroutine started for meal status update...")
+		service.UpdateMealStatusAsyncNew(EmployeeId, date, status, mealType)
+	}()
+
+	return nil
+}
 
 func (service *EmployeeService) UpdateMealStatusAsync(EmployeeId uint, date string, status bool) {
 	log.Printf("Updating meal status for Employee %d, Date: %s\n", EmployeeId, date)
@@ -384,9 +384,9 @@ func (service *EmployeeService) GetGuestList() ([]types.EmployeeRequest, error) 
 		temp.PhoneNumber = guest.PhoneNumber
 		temp.DeptName = guest.PhoneNumber
 		temp.Remarks = guest.Remarks
-		temp.DefaultStatus = *guest.DefaultStatus
-		//temp.DefaultStatusLunch = *guest.DefaultStatusLunch
-		//temp.DefaultStatusSnacks = *guest.DefaultStatusSnacks
+		//temp.DefaultStatus = *guest.DefaultStatus
+		temp.DefaultStatusLunch = *guest.DefaultStatusLunch
+		temp.DefaultStatusSnacks = *guest.DefaultStatusSnacks
 		temp.IsAdmin = guest.IsAdmin
 		temp.IsPermanent = *guest.IsPermanent
 		temp.IsActive = *guest.IsActive
@@ -446,7 +446,12 @@ func (service *EmployeeService) DepartmentChange(EmployeeID uint, DeptID int) er
 		if isHoliday {
 			mealNew.Status = &valueFalse
 		} else {
-			if *employee.DefaultStatus == true {
+			//if *employee.DefaultStatus == true {
+			//	mealNew.Status = &valueTrue
+			//}
+			if *employee.DefaultStatusLunch == true && meal.MealType == 1 {
+				mealNew.Status = &valueTrue
+			} else if *employee.DefaultStatusSnacks == true && meal.MealType == 2 {
 				mealNew.Status = &valueTrue
 			}
 		}
@@ -454,8 +459,8 @@ func (service *EmployeeService) DepartmentChange(EmployeeID uint, DeptID int) er
 		if err != nil {
 			return err
 		}
-		if *employee.DefaultStatus == true {
-			service.UpdateMealStatusAsync(EmployeeID, meal.Date, true)
+		if *employee.DefaultStatusLunch == true || *employee.DefaultStatusSnacks == true {
+			service.UpdateMealStatusAsyncNew(EmployeeID, meal.Date, true, meal.MealType)
 		}
 	}
 	return nil
