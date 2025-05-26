@@ -7,4 +7,5 @@ const (
 	ENVOYER_APP_KEY    = "945a90ff19e346efbcfa26c913cd104c"
 	ENVOYER_URL        = "https://api.envoyer.vivasoftltd.com"
 	MaxRetries         = 10
+	ChannelLink        = "https://t.me/+KUQ2rfyyWQBmZTE1"
 )

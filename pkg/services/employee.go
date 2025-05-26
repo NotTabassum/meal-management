@@ -11,6 +11,7 @@ import (
 	"meal-management/pkg/domain"
 	"meal-management/pkg/models"
 	"meal-management/pkg/types"
+	"strings"
 	"time"
 )
 
@@ -458,4 +459,149 @@ func (service *EmployeeService) DepartmentChange(EmployeeID uint, DeptID int) er
 		}
 	}
 	return nil
+}
+
+func (service *EmployeeService) TelegramChannelInvitation() error {
+	subject := "Vivameal Telegram Channel"
+	body := GenerateTelegramChannelInvitationEmailBody()
+
+	employees, err := service.repo.GetEmployeeEmails()
+	if err != nil {
+		log.Println("Fetching employee emails failed:", err)
+		return err
+	}
+	log.Println(employees)
+	email := &envoyer.EmailReq{
+		EventName: "general_email",
+		//Receivers: employees,
+		Receivers: []string{"tabassumoyshee@gmail.com"},
+		Variables: []envoyer.TemplateVariable{
+			{
+				Name:  "{{.subject}}",
+				Value: subject,
+			},
+			{
+				Name:  "{{.body}}",
+				Value: body,
+			},
+		},
+	}
+	env := envoyer.New(consts.ENVOYER_URL, consts.ENVOYER_APP_KEY, consts.ENVOYER_CLIENT_KEY)
+	response, err := env.SendEmail(*email)
+	if err != nil {
+		log.Println("Error Sending Email for Holiday Deletion:", err)
+		return err
+	}
+	log.Println(response)
+	return nil
+}
+
+//func (service *HolidayService) EmailForHolidayDelete(date string) {
+//	subject := "Holiday Deleted!!"
+//	body := GenerateHolidayDeleteEmailBody(date)
+//	employees, err := service.employee.GetEmployeeEmails()
+//	if err != nil {
+//		log.Println("Fetching employee emails failed:", err)
+//		return
+//	}
+//	log.Println(employees)
+//	email := &envoyer.EmailReq{
+//		EventName: "general_email",
+//		Receivers: employees,
+//		//Receivers: []string{"tabassumoyshee@gmail.com"},
+//		Variables: []envoyer.TemplateVariable{
+//			{
+//				Name:  "{{.subject}}",
+//				Value: subject,
+//			},
+//			{
+//				Name:  "{{.body}}",
+//				Value: body,
+//			},
+//		},
+//	}
+//
+//	env := envoyer.New(consts.ENVOYER_URL, consts.ENVOYER_APP_KEY, consts.ENVOYER_CLIENT_KEY)
+//	response, err := env.SendEmail(*email)
+//	if err != nil {
+//		log.Println("Error Sending Email for Holiday Deletion:", err)
+//	}
+//	log.Println(response)
+//}
+
+func GenerateTelegramChannelInvitationEmailBody() string {
+	channelLink := consts.ChannelLink
+	template := `<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Join Our Telegram Channel</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f2f2f2;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 600px;
+            margin: 30px auto;
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        h2 {
+            color: #007bff;
+            text-align: center;
+        }
+        p {
+            font-size: 16px;
+            color: #333333;
+            line-height: 1.6;
+        }
+        .highlight {
+            font-weight: bold;
+            color: #007bff;
+        }
+        .button {
+            display: block;
+            width: fit-content;
+            margin: 20px auto;
+            background-color: #28a745;
+            color: #ffffff;
+            text-decoration: none;
+            padding: 12px 25px;
+            border-radius: 6px;
+            font-size: 16px;
+        }
+        .footer {
+            text-align: center;
+            font-size: 12px;
+            color: #888;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>Join Our Telegram Channel!</h2>
+        <p>Dear Team,</p>
+        <p>We are excited to invite you to our <span class="highlight">Meal Management Telegram Channel</span> where you’ll receive:</p>
+        <ul>
+            <li>Emmergency Notices</li>
+            <li>Reminder for Meal Updating</li>
+            <li>Everyday Meal List</li>
+        </ul>
+        <p>Stay in touch and never miss an update!</p>
+        <a href="{{CHANNEL_LINK}}" class="button">Join the Channel</a>
+        <p class="footer">This is an automated message. Please do not reply to this email.</p>
+    </div>
+
+</body>
+</html>`
+
+	return strings.Replace(template, "{{CHANNEL_LINK}}", channelLink, -1)
 }

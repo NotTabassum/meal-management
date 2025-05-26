@@ -109,16 +109,16 @@ func (service *HolidayService) DeleteHoliday(date string) error {
 func (service *HolidayService) EmailForHolidayDelete(date string) {
 	subject := "Holiday Deleted!!"
 	body := GenerateHolidayDeleteEmailBody(date)
-	//employees, err := service.employee.GetEmployeeEmails()
-	//if err != nil {
-	//	log.Println("Fetching employee emails failed:", err)
-	//	return
-	//}
-	//log.Println(employees)
+	employees, err := service.employee.GetEmployeeEmails()
+	if err != nil {
+		log.Println("Fetching employee emails failed:", err)
+		return
+	}
+	log.Println(employees)
 	email := &envoyer.EmailReq{
 		EventName: "general_email",
-		//Receivers: employees,
-		Receivers: []string{"tabassumoyshee@gmail.com"},
+		Receivers: employees,
+		//Receivers: []string{"tabassumoyshee@gmail.com"},
 		Variables: []envoyer.TemplateVariable{
 			{
 				Name:  "{{.subject}}",
