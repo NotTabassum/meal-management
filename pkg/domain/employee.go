@@ -23,6 +23,7 @@ type IEmployeeRepo interface {
 	UpdateGuestActivity(EmployeeId uint, Date string, Active bool) error
 	//GetGuestList() ([]models.Employee, error)
 	GetEmployeeEmails() ([]string, error)
+	GetEmployeeByDepartment(id int) ([]models.Employee, error)
 }
 
 type IEmployeeService interface {

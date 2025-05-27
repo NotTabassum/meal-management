@@ -30,7 +30,7 @@ func InitServe() {
 	MealPlanService := services.MealPlanServiceInstance(MealPlanRepo)
 	LoginService := services.LoginServiceInstance(LoginRepo)
 	MealActivityService := services.MealActivityServiceInstance(MealActivityRepo, MealPlanService, EmployeeService)
-	DeptService := services.DeptServiceInstance(DeptRepo)
+	DeptService := services.DeptServiceInstance(DeptRepo, EmployeeRepo)
 	ExtraMealService := services.ExtraMealServiceInstance(ExtraMealRepo)
 	PreferenceService := services.PreferenceServiceInstance(PreferenceRepo)
 	HolidayService := services.HolidayServiceInstance(HolidayRepo, EmployeeRepo, MealActivityRepo)

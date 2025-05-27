@@ -747,7 +747,7 @@ func TelegramMessage(e echo.Context) error {
 		return e.JSON(http.StatusForbidden, map[string]string{"res": "Unauthorized"})
 	}
 
-	msg := "Hello I am a bot from Vivasoft Meal Management"
+	msg := "Hello I am a bot from Vivasoft Rajshahi Meal Management"
 	err = middleware.SendTelegramMessage(msg)
 	if err != nil {
 		return err

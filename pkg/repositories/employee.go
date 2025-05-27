@@ -161,3 +161,14 @@ func (repo *EmployeeRepo) GetEmployeeEmails() ([]string, error) {
 	}
 	return emails, nil
 }
+
+func (repo *EmployeeRepo) GetEmployeeByDepartment(id int) ([]models.Employee, error) {
+	var employee []models.Employee
+	if err := repo.db.Where("dept_id = ?", id).Find(&employee).Error; err != nil {
+		return nil, err
+	}
+	if len(employee) == 0 {
+		return nil, nil
+	}
+	return employee, nil
+}
