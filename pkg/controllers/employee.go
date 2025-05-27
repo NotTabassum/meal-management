@@ -101,13 +101,7 @@ func CreateEmployee(e echo.Context) error {
 	defStatusSnacks := e.FormValue("default_status_snacks") == "true"
 
 	//guest handling
-	Permanent := e.FormValue("is_permanent") == "true"
-	var Active bool
-	if Permanent == true {
-		Active = true
-	} else {
-		Active = e.FormValue("is_active") == "true"
-	}
+	Active := true
 	//fmt.Println(Permanent, Active)
 
 	reqEmployee := &models.Employee{
@@ -123,7 +117,6 @@ func CreateEmployee(e echo.Context) error {
 		IsAdmin:             e.FormValue("is_admin") == "true",
 		Photo:               dstPath,
 		PreferenceFood:      emptyJSONArray,
-		IsPermanent:         &Permanent,
 		IsActive:            &Active,
 		Roll:                e.FormValue("roll"),
 		Designation:         e.FormValue("designation"),
@@ -387,14 +380,14 @@ func UpdateEmployee(e echo.Context) error {
 	}
 
 	//guest
-	PermGiven := e.FormValue("is_permanent")
-	var Permanent *bool
-	if PermGiven == "" {
-		Permanent = employee.IsPermanent
-	} else {
-		val := PermGiven == "true"
-		Permanent = &val
-	}
+	//PermGiven := e.FormValue("is_permanent")
+	//var Permanent *bool
+	//if PermGiven == "" {
+	//	Permanent = employee.IsPermanent
+	//} else {
+	//	val := PermGiven == "true"
+	//	Permanent = &val
+	//}
 
 	var Active *bool
 	ActiveGiven := e.FormValue("is_active")
@@ -404,9 +397,9 @@ func UpdateEmployee(e echo.Context) error {
 		Active = new(bool)
 		*Active = ActiveGiven == "true"
 	}
-	if Permanent != nil && *Permanent == true {
-		*Active = true
-	}
+	//if Permanent != nil && *Permanent == true {
+	//	*Active = true
+	//}
 
 	if Active != nil && Active != employee.IsActive {
 		date := time.Now().Format(consts.DateFormat)
@@ -427,7 +420,7 @@ func UpdateEmployee(e echo.Context) error {
 		Email = existingEmployee.Email
 		DeptID = existingEmployee.DeptID
 		Admin = existingEmployee.IsAdmin
-		Permanent = existingEmployee.IsPermanent
+		//Permanent = existingEmployee.IsPermanent
 		Active = existingEmployee.IsActive
 	}
 
@@ -446,10 +439,10 @@ func UpdateEmployee(e echo.Context) error {
 		Photo:               dstPath,
 		StatusUpdated:       true,
 		PreferenceFood:      preferenceFoodJSON,
-		IsPermanent:         Permanent,
-		IsActive:            Active,
-		Designation:         DesignationGiven,
-		Roll:                RollGiven,
+		//IsPermanent:         Permanent,
+		IsActive:    Active,
+		Designation: DesignationGiven,
+		Roll:        RollGiven,
 	}
 
 	if err := EmployeeService.UpdateEmployee(updatedEmployee); err != nil {
@@ -713,7 +706,31 @@ func PasswordChange(e echo.Context) error {
 	return e.JSON(http.StatusCreated, "password was updated successfully")
 }
 
-func GetGuestList(e echo.Context) error {
+//func GetGuestList(e echo.Context) error {
+//	authorizationHeader := e.Request().Header.Get("Authorization")
+//	if authorizationHeader == "" {
+//		return e.JSON(http.StatusUnauthorized, map[string]string{"res": "Authorization header is empty"})
+//	}
+//
+//	_, isAdmin, err := middleware.ParseJWT(authorizationHeader)
+//	if err != nil {
+//		if err.Error() == "token expired" {
+//			return e.JSON(http.StatusUnauthorized, map[string]string{"error": "Token expired"})
+//		}
+//		return e.JSON(http.StatusUnauthorized, map[string]string{"error": err.Error()})
+//	}
+//	if !isAdmin {
+//		return e.JSON(http.StatusForbidden, map[string]string{"res": "Unauthorized"})
+//	}
+//
+//	guestList, err := EmployeeService.GetGuestList()
+//	if err != nil {
+//		return e.JSON(http.StatusInternalServerError, err.Error())
+//	}
+//	return e.JSON(http.StatusOK, guestList)
+//}
+
+func TelegramMessage(e echo.Context) error {
 	authorizationHeader := e.Request().Header.Get("Authorization")
 	if authorizationHeader == "" {
 		return e.JSON(http.StatusUnauthorized, map[string]string{"res": "Authorization header is empty"})
@@ -730,19 +747,8 @@ func GetGuestList(e echo.Context) error {
 		return e.JSON(http.StatusForbidden, map[string]string{"res": "Unauthorized"})
 	}
 
-	guestList, err := EmployeeService.GetGuestList()
-	if err != nil {
-		return e.JSON(http.StatusInternalServerError, err.Error())
-	}
-	return e.JSON(http.StatusOK, guestList)
-}
-
-func TelegramMessage(e echo.Context) error {
-	//fmt.Println("Telegram API response status code:", resp.StatusCode())
-	//fmt.Println("Telegram API response body:", resp.String())
-
-	msg := "Hello I am a bot and I am from Vivasoft Meal Management"
-	err := middleware.SendTelegramMessage(msg)
+	msg := "Hello I am a bot from Vivasoft Meal Management"
+	err = middleware.SendTelegramMessage(msg)
 	if err != nil {
 		return err
 	}

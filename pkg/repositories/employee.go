@@ -146,13 +146,13 @@ func (repo *EmployeeRepo) UpdateGuestActivity(EmployeeId uint, Date string, Acti
 	return nil
 }
 
-func (repo *EmployeeRepo) GetGuestList() ([]models.Employee, error) {
-	var guestList []models.Employee
-	if err := repo.db.Where("is_permanent = ?", false).Find(&guestList).Error; err != nil {
-		return nil, err
-	}
-	return guestList, nil
-}
+//func (repo *EmployeeRepo) GetGuestList() ([]models.Employee, error) {
+//	var guestList []models.Employee
+//	if err := repo.db.Where("is_permanent = ?", false).Find(&guestList).Error; err != nil {
+//		return nil, err
+//	}
+//	return guestList, nil
+//}
 
 func (repo *EmployeeRepo) GetEmployeeEmails() ([]string, error) {
 	var emails []string

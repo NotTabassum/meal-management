@@ -13,7 +13,7 @@ func EmployeeRoutes(e *echo.Echo) {
 	emp.GET("/hash", controllers.MakeHash)
 	emp.GET("/photo", controllers.GetPhoto)
 	emp.GET("", controllers.GetEmployee)
-	emp.GET("/guest-list", controllers.GetGuestList)
+	//emp.GET("/guest-list", controllers.GetGuestList)
 	//emp.PATCH("/default-status", controllers.UpdateDefaultStatus)
 	emp.PATCH("/default-status", controllers.UpdateDefaultStatusNew)
 	emp.PATCH("/forget-password", controllers.ForgottenPassword)

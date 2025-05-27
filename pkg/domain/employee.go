@@ -21,7 +21,7 @@ type IEmployeeRepo interface {
 	UpdateMealStatusNew(employeeID uint, date string, newStatus bool, mealType int) error
 	MarkMealStatusUpdateComplete(EmployeeId uint) error
 	UpdateGuestActivity(EmployeeId uint, Date string, Active bool) error
-	GetGuestList() ([]models.Employee, error)
+	//GetGuestList() ([]models.Employee, error)
 	GetEmployeeEmails() ([]string, error)
 }
 
@@ -39,7 +39,7 @@ type IEmployeeService interface {
 	MakeHash() error
 	DeleteMealActivity(date string, EmployeeId uint) error
 	UpdateGuestActivity(EmployeeId uint, date string, Active bool)
-	GetGuestList() ([]types.EmployeeRequest, error)
+	//GetGuestList() ([]types.EmployeeRequest, error)
 	DepartmentChange(EmployeeID uint, DeptID int) error
 	TelegramChannelInvitation() error
 }

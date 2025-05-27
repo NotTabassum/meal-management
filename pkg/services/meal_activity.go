@@ -52,7 +52,7 @@ func (service *MealActivityService) GenerateMealActivities() error {
 		//	defaultStatus = true
 		//}
 
-		if *(emp.IsPermanent) == false && *(emp.IsActive) == false {
+		if *(emp.IsActive) == false {
 			activeStatus = false
 		}
 		department := emp.DeptID
@@ -462,7 +462,6 @@ func (service *MealActivityService) LunchSummaryForEmail() error {
 	email := &envoyer.EmailReq{
 		EventName: "general_email",
 		Receivers: []string{"ashikur.rahman@vivasoftltd.com"},
-		//Receivers: []string{"tabassumoyshee@gmail.com"},
 		Variables: []envoyer.TemplateVariable{
 			{
 				Name:  "{{.subject}}",
@@ -759,7 +758,6 @@ func (service *MealActivityService) SnackSummaryForEmail() error {
 	email := &envoyer.EmailReq{
 		EventName: "general_email",
 		Receivers: []string{"ashikur.rahman@vivasoftltd.com"},
-		//Receivers: []string{"tabassumoyshee@gmail.com"},
 		Variables: []envoyer.TemplateVariable{
 			{
 				Name:  "{{.subject}}",

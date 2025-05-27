@@ -60,9 +60,9 @@ func (service *EmployeeService) GetEmployee() ([]types.EmployeeRequest, error) {
 	allEmployees := []types.EmployeeRequest{}
 	employee := service.repo.GetEmployee()
 	for _, val := range employee {
-		if *val.IsPermanent == false {
-			continue
-		}
+		//if *val.IsPermanent == false {
+		//	continue
+		//}
 		dept, err := service.repo.GetDepartmentById(val.DeptID)
 		if err != nil {
 			return nil, err
@@ -81,9 +81,9 @@ func (service *EmployeeService) GetEmployee() ([]types.EmployeeRequest, error) {
 			IsAdmin:             val.IsAdmin,
 			PreferenceFood:      val.PreferenceFood,
 			IsActive:            *val.IsActive,
-			IsPermanent:         *val.IsPermanent,
-			Roll:                val.Roll,
-			Designation:         val.Designation,
+			//IsPermanent:         *val.IsPermanent,
+			Roll:        val.Roll,
+			Designation: val.Designation,
 		})
 	}
 	return allEmployees, nil
@@ -138,11 +138,11 @@ func (service *EmployeeService) GetEmployeeWithEmployeeID(EmployeeID uint) (mode
 		DefaultStatusSnacks: employee.DefaultStatusSnacks,
 		IsAdmin:             employee.IsAdmin,
 		Photo:               employee.Photo,
-		IsPermanent:         employee.IsPermanent,
-		IsActive:            employee.IsActive,
-		Designation:         employee.Designation,
-		Roll:                employee.Roll,
-		PreferenceFood:      employee.PreferenceFood,
+		//IsPermanent:         employee.IsPermanent,
+		IsActive:       employee.IsActive,
+		Designation:    employee.Designation,
+		Roll:           employee.Roll,
+		PreferenceFood: employee.PreferenceFood,
 	}
 	return allEmployees, nil
 }
@@ -370,33 +370,33 @@ func (service *EmployeeService) UpdateGuestActivity(EmployeeId uint, date string
 	}
 }
 
-func (service *EmployeeService) GetGuestList() ([]types.EmployeeRequest, error) {
-	guestList, err := service.repo.GetGuestList()
-	if err != nil {
-		return nil, err
-	}
-	var guestRequests []types.EmployeeRequest
-	for _, guest := range guestList {
-		var temp types.EmployeeRequest
-		temp.EmployeeId = guest.EmployeeId
-		temp.Name = guest.Name
-		temp.Email = guest.Email
-		temp.PhoneNumber = guest.PhoneNumber
-		temp.DeptName = guest.PhoneNumber
-		temp.Remarks = guest.Remarks
-		//temp.DefaultStatus = *guest.DefaultStatus
-		temp.DefaultStatusLunch = *guest.DefaultStatusLunch
-		temp.DefaultStatusSnacks = *guest.DefaultStatusSnacks
-		temp.IsAdmin = guest.IsAdmin
-		temp.IsPermanent = *guest.IsPermanent
-		temp.IsActive = *guest.IsActive
-		temp.Roll = guest.Roll
-		temp.Designation = guest.Designation
-		temp.PreferenceFood = guest.PreferenceFood
-		guestRequests = append(guestRequests, temp)
-	}
-	return guestRequests, nil
-}
+//func (service *EmployeeService) GetGuestList() ([]types.EmployeeRequest, error) {
+//	guestList, err := service.repo.GetGuestList()
+//	if err != nil {
+//		return nil, err
+//	}
+//	var guestRequests []types.EmployeeRequest
+//	for _, guest := range guestList {
+//		var temp types.EmployeeRequest
+//		temp.EmployeeId = guest.EmployeeId
+//		temp.Name = guest.Name
+//		temp.Email = guest.Email
+//		temp.PhoneNumber = guest.PhoneNumber
+//		temp.DeptName = guest.PhoneNumber
+//		temp.Remarks = guest.Remarks
+//		//temp.DefaultStatus = *guest.DefaultStatus
+//		temp.DefaultStatusLunch = *guest.DefaultStatusLunch
+//		temp.DefaultStatusSnacks = *guest.DefaultStatusSnacks
+//		temp.IsAdmin = guest.IsAdmin
+//		temp.IsPermanent = *guest.IsPermanent
+//		temp.IsActive = *guest.IsActive
+//		temp.Roll = guest.Roll
+//		temp.Designation = guest.Designation
+//		temp.PreferenceFood = guest.PreferenceFood
+//		guestRequests = append(guestRequests, temp)
+//	}
+//	return guestRequests, nil
+//}
 
 func (service *EmployeeService) DepartmentChange(EmployeeID uint, DeptID int) error {
 	employee, err := service.repo.GetSpecificEmployee(EmployeeID)
