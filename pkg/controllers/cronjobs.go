@@ -9,7 +9,7 @@ import (
 
 func CronJob() {
 	SERVER := config.LocalConfig.SERVER
-	if SERVER == "STAGING" {
+	if SERVER == "STAGING" || SERVER == "LOCAL" {
 		return
 	}
 	loc, _ := time.LoadLocation("Asia/Dhaka")

@@ -1026,7 +1026,6 @@ func (service *MealActivityService) MealSummaryForGraph(monthCount int) ([]types
 	//startDate := time.Now().AddDate(0, -(monthCount - 1 - monthCount), 0).String()
 	endDate := time.Now().Format(consts.DateFormat)
 
-	fmt.Println(startDate, endDate)
 	mealActivity, err := service.repo.MealSummaryForGraph(startDate, endDate)
 	if err != nil {
 		return []types.MealSummaryForGraph{}, nil
@@ -1057,7 +1056,6 @@ func (service *MealActivityService) MealSummaryForGraph(monthCount int) ([]types
 			continue
 		}
 
-		fmt.Println("monthindex: ", monthIndex, date)
 		count := 0
 		if *meal.Status {
 			count = 1
@@ -1092,7 +1090,6 @@ func (service *MealActivityService) MealSummaryForGraph(monthCount int) ([]types
 		response[monthIndex].Lunch += meal.LunchCount
 		response[monthIndex].Snack += meal.SnackCount
 	}
-	fmt.Println(response)
 	return response, nil
 }
 
