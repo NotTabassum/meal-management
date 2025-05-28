@@ -174,6 +174,9 @@ func (service *EmployeeService) UpdateDefaultStatusNew(EmployeeId uint, date str
 	if err != nil {
 		return err
 	}
+	if *employee.IsActive == false {
+		return errors.New("employee is not active")
+	}
 	//employee.DefaultStatus = &status
 	if mealType == 1 {
 		employee.DefaultStatusLunch = &status
