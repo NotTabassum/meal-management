@@ -466,19 +466,19 @@ func (service *EmployeeService) DepartmentChange(EmployeeID uint, DeptID int) er
 	return nil
 }
 
-func (service *EmployeeService) TelegramChannelInvitation() error {
+func (service *EmployeeService) TelegramChannelInvitation(emailgiven string) error {
 	subject := "Vivameal Telegram Channel"
 	body := GenerateTelegramChannelInvitationEmailBody()
 
-	employees, err := service.repo.GetEmployeeEmails()
-	if err != nil {
-		log.Println("Fetching employee emails failed:", err)
-		return err
-	}
-	log.Println(employees)
+	//employees, err := service.repo.GetEmployeeEmails()
+	//if err != nil {
+	//	log.Println("Fetching employee emails failed:", err)
+	//	return err
+	//}
+	//log.Println(employees)
 	email := &envoyer.EmailReq{
 		EventName: "general_email",
-		Receivers: employees,
+		Receivers: []string{emailgiven},
 		Variables: []envoyer.TemplateVariable{
 			{
 				Name:  "{{.subject}}",

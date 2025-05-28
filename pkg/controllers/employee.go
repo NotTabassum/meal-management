@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"github.com/labstack/echo/v4"
 	"gorm.io/datatypes"
@@ -204,6 +205,10 @@ func CreateEmployee(e echo.Context) error {
 	//if err != nil {
 	//	return e.JSON(http.StatusInternalServerError, err.Error())
 	//}
+	err = EmployeeService.TelegramChannelInvitation(reqEmployee.Email)
+	if err != nil {
+		return errors.New("Telegram channel invitation failed")
+	}
 	return e.JSON(http.StatusCreated, "Employee created successfully")
 
 }
@@ -755,26 +760,26 @@ func TelegramMessage(e echo.Context) error {
 	return e.JSON(http.StatusCreated, msg)
 }
 
-func TelegramChannelInvitation(e echo.Context) error {
-	authorizationHeader := e.Request().Header.Get("Authorization")
-	if authorizationHeader == "" {
-		return e.JSON(http.StatusUnauthorized, map[string]string{"res": "Authorization header is empty"})
-	}
-
-	_, isAdmin, err := middleware.ParseJWT(authorizationHeader)
-	if err != nil {
-		if err.Error() == "token expired" {
-			return e.JSON(http.StatusUnauthorized, map[string]string{"error": "Token expired"})
-		}
-		return e.JSON(http.StatusUnauthorized, map[string]string{"error": err.Error()})
-	}
-	if !isAdmin {
-		return e.JSON(http.StatusForbidden, map[string]string{"res": "Unauthorized"})
-	}
-
-	err = EmployeeService.TelegramChannelInvitation()
-	if err != nil {
-		return e.JSON(http.StatusInternalServerError, err.Error())
-	}
-	return e.JSON(http.StatusCreated, "invitation was sent successfully")
-}
+//func TelegramChannelInvitation(e echo.Context) error { //all
+//	authorizationHeader := e.Request().Header.Get("Authorization")
+//	if authorizationHeader == "" {
+//		return e.JSON(http.StatusUnauthorized, map[string]string{"res": "Authorization header is empty"})
+//	}
+//
+//	_, isAdmin, err := middleware.ParseJWT(authorizationHeader)
+//	if err != nil {
+//		if err.Error() == "token expired" {
+//			return e.JSON(http.StatusUnauthorized, map[string]string{"error": "Token expired"})
+//		}
+//		return e.JSON(http.StatusUnauthorized, map[string]string{"error": err.Error()})
+//	}
+//	if !isAdmin {
+//		return e.JSON(http.StatusForbidden, map[string]string{"res": "Unauthorized"})
+//	}
+//
+//	err = EmployeeService.TelegramChannelInvitation()
+//	if err != nil {
+//		return e.JSON(http.StatusInternalServerError, err.Error())
+//	}
+//	return e.JSON(http.StatusCreated, "invitation was sent successfully")
+//}

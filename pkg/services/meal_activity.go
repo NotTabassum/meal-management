@@ -152,6 +152,13 @@ func (service *MealActivityService) GetMealActivityById(date string, mealType in
 }
 
 func (service *MealActivityService) UpdateMealActivity(mealActivity *models.MealActivity) error {
+	emp, err := service.employee.GetEmployeeWithEmployeeID(mealActivity.EmployeeId)
+	if err != nil {
+		return err
+	}
+	if *emp.IsActive == false {
+		return errors.New("Employee is not active")
+	}
 	if err := service.repo.UpdateMealActivity(mealActivity); err != nil {
 		return errors.New("failed to update meal activity")
 	}
