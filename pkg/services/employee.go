@@ -478,8 +478,7 @@ func (service *EmployeeService) TelegramChannelInvitation() error {
 	log.Println(employees)
 	email := &envoyer.EmailReq{
 		EventName: "general_email",
-		//Receivers: employees,
-		Receivers: []string{"tabassumoyshee@gmail.com"},
+		Receivers: employees,
 		Variables: []envoyer.TemplateVariable{
 			{
 				Name:  "{{.subject}}",
